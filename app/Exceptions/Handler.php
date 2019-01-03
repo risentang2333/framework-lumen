@@ -45,6 +45,7 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $e)
     {
+        // send_data_json("00000","服务器错误");
         return parent::render($request, $e);
     }
 }

@@ -83,4 +83,21 @@ if (!function_exists('send_get_request')) {
         return $ret;
     }
 }
+
+if (!function_exists('send_data_json')) {
+    /**
+     * PHP发送Json对象数据, 发送HTTP请求
+     *
+     * @param string $url 请求地址
+     * @param array $data 发送数据
+     * @return String
+     */
+    function send_data_json($code, $message = "", $data = []) {
+        die(json_encode([
+            "code" => $code,
+            "message" => $message,
+            "data" => $data
+        ]));
+    }
+}
     

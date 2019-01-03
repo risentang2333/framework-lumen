@@ -28,28 +28,28 @@ class UserController extends Controller
         // 验证码，暂时没有
         $captcha = $request->input('captcha','');
         if ($name == '') {
-            return '请输入姓名';
+            send_data_json(10000,"请输入姓名");
         }
         if ($phone == '') {
-            return '请输入手机号';
+            send_data_json(10001,"请输入手机号");
         }
         if ($password == '') {
-            return '请输入密码';
+            send_data_json(10002,"请输入密码");
         }
         if ($rePassword == '') {
-            return '请再次确认密码';
+            send_data_json(10003,"请再次确认密码");
         }
         if ($password != $rePassword) {
+            send_data_json(10004,"确认密码错误");
             return '确认密码错误';
         }
         if ($userService->hasRegisterByPhone($phone)) {
-            return '该电话已经被注册';
+            send_data_json(10005,"该电话已经被注册");
         }
-        if ($userService->register($name, $phone, $password)) {
-            return '注册成功';
-        } else {
-            return '注册失败';
-        }
+
+        $userService->register($name, $phone, $password);
+
+        send_data_json(0,"注册成功");
     }
 
     /**
@@ -66,17 +66,17 @@ class UserController extends Controller
         // 密码
         $password = $request->input('password','');
         if ($phone == '') {
-            return '请输入手机号';
+            send_data_json(10001,"请输入手机号");
         }
         if ($password == '') {
-            return '请输入密码';
+            send_data_json(10002,"请输入密码");
         }
         if (!$userService->hasRegisterByPhone($phone)) {
-            return '该电话号未注册';
+            send_data_json(10006,"该电话号未注册");
         }
         $token = $userService->login($phone, $password);
         
-        return $token;
+        send_data_json(0,"登录成功",["token" => $token]);
     }
 
     public function checkToken(Request $request)
