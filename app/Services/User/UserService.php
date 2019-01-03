@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Api;
+namespace App\Services\User;
 
 use App\Entities\Users;
 use Illuminate\Support\Facades\DB;

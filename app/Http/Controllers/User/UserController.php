@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
-use App\Services\Api\UserService;
+use App\Services\User\UserService;
 
 class UserController extends Controller
 {

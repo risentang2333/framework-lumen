@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,12 +11,15 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::get('/index', 'ExampleController@index');
+Route::group(['prefix' => 'user','namespace' => 'User'], function () {
+    
+    Route::post('/register', 'UserController@register');
 
-Route::group(['prefix' => 'api'], function () {
-    Route::group(['prefix' => 'user','namespace' => 'Api'], function () {
-        Route::post('/register', 'UserController@register');
-        Route::post('/login', 'UserController@login');
-    });
+    Route::post('/login', 'UserController@login');
 });
 
+Route::group(['prefix' => 'user','namespace' => 'User','middleware' => 'user'], function () {
+    Route::get('/haha', function () {
+        echo "hahah";
+    });
+});

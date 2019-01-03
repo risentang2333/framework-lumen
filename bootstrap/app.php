@@ -63,9 +63,12 @@ $app->singleton(
 //    App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+$app->routeMiddleware([
+    // 'auth' => App\Http\Middleware\Authenticate::class,
+    'user' => App\Http\Middleware\User::class,
+    'admin' => App\Http\Middleware\Admin::class,
+    'worker' => App\Http\Middleware\Worker::class,
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -97,7 +100,8 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__.'/../routes/admin.php';
-    require __DIR__.'/../routes/api.php';
+    require __DIR__.'/../routes/user.php';
+    require __DIR__.'/../routes/worker.php';
 });
 
 return $app;
