@@ -13,9 +13,9 @@
 
 Route::group(['prefix' => 'user','namespace' => 'User'], function () {
     
-    Route::get('/register', 'UserController@register');
+    Route::post('/register', 'UserController@register');
 
-    Route::get('/login', 'UserController@login');
+    Route::post('/login', 'UserController@login');
 });
 
 Route::group(['prefix' => 'user','namespace' => 'User','middleware' => 'user'], function () {
