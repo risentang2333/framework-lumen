@@ -5,7 +5,7 @@ namespace App\Services\User;
 use App\Entities\Users;
 use Illuminate\Support\Facades\DB;
 
-class UserService 
+class LoginService 
 {
     public function hasRegisterByPhone($phone)
     {
@@ -21,7 +21,7 @@ class UserService
     public function register($name, $phone, $password)
     {
         // 加密后的密码
-        $encryptPwd = md5('service'.$password);
+        $encryptPwd = md5('user'.$password);
         
         $user = new Users;
         $user->name = $name;
@@ -37,7 +37,7 @@ class UserService
         // token
         $token = md5(time().$phone);
         // 加密后的密码
-        $encryptPwd = md5('service'.$password);
+        $encryptPwd = md5('user'.$password);
 
         $user = Users::where(['phone'=>$phone, 'password'=>$encryptPwd])->first();
         if (empty($user)) {
@@ -48,18 +48,5 @@ class UserService
             $user->save();
             return $user->token;
         }
-    }
-
-    public function checkToken($token)
-    {
-        $user = Users::select(['id','name','phone','token','icon'])->where('token', $token)->first();
-
-        if (empty($user)) {
-            die('token不存在');
-        }
-        if (time() > $user->expire) {
-            die('token已过期');
-        }
-        return $user->toArray();
     }
 }

@@ -13,13 +13,14 @@
 
 Route::group(['prefix' => 'user','namespace' => 'User'], function () {
     
-    Route::post('/register', 'UserController@register');
+    Route::post('/register', 'LoginController@register');
 
-    Route::post('/login', 'UserController@login');
+    Route::post('/login', 'LoginController@login');
 });
 
 Route::group(['prefix' => 'user','namespace' => 'User','middleware' => 'user'], function () {
     Route::get('/haha', function () {
-        echo "hahah";
+        // send_data_json(12345,"hahhah");
+        return "hahaha";
     });
 });

@@ -21,7 +21,6 @@ class User
             die('请传入token');
         }
         $user = DB::table('users')->select(['id','name','phone','token','icon'])->where('token', $token)->first();
-        dd($user);
         if (empty($user)) {
             die('token不存在');
         }

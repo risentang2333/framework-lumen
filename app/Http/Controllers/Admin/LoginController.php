@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
-use App\Services\User\UserService;
+use App\Services\Admin\PermissionService;
 
-class UserController extends Controller
+class PermissionController extends Controller
 {
     /**
      * 会员注册
@@ -53,7 +53,8 @@ class UserController extends Controller
     }
 
     /**
-     * 登陆
+     * 
+     * 管理员登陆
      *
      * @param Request $request
      * @return string
@@ -77,13 +78,5 @@ class UserController extends Controller
         $token = $userService->login($phone, $password);
         
         send_data_json(0,"登录成功",["token" => $token]);
-    }
-
-    public function checkToken(Request $request)
-    {
-        $userService = new UserService;
-        $token = $request->input('token','');
-        
-        return $userService->checkToken($token);
     }
 }

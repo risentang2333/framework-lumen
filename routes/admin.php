@@ -10,9 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-// $router->get('/', function () use ($router) {
-//     return $router->app->version();
-// });
 Route::get('/', function () {
     return "hello world";
 });

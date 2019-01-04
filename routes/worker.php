@@ -10,20 +10,16 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-// Route::group(['prefix' => 'user','namespace' => 'Api'], function () {
+Route::group(['prefix' => 'worker','namespace' => 'Worker'], function () {
+    
+    Route::post('/register', 'LoginController@register');
 
-//     Route::group(['prefix' => 'user','middleware' => 'api'], function () {
-//         Route::get('/haha', function () {
-//             echo "hahah";
-//         });
-//     });
+    Route::post('/login', 'LoginController@login');
+});
 
-//     Route::group(['prefix' => 'user'], function () {
-
-//         Route::post('/register', 'UserController@register');
-
-//         Route::post('/login', 'UserController@login');
-
-//     });
-// });
+Route::group(['prefix' => 'worker','namespace' => 'Worker','middleware' => 'worker'], function () {
+    Route::get('/haha', function () {
+        return "hahaha";
+    });
+});
 
