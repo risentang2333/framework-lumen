@@ -13,7 +13,11 @@
 Route::get('/', function () {
     return "hello world";
 });
-Route::group(['prefix' => 'permission','namespace' => 'Admin'], function () {
+Route::group(['namespace' => 'Admin'], function () {
+    Route::get('/login', 'LoginController@login');
+});
+
+Route::group(['prefix' => 'permission','namespace' => 'Admin','middleware' => 'admin'], function () {
     // 获取菜单
     Route::get('/getMenu', 'PermissionController@getMenu');
     // 获取角色列表
@@ -22,5 +26,5 @@ Route::group(['prefix' => 'permission','namespace' => 'Admin'], function () {
     Route::post('/allotPermission', 'PermissionController@allotPermission');
 
     Route::get('/editPermission', 'PermissionController@editPermission');
-    
+
 });

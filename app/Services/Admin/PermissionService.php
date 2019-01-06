@@ -74,6 +74,22 @@ class PermissionService
         return $data;
     }
 
+    public function getPermissionByManagerId($id)
+    {
+        $roleIds = RoleManager::where('manager_id',$id)->pluck('role_id')->toArray();
+
+        $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
+
+        $data = Permissions::select(['id','name','parent_id'])
+                        ->whereIn('id',$permissionIds)
+                        ->where('is_display',1)
+                        ->orderBy('sort_order','ASC')
+                        ->get()
+                        ->keyBy('id')
+                        ->toArray();
+        return $data;
+    }
+
     /**
      * 获取所有权限
      *
