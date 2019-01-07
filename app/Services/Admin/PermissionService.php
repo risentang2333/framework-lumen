@@ -190,6 +190,38 @@ class PermissionService
         return true;
     }
 
+    public function getManagerById($id)
+    {
+        $manager = Managers::select(['id','name'])->where('id',$id)->first();
+        if (empty($manager)) {
+            die('没有改管理员');
+        }
+        return $manager;
+    }
+
+    public function editManager($id, $name, $password)
+    {
+        $manager = Managers::find($id);
+
+        $manager->name = $name;
+        if ($password != '') {
+            // 加密后密码
+            $encryptPwd = md5('manager'.$password);
+            // 新token
+            $accessToken = md5(time().$manager->account);
+            // 新刷新token
+            $refreshToken = md5(time().'refresh'.$manager->account);
+
+            $manager->password = $encryptPwd;
+            $manager->access_token = $accessToken;
+            $manager->refresh_token = $refreshToken;
+        }
+
+        return $manager->save();
+    }
+
+    
+
     public function getManagerList($pageNumber = 20)
     {
         $data = Managers::paginate($pageNumber)->toArray();

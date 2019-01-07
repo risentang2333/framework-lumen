@@ -24,9 +24,13 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     // 获取管理员列表
     Route::get('/getManagerList', 'PermissionController@getManagerList');
     // 编辑管理员角色绑定
-    Route::get('/editManagerRole', 'PermissionController@editManagerRole');
+    Route::get('/getManagerRole', 'PermissionController@getManagerRole');
     // 分配绑定管理员角色
-    Route::post('/allotManagerRole', 'PermissionController@allotManagerRole');
+    Route::post('/editManagerRole', 'PermissionController@editManagerRole');
+    // 获取管理员信息
+    Route::get('/getManager', 'PermissionController@getManager');
+
+    Route::get('/editManager', 'PermissionController@editManager');
     // 获取角色列表
     Route::get('/getRoleList', 'PermissionController@getRoleList');
     // 分配权限

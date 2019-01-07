@@ -28,7 +28,7 @@ class PermissionController extends Controller
      * @param Request $request
      * @return void
      */
-    public function editManagerRole(Request $request)
+    public function getManagerRole(Request $request)
     {
         $permissionService = new PermissionService;
         // 管理员id
@@ -49,7 +49,7 @@ class PermissionController extends Controller
         return send_data_json(0,"获取成功",$data);
     }
 
-    public function allotManagerRole(Request $request)
+    public function editManagerRole(Request $request)
     {
         $permissionService = new PermissionService;
         
@@ -70,6 +70,60 @@ class PermissionController extends Controller
 
     }
 
+    public function getManager(Request $request)
+    {
+        $permissionService = new PermissionService;
+        $id = $request->input('id', '');
+        if ($id == '') {
+            die("缺少id");
+        }
+        $manager = $permissionService->getManagerById($id);
+
+        return send_data_json(0,"获取成功",$manager);
+    }
+
+    public function editManager(Request $request)
+    {
+        $permissionService = new PermissionService;
+        // 管理员id
+        $id = $request->input('id', '');
+        // 管理员姓名
+        $name = $request->input('name', '');
+        // 新密码
+        $password = $request->input('password', '');
+        // 二次输入密码
+        $repassword = $request->input('repassword', '');
+        if ($id == '') {
+            die("缺少id");
+        }
+        if ($name == '') {
+            die("缺少姓名");
+        }
+        if ($password == '' && $repassword != '') {
+            die("缺少新密码");
+        }
+        if ($repassword == '' && $password != '') {
+            die("缺少二次密码");
+        }
+        if ($password != $repassword) {
+            die("密码确认错误");
+        }
+        $permissionService->editManager($id, $name, $password);
+
+        return send_data_json(0,"编辑成功");
+    }
+
+    public function getRoleList()
+    {
+        $permissionService = new PermissionService;
+
+        $list = $permissionService->getRoleList(true, 20);
+
+        return $list;
+    }
+
+    
+
     public function getMenu()
     {
         $permissionService = new PermissionService;
@@ -86,14 +140,7 @@ class PermissionController extends Controller
         return $tree;
     }
 
-    public function getRoleList()
-    {
-        $permissionService = new PermissionService;
-
-        $list = $permissionService->getRoleList($paginate);
-
-        return $list;
-    }
+    
 
     public function getPermissionList()
     {
