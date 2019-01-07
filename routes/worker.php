@@ -10,14 +10,14 @@
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::group(['prefix' => 'worker','namespace' => 'Worker'], function () {
+Route::group(['prefix' => 'worker'], function () {
     
     Route::post('/register', 'LoginController@register');
 
     Route::post('/login', 'LoginController@login');
 });
 
-Route::group(['prefix' => 'worker','namespace' => 'Worker','middleware' => 'worker'], function () {
+Route::group(['prefix' => 'worker','middleware' => 'worker'], function () {
     Route::get('/haha', function () {
         return "hahaha";
     });

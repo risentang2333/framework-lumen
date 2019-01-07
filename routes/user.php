@@ -11,14 +11,14 @@
 |
 */
 
-Route::group(['prefix' => 'user','namespace' => 'User'], function () {
+Route::group(['prefix' => 'user'], function () {
     
     Route::post('/register', 'LoginController@register');
 
     Route::post('/login', 'LoginController@login');
 });
 
-Route::group(['prefix' => 'user','namespace' => 'User','middleware' => 'user'], function () {
+Route::group(['prefix' => 'user','middleware' => 'user'], function () {
     Route::get('/haha', function () {
         // send_data_json(12345,"hahhah");
         return "hahaha";

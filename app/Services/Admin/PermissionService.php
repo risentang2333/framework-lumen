@@ -160,16 +160,39 @@ class PermissionService
         return $selection;
     }
 
-    public function getRoleList()
+    public function getRoleList($paginate = true, $pageNumber = 20)
     {
         $data = Roles::get()->toArray();
 
         return $data;
     }
 
-    public function getManagerList()
+    /**
+     * 重新分配用户和角色关系
+     *
+     * @param [type] $id
+     * @param [type] $role
+     * @return void
+     */
+    public function allotManagerRole($id, $role)
     {
-        $data = Managers::get()->toArray();
+        DB::transaction(function () use ($id, $role){
+            // 先把关系表中与管理员id有关的删除
+            DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id");
+            // 重新生成新关系
+            foreach ($role as $value) {
+                DB::table('role_manager')->insert([
+                    'manager_id' => $id,
+                    'role_id' => $value,
+                ]);
+            }
+        });
+        return true;
+    }
+
+    public function getManagerList($pageNumber = 20)
+    {
+        $data = Managers::paginate($pageNumber)->toArray();
 
         return $data;
     }

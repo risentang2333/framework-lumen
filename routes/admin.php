@@ -13,13 +13,20 @@
 Route::get('/', function () {
     return "hello world";
 });
-Route::group(['namespace' => 'Admin'], function () {
-    Route::get('/login', 'LoginController@login');
-});
-
-Route::group(['prefix' => 'permission','namespace' => 'Admin','middleware' => 'admin'], function () {
-    // 获取菜单
-    Route::get('/getMenu', 'PermissionController@getMenu');
+// 管理员登录
+Route::get('/login', 'LoginController@login');
+// 刷新token
+Route::get('/changeToken', 'LoginController@changeToken');
+// 获取菜单
+Route::get('/getMenu', 'PermissionController@getMenu');
+// 包含中间件，添加permission路由
+Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
+    // 获取管理员列表
+    Route::get('/getManagerList', 'PermissionController@getManagerList');
+    // 编辑管理员角色绑定
+    Route::get('/editManagerRole', 'PermissionController@editManagerRole');
+    // 分配绑定管理员角色
+    Route::post('/allotManagerRole', 'PermissionController@allotManagerRole');
     // 获取角色列表
     Route::get('/getRoleList', 'PermissionController@getRoleList');
     // 分配权限

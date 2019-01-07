@@ -95,12 +95,22 @@ $app->register(App\Providers\AppServiceProvider::class);
 | can respond to, as well as the controllers that may handle them.
 |
 */
-
+// 后台路由配置
 $app->router->group([
-    'namespace' => 'App\Http\Controllers',
+    'namespace' => 'App\Http\Controllers\Admin',
 ], function ($router) {
     require __DIR__.'/../routes/admin.php';
+});
+// 客户端路由配置
+$app->router->group([
+    'namespace' => 'App\Http\Controllers\User',
+], function ($router) {
     require __DIR__.'/../routes/user.php';
+});
+// 服务人员路由配置
+$app->router->group([
+    'namespace' => 'App\Http\Controllers\Worker',
+], function ($router) {
     require __DIR__.'/../routes/worker.php';
 });
 
