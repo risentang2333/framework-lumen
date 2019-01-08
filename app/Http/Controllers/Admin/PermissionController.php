@@ -134,6 +134,9 @@ class PermissionController extends Controller
         }
 
         $manager = $permissionService->getManagerById($id);
+        if ($role->is_administrator == 1) {
+            die("超级管理员不能删除");
+        }
         
         $permissionService->deleteManager($id);
 
@@ -220,6 +223,9 @@ class PermissionController extends Controller
             die("缺少id");
         } 
         $role = $permissionService->getRoleByRoleId($id);
+        if ($role->is_administrator == 1) {
+            die("超级管理员角色不能修改");
+        }
 
         $permissionService->deleteRole($id);
 
@@ -390,6 +396,23 @@ class PermissionController extends Controller
         $permissionService->editPermission($params);
 
         return send_data_json(0, "编辑成功");
+    }
+
+    public function deletePermission(Request $request)
+    {
+        $permissionService = new PermissionService;
+        $id = trim($request->input('id', ''));
+        if ($id == '') {
+            die("缺少id");
+        }
+
+        $permission = $permissionService->getPermissionById($id);
+        if ($permission['is_administrator'] == 1) {
+            die("超管权限无法删除");
+        }
+        $permissionService->deletePermission($id);
+
+        return send_data_json(0, "删除权限成功");
     }
 
     /**

@@ -331,6 +331,15 @@ class PermissionService
         return $selection;
     }
 
+    public function deletePermission($id)
+    {
+        DB::transaction(function () use ($id){
+            Permissions::find($id)->delete();
+            PermissionRole::where('permission_id', $id)->delete();
+        });
+        return true;
+    }
+
     /**
      * 根据用户id获取相对应的权限数据
      *
