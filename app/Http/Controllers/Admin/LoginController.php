@@ -19,9 +19,9 @@ class LoginController extends Controller
     {
         $loginService = new LoginService;
         // 电话号
-        $account = $request->input('account','');
+        $account = trim($request->input('account',''));
         // 密码
-        $password = $request->input('password','');
+        $password = trim($request->input('password',''));
         if ($account == '') {
             send_data_json(10001,"请输入账号");
         }
@@ -33,14 +33,20 @@ class LoginController extends Controller
         send_data_json(0,"登录成功",$data);
     }
 
+    /**
+     * 更换accesstoken
+     *
+     * @param Request $request
+     * @return string
+     */
     public function changeToken(Request $request)
     {
         $loginService = new LoginService;
         // 接收accessToken
-        $refreshToken = $request->input('refreshToken','');
+        $refreshToken = trim($request->input('refresh_token',''));
         // 检查token是否传入
         if ($refreshToken == '') {
-            die('请传入refreshToken');
+            die('请传入refresh_token');
         }
         $data = $loginService->changeToken($refreshToken);
 

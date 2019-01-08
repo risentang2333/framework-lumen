@@ -16,29 +16,29 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        // // 接收accessToken
-        // $accessToken = $request->input('accessToken','');
-        // // 检查token是否传入
-        // if ($accessToken == '') {
-        //     die('请传入accessToken');
-        // }
-        // // 根据accessToken查询管理员信息
-        // $manager = DB::table('managers')->select(['id','name','account','access_token','expire'])->where('access_token', $accessToken)->first();
-        // if (empty($manager)) {
-        //     die('token不存在');
-        // }
-        // // 判断token是否过期
-        // if (time() > $manager->expire) {
-        //     die('token已过期');
-        // }
-        // // 获取路由信息
-        // $route = $request->path();
-        // // 该用户所有权限
-        // $permissions = $this->getPermissionByManagerId($manager->id);
-        // // 判断是否有该路由权限
-        // if (!in_array($route, $permissions)) {
-        //     die("没有".$route."权限");
-        // }
+        // 接收accessToken
+        $accessToken = $request->input('access_token','');
+        // 检查token是否传入
+        if ($accessToken == '') {
+            send_data_json("10000", "miss access token");
+        }
+        // 根据accessToken查询管理员信息
+        $manager = DB::table('managers')->select(['id','name','account','access_token','expire'])->where('access_token', $accessToken)->first();
+        if (empty($manager)) {
+            send_data_json("10001", "access token does not exist");
+        }
+        // 判断token是否过期
+        if (time() > $manager->expire) {
+            die('token已过期');
+        }
+        // 获取路由信息
+        $route = $request->path();
+        // 该用户所有权限
+        $permissions = $this->getPermissionByManagerId($manager->id);
+        // 判断是否有该路由权限
+        if (!in_array($route, $permissions)) {
+            die("没有".$route."权限");
+        }
         
         return $next($request);
     }
@@ -51,7 +51,7 @@ class Admin
      */
     private function getPermissionByManagerId($id)
     {
-        $data = DB::select("SELECT `route` FROM `permissions` WHERE `is_display` = 1 and `id` IN (SELECT `permission_id` FROM `permission_role` WHERE `role_id` IN (SELECT `role_id` FROM `role_manager` WHERE `manager_id` = 1)) ORDER BY sort_order ASC");
+        $data = DB::select("SELECT `route` FROM `permissions` WHERE `id` IN (SELECT `permission_id` FROM `permission_role` WHERE `role_id` IN (SELECT `role_id` FROM `role_manager` WHERE `manager_id` = $id)) ORDER BY sort_order ASC");
         
         $permissions = array_column($data, 'route');
 

@@ -11,48 +11,43 @@ use Illuminate\Support\Facades\DB;
 
 class PermissionService 
 {
-    private $roleManagerData = [
-        'role_manager.id',
-        'role_manager.manager_id',
-        'role_manager.role_id',
-        'managers.name as manager_name',
-        'roles.name as role_name',
-    ];
-
-    private $permissionData = [
-        'id',
-        'route',
-        'name',
-        'description',
-        'icon',
-        'sort_order',
-        'parent_id',
-        'is_display',
-    ];
-
-    public function getRoleManager()
+    /**
+     * 获取管理员列表
+     *
+     * @param integer $pageNumber
+     * @return array
+     */
+    public function getManagerList($pageNumber = 20)
     {
-        $data = RoleManager::leftjoin('managers', function ($join) {
-            $join->on('manager_id','managers.id');
-        })->rightjoin('roles', function ($join) {
-            $join->on('role_id','roles.id');
-        })->select($this->roleManagerData)->get()->toArray();
-    
-        return $data;
-    }
-
-    public function getPermissionRole()
-    {
-        $data = PermissionRole::leftjoin('permissions', function ($join) {
-            $join->on('permission_id','permissions.id');
-        })->rightjoin('roles', function ($join) {
-            $join->on('role_id','roles.id');
-        })->select($this->permissionRoleData)->get()->toArray();
+        $data = Managers::paginate($pageNumber)->toArray();
 
         return $data;
     }
 
-    // 根据用户id查询用户绑定的角色id
+    /**
+     * 获取角色列表
+     *
+     * @param boolean $paginate 可带分页或不分页
+     * @param integer $pageNumber
+     * @return void
+     */
+    public function getRoleList($paginate = true, $pageNumber = 20)
+    {
+        if ($paginate) {
+            $data = Roles::paginate($pageNumber);
+        } else {
+            $data = Roles::get();
+        }
+
+        return $data->toArray();
+    }
+
+    /**
+     * 根据用户id查询用户绑定的角色id
+     *
+     * @param int $id
+     * @return array
+     */
     public function getRoleIdsByManagerId($id)
     {
         $data = RoleManager::where('manager_id',$id)->pluck('role_id')->toArray();
@@ -60,42 +55,183 @@ class PermissionService
         return $data;
     }
 
-    public function getPermissionByRoleIds($roleIds)
+    /**
+     * 重新分配用户和角色关系
+     *
+     * @param [type] $id
+     * @param [type] $role
+     * @return void
+     */
+    public function editManagerRole($id, $roleIds)
     {
-        $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
-
-        $data = Permissions::select(['id','name','parent_id'])
-                        ->whereIn('id',$permissionIds)
-                        ->where('is_display',1)
-                        ->orderBy('sort_order','ASC')
-                        ->get()
-                        ->keyBy('id')
-                        ->toArray();
-        return $data;
+        DB::transaction(function () use ($id, $roleIds){
+            // 先把关系表中与管理员id有关的删除
+            DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id");
+            // 重新生成新关系
+            foreach ($roleIds as $value) {
+                DB::table('role_manager')->insert([
+                    'manager_id' => $id,
+                    'role_id' => $value,
+                ]);
+            }
+        });
+        return true;
     }
 
-    public function getPermissionByManagerId($id)
+    /**
+     * 获取管理员信息
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getManagerById($id)
     {
-        $roleIds = RoleManager::where('manager_id',$id)->pluck('role_id')->toArray();
+        $manager = Managers::select(['id','name'])->where('id',$id)->first();
+        if (empty($manager)) {
+            die('没有该管理员');
+        }
+        return $manager;
+    }
 
-        $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
+    /**
+     * 编辑管理员信息
+     *
+     * @param int $id
+     * @param string $name
+     * @param string $password
+     * @return boolean
+     */
+    public function saveManager($id, $name, $password)
+    {
+        if ($id == '') {
+            $manager = new Managers;
+        } else {
+            $manager = Managers::find($id);
+        }
 
-        $data = Permissions::select(['id','name','parent_id'])
-                        ->whereIn('id',$permissionIds)
-                        ->where('is_display',1)
-                        ->orderBy('sort_order','ASC')
-                        ->get()
-                        ->keyBy('id')
-                        ->toArray();
+        $manager->name = $name;
+        if ($password != '') {
+            // 加密后密码
+            $encryptPwd = md5('manager'.$password);
+            // 新token
+            $accessToken = md5(time().$manager->account);
+            // 新刷新token
+            $refreshToken = md5(time().'refresh'.$manager->account);
+
+            $manager->password = $encryptPwd;
+            $manager->access_token = $accessToken;
+            $manager->refresh_token = $refreshToken;
+        }
+
+        return $manager->save();
+    }
+
+    /**
+     * 根据roleId获取角色信息
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getRoleByRoleId($id)
+    {
+        $role = Roles::find($id);
+
+        return $role;
+    }
+
+    /**
+     * 编辑角色
+     *
+     * @param int $id
+     * @param string $name
+     * @return boolean
+     */
+    public function saveRole($id, $name)
+    {
+        if ($id == '') {
+            $role = new Roles;
+        } else {
+            $role = Roles::find($id);
+        }
+        
+        $role->name = $name;
+
+        return $role->save();
+    }
+
+    /**
+     * 获取权限列表，可分页，可所有
+     *
+     * @param boolean $paginate
+     * @param integer $pageNumber
+     * @return void
+     */
+    public function getPermissionList($paginate = true, $pageNumber = 20)
+    {
+        if ($paginate) {
+            $data = Permissions::paginate($pageNumber);
+        } else {
+            $data = Permissions::get();
+        }
+
+        return $data->toArray();
+    }
+
+    /**
+     * 根据角色id获取相对应的权限id
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getRolePermissionByRoleId($id)
+    {
+        $rolePermission = PermissionRole::where('role_id', $id)->pluck('permission_id')->toArray();
+
+        return $rolePermission;
+    }
+
+    /**
+     * 编辑角色权限
+     *
+     * @param int $id
+     * @param array $permissions
+     * @return string
+     */
+    public function editRolePermission($id, $permissions)
+    {
+        DB::transaction(function () use ($id, $permissions){
+            // 先把关系表中与角色id有关的删除
+            DB::delete("DELETE FROM `permission_role` WHERE `role_id` = $id");
+            // 重新生成新关系
+            foreach ($permissions as $value) {
+                DB::table('permission_role')->insert([
+                    'role_id' => $id,
+                    'permission_id' => $value,
+                ]);
+            }
+        });
+        return true;
+    }
+
+    /**
+     * 根据权限id获取权限信息
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getPermissionById($id)
+    {
+        $data = Permissions::find($id)->toArray();
+        
         return $data;
     }
 
     /**
-     * 获取所有权限
+     * 获取所有权限为树形结构做准备
      *
      * @return void
      */
-    public function getPermission()
+    public function getPermissionForTree()
     {
         $data = Permissions::select(['id','name','parent_id'])
                         ->orderBy('sort_order','ASC')
@@ -160,86 +296,61 @@ class PermissionService
         return $selection;
     }
 
-    public function getRoleList($paginate = true, $pageNumber = 20)
+    /**
+     * 根据用户id获取相对应的权限数据
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getPermissionByManagerId($id)
     {
-        $data = Roles::get()->toArray();
+        $roleIds = RoleManager::where('manager_id',$id)->pluck('role_id')->toArray();
 
+        $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
+
+        $data = Permissions::select(['id','name','parent_id'])
+                        ->whereIn('id',$permissionIds)
+                        ->where('is_display',1)
+                        ->orderBy('sort_order','ASC')
+                        ->get()
+                        ->keyBy('id')
+                        ->toArray();
         return $data;
     }
 
     /**
-     * 重新分配用户和角色关系
+     * 编辑权限
      *
-     * @param [type] $id
-     * @param [type] $role
+     * @param [type] $params
      * @return void
      */
-    public function allotManagerRole($id, $role)
+    public function editPermission($params)
     {
-        DB::transaction(function () use ($id, $role){
-            // 先把关系表中与管理员id有关的删除
-            DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id");
-            // 重新生成新关系
-            foreach ($role as $value) {
-                DB::table('role_manager')->insert([
-                    'manager_id' => $id,
-                    'role_id' => $value,
-                ]);
-            }
-        });
-        return true;
+        $permission = Permissions::find($params['id']);
+
+        $permission->route = $params['route'];
+        $permission->name = $params['name'];
+        $permission->description = $params['description'];
+        $permission->icon = $params['icon'];
+        $permission->sort_order = $params['sort_order'];
+        $permission->sort_order = $params['parent_id'];
+        $permission->sort_order = $params['is_display'];
+
+        return $permission->save();
     }
 
-    public function getManagerById($id)
+    /**
+     * 根据accesstoken获取用户信息
+     *
+     * @param [type] $accessToken
+     * @return void
+     */
+    public function getManagerByAccessToken($accessToken)
     {
-        $manager = Managers::select(['id','name'])->where('id',$id)->first();
+        $manager = Managers::where('access_token', $accessToken)->first();
         if (empty($manager)) {
-            die('没有改管理员');
+            die("查无此人");
         }
         return $manager;
-    }
-
-    public function editManager($id, $name, $password)
-    {
-        $manager = Managers::find($id);
-
-        $manager->name = $name;
-        if ($password != '') {
-            // 加密后密码
-            $encryptPwd = md5('manager'.$password);
-            // 新token
-            $accessToken = md5(time().$manager->account);
-            // 新刷新token
-            $refreshToken = md5(time().'refresh'.$manager->account);
-
-            $manager->password = $encryptPwd;
-            $manager->access_token = $accessToken;
-            $manager->refresh_token = $refreshToken;
-        }
-
-        return $manager->save();
-    }
-
-    
-
-    public function getManagerList($pageNumber = 20)
-    {
-        $data = Managers::paginate($pageNumber)->toArray();
-
-        return $data;
-    }
-
-    public function getPermissionList($pageNumber = 20)
-    {
-        $data = Permissions::paginate($pageNumber)->toArray();
-
-        return $data;
-    }
-
-    public function getPermissionById($id)
-    {
-        $data = Permissions::find($id)->toArray();
-        
-        return $data;
     }
 }
