@@ -31,6 +31,8 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getManager', 'PermissionController@getManager');
     // 编辑管理员信息
     Route::post('/editManager', 'PermissionController@editManager');
+    // 物理删除管理员
+    Route::post('/deleteManager', 'PermissionController@deleteManager');
 
     // 获取角色列表
     Route::get('/getRoleList', 'PermissionController@getRoleList');
@@ -38,6 +40,8 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getRole', 'PermissionController@getRole');
     // 编辑角色信息
     Route::post('/editRole', 'PermissionController@editRole');
+    // 物理删除角色
+    Route::post('/deleteRole', 'PermissionController@deleteRole');
     // 获取角色权限信息
     Route::get('/getRolePermission', 'PermissionController@getRolePermission');
     // 编辑角色权限信息

@@ -101,10 +101,11 @@ class PermissionService
      * @param string $password
      * @return boolean
      */
-    public function saveManager($id, $name, $password)
+    public function saveManager($id, $name, $account, $password)
     {
         if ($id == '') {
             $manager = new Managers;
+            $manager->account = $account;
         } else {
             $manager = Managers::find($id);
         }
@@ -126,6 +127,22 @@ class PermissionService
         return $manager->save();
     }
 
+
+    /**
+     * 物理删除管理员
+     *
+     * @param int $id
+     * @return boolean
+     */
+    public function deleteManager($id)
+    {
+        DB::transaction(function () use ($id){
+            Managers::find($id)->delete();
+            RoleManager::where('manager_id', $id)->delete();
+        });
+        return true;
+    }
+
     /**
      * 根据roleId获取角色信息
      *
@@ -135,7 +152,9 @@ class PermissionService
     public function getRoleByRoleId($id)
     {
         $role = Roles::find($id);
-
+        if (empty($role)) {
+            die('没有该角色');
+        }
         return $role;
     }
 
@@ -157,6 +176,22 @@ class PermissionService
         $role->name = $name;
 
         return $role->save();
+    }
+
+
+    /**
+     * 物理删除角色
+     *
+     * @param int $id
+     * @return boolean
+     */
+    public function deleteRole($id)
+    {
+        DB::transaction(function () use ($id){
+            Roles::find($id)->delete();
+            PermissionRole::where('role_id', $id)->delete();
+        });
+        return true;
     }
 
     /**

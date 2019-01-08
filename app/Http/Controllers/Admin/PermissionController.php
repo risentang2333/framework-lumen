@@ -61,7 +61,7 @@ class PermissionController extends Controller
         if ($id == '') {
             die("缺少id");
         }
-        $roleIds = trim($request->input('roleIds',''));
+        $roleIds = $request->input('roleIds','');
         if ($roleIds == '') {
             die("缺少角色组");
         }
@@ -95,6 +95,8 @@ class PermissionController extends Controller
         $id = trim($request->input('id', ''));
         // 管理员姓名
         $name = trim($request->input('name', ''));
+        // 账号
+        $account = trim($request->input('account', ''));
         // 新密码
         $password = trim($request->input('password', ''));
         // 二次输入密码
@@ -111,9 +113,31 @@ class PermissionController extends Controller
         if ($password != $repassword) {
             die("密码确认错误");
         }
-        $permissionService->saveManager($id, $name, $password);
+        $permissionService->saveManager($id, $name, $account, $password);
 
         return send_data_json(0,"编辑成功");
+    }
+
+    /**
+     * 物理删除管理员
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function deleteManager(Request $request)
+    {
+        $permissionService = new PermissionService;
+
+        $id = trim($request->input('id', ''));
+        if ($id == '') {
+            die("缺少id");
+        }
+
+        $manager = $permissionService->getManagerById($id);
+        
+        $permissionService->deleteManager($id);
+
+        return send_data_json(0,"删除成功");
     }
 
     /**
@@ -181,6 +205,25 @@ class PermissionController extends Controller
         $role = $permissionService->saveRole($id, $name);
 
         return send_data_json(0, "编辑成功");
+    }
+
+    /**
+     * 物理删除角色
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function deleteRole(Request $request)
+    {
+        $id = trim($request->input('id', ''));
+        if ($id == '') {
+            die("缺少id");
+        } 
+        $role = $permissionService->getRoleByRoleId($id);
+
+        $permissionService->deleteRole($id);
+
+        return send_data_json(0, "删除角色成功");
     }
 
     /**
