@@ -67,7 +67,7 @@ $app->routeMiddleware([
     // 'auth' => App\Http\Middleware\Authenticate::class,
     'user' => App\Http\Middleware\User::class,
     'admin' => App\Http\Middleware\Admin::class,
-    'worker' => App\Http\Middleware\Worker::class,
+    'staff' => App\Http\Middleware\Staff::class,
 ]);
 
 /*
@@ -96,22 +96,29 @@ $app->register(App\Providers\AppServiceProvider::class);
 |
 */
 // 后台路由配置
+$app->router->get('/', function () use ($app) {
+    return $app->version();
+});
+// 后台管理路由配置
 $app->router->group([
     'namespace' => 'App\Http\Controllers\Admin',
+    'prefix' => 'admin'
 ], function ($router) {
     require __DIR__.'/../routes/admin.php';
 });
 // 客户端路由配置
 $app->router->group([
     'namespace' => 'App\Http\Controllers\User',
+    'prefix' => 'user'
 ], function ($router) {
     require __DIR__.'/../routes/user.php';
 });
 // 服务人员路由配置
 $app->router->group([
-    'namespace' => 'App\Http\Controllers\Worker',
+    'namespace' => 'App\Http\Controllers\Staff',
+    'prefix' => 'staff',
 ], function ($router) {
-    require __DIR__.'/../routes/worker.php';
+    require __DIR__.'/../routes/staff.php';
 });
 
 return $app;

@@ -283,9 +283,9 @@ class PermissionController extends Controller
             die("超级管理员不能修改");
         }
         // 权限数组
-        $permissions = trim($request->input('permissions',''));
+        $permissionIds = $request->input('permissionIds','');
 
-        $permissionService->editRolePermission($id, $permissions);
+        $permissionService->editRolePermission($id, $permissionIds);
 
         return send_data_json(0,"编辑成功");
     }

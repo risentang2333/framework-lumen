@@ -232,13 +232,13 @@ class PermissionService
      * @param array $permissions
      * @return string
      */
-    public function editRolePermission($id, $permissions)
+    public function editRolePermission($id, $permissionIds)
     {
-        DB::transaction(function () use ($id, $permissions){
+        DB::transaction(function () use ($id, $permissionIds){
             // 先把关系表中与角色id有关的删除
             DB::delete("DELETE FROM `permission_role` WHERE `role_id` = $id");
             // 重新生成新关系
-            foreach ($permissions as $value) {
+            foreach ($permissionIds as $value) {
                 DB::table('permission_role')->insert([
                     'role_id' => $id,
                     'permission_id' => $value,

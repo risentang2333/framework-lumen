@@ -10,9 +10,6 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::get('/', function () {
-    return "hello world";
-});
 // 管理员登录
 Route::post('/login', 'LoginController@login');
 // 刷新token
@@ -33,7 +30,6 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::post('/editManager', 'PermissionController@editManager');
     // 物理删除管理员
     Route::post('/deleteManager', 'PermissionController@deleteManager');
-
     // 获取角色列表
     Route::get('/getRoleList', 'PermissionController@getRoleList');
     // 获取角色信息
@@ -46,7 +42,6 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getRolePermission', 'PermissionController@getRolePermission');
     // 编辑角色权限信息
     Route::post('/editRolePermission', 'PermissionController@editRolePermission');
-
     // 获取权限列表
     Route::get('/getPermissionList', 'PermissionController@getPermissionList');
     // 添加权限信息
@@ -55,4 +50,12 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getPermission', 'PermissionController@getPermission');
     // 编辑权限信息
     Route::post('/editPermission', 'PermissionController@editPermission');
+    // 物理删除权限
+    Route::post('/deleteRole', 'PermissionController@deleteRole');
+});
+Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
+    // 获取员工列表
+    Route::get('/getStaffList', 'StaffController@getStaffList');
+
+    Route::get('/getStaffList', 'StaffController@getStaffList');
 });

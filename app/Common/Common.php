@@ -97,7 +97,7 @@ if (!function_exists('send_data_json')) {
             "code" => $code,
             "message" => $message,
             "data" => $data
-        ]));
+        ], JSON_UNESCAPED_UNICODE));
     }
 }
     

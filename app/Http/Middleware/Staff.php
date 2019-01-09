@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Support\Facades\DB;
 
-class Worker
+class Staff
 {
     /**
      * Handle an incoming request.
