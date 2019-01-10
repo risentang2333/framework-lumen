@@ -28,28 +28,28 @@ class LoginController extends Controller
         // 验证码，暂时没有
         $captcha = $request->input('captcha','');
         if ($name == '') {
-            send_data_json(10000,"请输入姓名");
+            send_msg_json(10000,"请输入姓名");
         }
         if ($phone == '') {
-            send_data_json(10001,"请输入手机号");
+            send_msg_json(10001,"请输入手机号");
         }
         if ($password == '') {
-            send_data_json(10002,"请输入密码");
+            send_msg_json(10002,"请输入密码");
         }
         if ($rePassword == '') {
-            send_data_json(10003,"请再次确认密码");
+            send_msg_json(10003,"请再次确认密码");
         }
         if ($password != $rePassword) {
-            send_data_json(10004,"确认密码错误");
+            send_msg_json(10004,"确认密码错误");
             return '确认密码错误';
         }
         if ($loginService->hasRegisterByPhone($phone)) {
-            send_data_json(10005,"该电话已经被注册");
+            send_msg_json(10005,"该电话已经被注册");
         }
 
         $loginService->register($name, $phone, $password);
 
-        send_data_json(0,"注册成功");
+        send_msg_json(0,"注册成功");
     }
 
     /**
@@ -66,16 +66,16 @@ class LoginController extends Controller
         // 密码
         $password = $request->input('password','');
         if ($phone == '') {
-            send_data_json(10001,"请输入手机号");
+            send_msg_json(10001,"请输入手机号");
         }
         if ($password == '') {
-            send_data_json(10002,"请输入密码");
+            send_msg_json(10002,"请输入密码");
         }
         if (!$loginService->hasRegisterByPhone($phone)) {
-            send_data_json(10006,"该电话号未注册");
+            send_msg_json(10006,"该电话号未注册");
         }
         $token = $loginService->login($phone, $password);
         
-        send_data_json(0,"登录成功",["token" => $token]);
+        send_msg_json(0,"登录成功",["token" => $token]);
     }
 }

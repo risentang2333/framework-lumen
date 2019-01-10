@@ -84,7 +84,7 @@ if (!function_exists('send_get_request')) {
     }
 }
 
-if (!function_exists('send_data_json')) {
+if (!function_exists('send_msg_json')) {
     /**
      * PHP发送Json对象数据, 发送HTTP请求
      *
@@ -92,7 +92,7 @@ if (!function_exists('send_data_json')) {
      * @param array $data 发送数据
      * @return String
      */
-    function send_data_json($code, $message = "", $data = []) {
+    function send_msg_json($code, $message = "", $data = []) {
         die(json_encode([
             "code" => $code,
             "message" => $message,

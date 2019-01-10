@@ -20,7 +20,7 @@ Route::group(['prefix' => 'user'], function () {
 
 Route::group(['prefix' => 'user','middleware' => 'user'], function () {
     Route::get('/haha', function () {
-        // send_data_json(12345,"hahhah");
+        // send_msg_json(12345,"hahhah");
         return "hahaha";
     });
 });

@@ -37,6 +37,9 @@ class PermissionController extends Controller
             die("缺少id");
         }
         $manager = $permissionService->getManagerById($id);
+        if (empty($manager)) {
+            die('没有该管理员');
+        }
         if ($manager->is_administrator == 1) {
             die("超级管理员不可修改");
         }
@@ -50,9 +53,15 @@ class PermissionController extends Controller
             'roleList' => $roleList
         );
 
-        return send_data_json(0,"获取成功",$data);
+        return send_msg_json(0,"获取成功",$data);
     }
 
+    /**
+     * 分配绑定管理员角色
+     *
+     * @param Request $request
+     * @return string
+     */
     public function editManagerRole(Request $request)
     {
         $permissionService = new PermissionService;
@@ -67,12 +76,15 @@ class PermissionController extends Controller
         }
         // 判断是否为超级管理员
         $manager = $permissionService->getManagerById($id);
+        if (empty($manager)) {
+            die('没有该管理员');
+        }
         if ($manager->is_administrator == 1) {
             die("超级管理员不可修改");
         }
         $permissionService->editManagerRole($id, $roleIds);
 
-        return send_data_json(0,"编辑成功");
+        return send_msg_json(0,"编辑成功");
 
     }
 
@@ -85,7 +97,7 @@ class PermissionController extends Controller
         }
         $manager = $permissionService->getManagerById($id);
 
-        return send_data_json(0,"获取成功",$manager);
+        return send_msg_json(0,"获取成功",$manager);
     }
 
     public function editManager(Request $request)
@@ -115,7 +127,7 @@ class PermissionController extends Controller
         }
         $permissionService->saveManager($id, $name, $account, $password);
 
-        return send_data_json(0,"编辑成功");
+        return send_msg_json(0,"编辑成功");
     }
 
     /**
@@ -134,13 +146,16 @@ class PermissionController extends Controller
         }
 
         $manager = $permissionService->getManagerById($id);
+        if (empty($manager)) {
+            die('没有该管理员');
+        }
         if ($role->is_administrator == 1) {
             die("超级管理员不能删除");
         }
         
         $permissionService->deleteManager($id);
 
-        return send_data_json(0,"删除成功");
+        return send_msg_json(0,"删除成功");
     }
 
     /**
@@ -173,10 +188,13 @@ class PermissionController extends Controller
         }
         // 超级管理员角色不能修改
         $role = $permissionService->getRoleByRoleId($id);
+        if (empty($role)) {
+            die('没有该角色');
+        }
         if ($role->is_administrator == 1) {
             die("超级管理员不能修改");
         }
-        return send_data_json(0, "获取成功", $role);
+        return send_msg_json(0, "获取成功", $role);
     }
 
 
@@ -207,7 +225,7 @@ class PermissionController extends Controller
 
         $role = $permissionService->saveRole($id, $name);
 
-        return send_data_json(0, "编辑成功");
+        return send_msg_json(0, "编辑成功");
     }
 
     /**
@@ -229,7 +247,7 @@ class PermissionController extends Controller
 
         $permissionService->deleteRole($id);
 
-        return send_data_json(0, "删除角色成功");
+        return send_msg_json(0, "删除角色成功");
     }
 
     /**
@@ -260,7 +278,7 @@ class PermissionController extends Controller
             "rolePermissionIds" => $rolePermissionIds,
             "permissionList" => $permissionList
         );
-        return send_data_json(0, "获取成功", $data);
+        return send_msg_json(0, "获取成功", $data);
     }
 
     /**
@@ -287,7 +305,7 @@ class PermissionController extends Controller
 
         $permissionService->editRolePermission($id, $permissionIds);
 
-        return send_data_json(0,"编辑成功");
+        return send_msg_json(0,"编辑成功");
     }
 
     /**
@@ -301,7 +319,7 @@ class PermissionController extends Controller
         
         $list = $permissionService->getPermissionList(true, 20);
 
-        return send_data_json(0, "获取成功", $list);
+        return send_msg_json(0, "获取成功", $list);
     }
 
     /**
@@ -323,7 +341,7 @@ class PermissionController extends Controller
         $data = array(
             "selection" => $selection
         );
-        return send_data_json(0, "获取成功", $data);
+        return send_msg_json(0, "获取成功", $data);
     }
 
     /**
@@ -341,7 +359,10 @@ class PermissionController extends Controller
             die("缺少id");
         }
         // 获取当前权限信息
-        $permission = $permissionService->getPermissionById($id);
+        $permission = $permissionService->getPermissionById($id)->toArray();
+        if (empty($permission)) {
+            die("查无此人");
+        }
         // 获取所有权限信息
         $permissions = $permissionService->getPermissionForTree();
         // 生成树结构
@@ -353,7 +374,7 @@ class PermissionController extends Controller
             "permission" => $permission,
             "selection" => $selection
         );
-        return send_data_json(0, "获取成功", $data);
+        return send_msg_json(0, "获取成功", $data);
     }
 
     public function editPermission(Request $request)
@@ -395,7 +416,7 @@ class PermissionController extends Controller
         }
         $permissionService->editPermission($params);
 
-        return send_data_json(0, "编辑成功");
+        return send_msg_json(0, "编辑成功");
     }
 
     public function deletePermission(Request $request)
@@ -407,12 +428,15 @@ class PermissionController extends Controller
         }
 
         $permission = $permissionService->getPermissionById($id);
+        if (empty($permission)) {
+            die("查无此人");
+        }
         if ($permission['is_administrator'] == 1) {
             die("超管权限无法删除");
         }
         $permissionService->deletePermission($id);
 
-        return send_data_json(0, "删除权限成功");
+        return send_msg_json(0, "删除权限成功");
     }
 
     /**
@@ -428,6 +452,9 @@ class PermissionController extends Controller
         $accessToken = trim($request->input('access_token', ''));
         // 通过token查询管理员
         $manager = $permissionService->getManagerByAccessToken($accessToken);
+        if (empty($manager)) {
+            die("查无此人");
+        }
         // 获取管理员id
         $id = $manager->id;
         // 根据用户id查询角色id组
@@ -435,6 +462,6 @@ class PermissionController extends Controller
 
         $tree = $permissionService->getTree($permissions);
 
-        return send_data_json(0, "success", $tree);
+        return send_msg_json(0, "success", $tree);
     }
 }

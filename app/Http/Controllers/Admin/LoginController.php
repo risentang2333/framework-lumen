@@ -23,14 +23,14 @@ class LoginController extends Controller
         // 密码
         $password = trim($request->input('password',''));
         if ($account == '') {
-            send_data_json(10001,"请输入账号");
+            send_msg_json(MISS_PARAMETER,"请输入账号");
         }
         if ($password == '') {
-            send_data_json(10002,"请输入密码");
+            send_msg_json(MISS_PARAMETER,"请输入密码");
         }
         $data = $loginService->login($account, $password);
         
-        send_data_json(0,"登录成功",$data);
+        send_msg_json(0,"登录成功",$data);
     }
 
     /**
@@ -50,6 +50,6 @@ class LoginController extends Controller
         }
         $data = $loginService->changeToken($refreshToken);
 
-        send_data_json(0,"+1s成功",$data);
+        send_msg_json(0,"+1s成功",$data);
     }
 }

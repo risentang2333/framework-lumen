@@ -87,9 +87,7 @@ class PermissionService
     public function getManagerById($id)
     {
         $manager = Managers::select(['id','name'])->where('id',$id)->first();
-        if (empty($manager)) {
-            die('没有该管理员');
-        }
+        
         return $manager;
     }
 
@@ -152,9 +150,7 @@ class PermissionService
     public function getRoleByRoleId($id)
     {
         $role = Roles::find($id);
-        if (empty($role)) {
-            die('没有该角色');
-        }
+        
         return $role;
     }
 
@@ -256,7 +252,7 @@ class PermissionService
      */
     public function getPermissionById($id)
     {
-        $data = Permissions::find($id)->toArray();
+        $data = Permissions::find($id);
         
         return $data;
     }
@@ -392,9 +388,7 @@ class PermissionService
     public function getManagerByAccessToken($accessToken)
     {
         $manager = Managers::where('access_token', $accessToken)->first();
-        if (empty($manager)) {
-            die("查无此人");
-        }
+        
         return $manager;
     }
 }
