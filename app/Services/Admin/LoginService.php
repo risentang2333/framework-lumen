@@ -20,7 +20,7 @@ class LoginService
 
         $manager = Managers::select(['id','account','name','access_token','refresh_token'])->where(['account'=>$account, 'password'=>$encryptPwd])->first();
         if (empty($manager)) {
-            die('帐户名密码错误');
+            send_msg_json(ERROR_RETURN, '帐户密码错误');
         }
 
         $manager->expire = $expire;
@@ -31,11 +31,17 @@ class LoginService
         return $manager;
     }
 
+    /**
+     * 刷新访问令牌
+     *
+     * @param string $refreshToken
+     * @return string
+     */
     public function changeToken($refreshToken)
     {
         $manager = Managers::select(['id','account','name','access_token','refresh_token'])->where('refresh_token', $refreshToken)->first();
         if (empty($manager)) {
-            die('没有该token');
+            send_msg_json(ERROR_RETURN, '访问令牌不存在');
         }
         // 新的过期时间
         $new_expire = time() + 86400 * 3;

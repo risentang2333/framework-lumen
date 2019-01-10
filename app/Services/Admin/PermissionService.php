@@ -373,8 +373,9 @@ class PermissionService
         $permission->description = $params['description'];
         $permission->icon = $params['icon'];
         $permission->sort_order = $params['sort_order'];
-        $permission->sort_order = $params['parent_id'];
-        $permission->sort_order = $params['is_display'];
+        $permission->parent_id = $params['parent_id'];
+        $permission->is_display = $params['is_display'];
+        $permission->is_api = $params['is_api'];
 
         return $permission->save();
     }

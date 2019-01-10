@@ -20,16 +20,16 @@ class Admin
         $accessToken = $request->input('access_token','');
         // 检查token是否传入
         if ($accessToken == '') {
-            send_msg_json(MISS_PARAMETER, "请传入访问令牌");
+            send_msg_json(ERROR_RETURN, "请传入访问令牌");
         }
         // 根据accessToken查询管理员信息
         $manager = DB::table('managers')->select(['id','name','account','access_token','expire'])->where('access_token', $accessToken)->first();
         if (empty($manager)) {
-            send_msg_json(DATA_NOT_EXIST, "管理员不存在");
+            send_msg_json(ERROR_RETURN, "管理员不存在");
         }
         // 判断token是否过期
         if (time() > $manager->expire) {
-            send_msg_json(DATA_ERROR, '访问令牌已过期');
+            send_msg_json(ACCESS_TOKEN_IS_EXPIRE, '访问令牌已过期');
         }
         // 获取路由信息
         $route = $request->path();
@@ -37,7 +37,7 @@ class Admin
         $permissions = $this->getPermissionByManagerId($manager->id);
         // 判断是否有该路由权限
         if (!in_array($route, $permissions)) {
-            send_msg_json(DATA_ERROR, "没有".$route."权限");
+            send_msg_json(ERROR_RETURN, "没有".$route."权限");
         }
         
         return $next($request);
