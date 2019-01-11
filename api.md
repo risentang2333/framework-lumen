@@ -75,7 +75,7 @@
 
 | 参数名 | 类型 | 是否必填 | 说明 |
 | ------ | ---- | -------- | ---- |
-| refresh_token | string | 必填 | 刷新token |
+| refreshToken | string | 必填 | 刷新token |
 
 成功提示
 ```
