@@ -17,7 +17,7 @@ class Admin
     public function handle($request, Closure $next)
     {
         // 接收accessToken
-        $accessToken = $request->input('access_token','');
+        $accessToken = trim($request->header('accessToken',''));
         // 检查token是否传入
         if ($accessToken == '') {
             send_msg_json(ERROR_RETURN, "请传入访问令牌");

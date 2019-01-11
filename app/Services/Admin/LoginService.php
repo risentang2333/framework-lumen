@@ -10,7 +10,7 @@ class LoginService
     public function login($account, $password)
     {
         // 过期时间
-        $expire = time() + 86400 * 3;
+        $expire = time() + 300;
         // accessToken
         $accessToken = md5(time().$account);
 

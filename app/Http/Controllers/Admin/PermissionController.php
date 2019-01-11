@@ -477,7 +477,7 @@ class PermissionController extends Controller
     {
         $permissionService = new PermissionService;
         // 获取token
-        $accessToken = trim($request->input('access_token', ''));
+        $accessToken = trim($request->header('accessToken',''));
         // 通过token查询管理员
         $manager = $permissionService->getManagerByAccessToken($accessToken);
         if (empty($manager)) {

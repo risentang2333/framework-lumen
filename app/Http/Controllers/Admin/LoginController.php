@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
 use App\Services\Admin\LoginService;
+use App\Services\Admin\PermissionService;
 
 class LoginController extends Controller
 {
@@ -18,6 +19,8 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $loginService = new LoginService;
+
+        $permissionService = new PermissionService;
         // 电话号
         $account = trim($request->input('account',''));
         // 密码
@@ -28,7 +31,17 @@ class LoginController extends Controller
         if ($password == '') {
             send_msg_json(ERROR_RETURN, "请输入密码");
         }
-        $data = $loginService->login($account, $password);
+        $manager = $loginService->login($account, $password);
+        // 获取管理员id
+        $id = $manager->id;
+        // 根据用户id查询角色id组
+        $permissions = $permissionService->getPermissionByManagerId($id);
+
+        $tree = $permissionService->getTree($permissions);
+        $data = array(
+            "manager" => $manager,
+            "tree" => $tree
+        );
         
         send_msg_json(SUCCESS_RETURN,"登录成功",$data);
     }
@@ -43,7 +56,7 @@ class LoginController extends Controller
     {
         $loginService = new LoginService;
         // 接收accessToken
-        $refreshToken = trim($request->input('refresh_token',''));
+        $refreshToken = trim($request->header('refreshToken',''));
         // 检查token是否传入
         if ($refreshToken == '') {
             send_msg_json(ERROR_RETURN,"请传入刷新令牌");
