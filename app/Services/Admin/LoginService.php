@@ -41,7 +41,7 @@ class LoginService
     {
         $manager = Managers::select(['id','account','name','access_token','refresh_token'])->where('refresh_token', $refreshToken)->first();
         if (empty($manager)) {
-            send_msg_json(ERROR_RETURN, '访问令牌不存在');
+            send_msg_json(REFRESH_TOKEN_IS_ERROR, '刷新令牌错误');
         }
         // 新的过期时间
         $new_expire = time() + 86400 * 3;
