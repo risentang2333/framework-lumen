@@ -44,8 +44,6 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::post('/editRolePermission', 'PermissionController@editRolePermission');
     // 获取权限列表
     Route::get('/getPermissionList', 'PermissionController@getPermissionList');
-    // 添加权限信息
-    Route::get('/addPermission', 'PermissionController@addPermission');
     // 获取权限信息
     Route::get('/getPermission', 'PermissionController@getPermission');
     // 编辑权限信息
@@ -55,7 +53,5 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
 });
 Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取员工列表
-    Route::get('/getStaffList', 'StaffController@getStaffList');
-
     Route::get('/getStaffList', 'StaffController@getStaffList');
 });

@@ -86,7 +86,7 @@ class PermissionService
      */
     public function getManagerById($id)
     {
-        $manager = Managers::select(['id','name'])->where('id',$id)->first();
+        $manager = Managers::select(['id','name','is_administrator'])->where('id',$id)->first();
         
         return $manager;
     }
@@ -202,7 +202,7 @@ class PermissionService
         if ($paginate) {
             $data = Permissions::paginate($pageNumber);
         } else {
-            $data = Permissions::get();
+            $data = Permissions::select(['id', 'route', 'name'])->get();
         }
 
         return $data->toArray();
@@ -348,7 +348,7 @@ class PermissionService
 
         $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
 
-        $data = Permissions::select(['id','name','parent_id'])
+        $data = Permissions::select(['id','name','route','parent_id'])
                         ->whereIn('id',$permissionIds)
                         ->where('is_display',1)
                         ->orderBy('sort_order','ASC')

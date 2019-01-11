@@ -72,7 +72,7 @@ class PermissionController extends Controller
         }
         // 角色组
         $roleIds = $request->input('roleIds','');
-        if ($roleIds == '') {
+        if ($roleIds == ''|| !is_array($roleIds)) {
             send_msg_json(ERROR_RETURN, "请传入角色组");
         }
         // 判断是否为超级管理员
@@ -103,7 +103,9 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "请传入管理员id");
         }
         $manager = $permissionService->getManagerById($id);
-
+        if (empty($manager)) {
+            send_msg_json(ERROR_RETURN, '管理员不存在');
+        }
         return send_msg_json(SUCCESS_RETURN, "success", $manager);
     }
 
@@ -231,6 +233,9 @@ class PermissionController extends Controller
         }
         // 超级管理员角色不能修改
         $role = $permissionService->getRoleByRoleId($id);
+        if (empty($role)) {
+            send_msg_json(ERROR_RETURN, "该角色不存在");
+        }
         if ($role->is_administrator == 1) {
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
@@ -278,6 +283,9 @@ class PermissionController extends Controller
         }
         // 超级管理员角色不能修改
         $role = $permissionService->getRoleByRoleId($id);
+        if (empty($role)) {
+            send_msg_json(ERROR_RETURN, "管理员不存在");
+        }
         if ($role->is_administrator == 1) {
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
@@ -307,14 +315,17 @@ class PermissionController extends Controller
         if ($id == '') {
             send_msg_json(ERROR_RETURN, "请传入角色id");
         }
+        // 权限数组
+        $permissionIds = $request->input('permissionIds','');
+        if ($permissionIds == ''|| !is_array($permissionIds)) {
+            send_msg_json(ERROR_RETURN, "请传入绑定权限组");
+        }
         // 超级管理员角色不能修改
         $role = $permissionService->getRoleByRoleId($id);
         if ($role->is_administrator == 1) {
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
-        // 权限数组
-        $permissionIds = $request->input('permissionIds','');
-
+        
         $permissionService->editRolePermission($id, $permissionIds);
 
         return send_msg_json(SUCCESS_RETURN, "编辑成功");
@@ -335,28 +346,6 @@ class PermissionController extends Controller
     }
 
     /**
-     * 新添加权限所需信息
-     *
-     * @param Request $request
-     * @return string
-     */
-    public function addPermission()
-    {
-        $permissionService = new PermissionService;
-        // 获取所有权限信息
-        $permissions = $permissionService->getPermissionForTree();
-        // 生成树结构
-        $tree = $permissionService->getTree($permissions);
-        // 生成下拉菜单数据
-        $selection = $permissionService->visitTree($tree);
-        
-        $data = array(
-            "selection" => $selection
-        );
-        return send_msg_json(SUCCESS_RETURN, "success", $data);
-    }
-
-    /**
      * 获取权限数据
      *
      * @param Request $request
@@ -364,17 +353,29 @@ class PermissionController extends Controller
      */
     public function getPermission(Request $request)
     {
+        $data = array();
+
         $permissionService = new PermissionService;
         
         $id = trim($request->input('id', ''));
         if ($id == '') {
-            send_msg_json(ERROR_RETURN, "请传入权限id");
+            // 表单形式
+            $data['method'] = "add";
+
+            $data['permission'] = [];
+        } else {
+            // 获取当前权限信息
+            $permission = $permissionService->getPermissionById($id)->toArray();
+            
+            if (empty($permission)) {
+                send_msg_json(ERROR_RETURN, "权限信息不存在");
+            }
+            // 表单形式
+            $data['method'] = "edit";
+            // 通过id查到的权限
+            $data['permission'] = $permission;
         }
-        // 获取当前权限信息
-        $permission = $permissionService->getPermissionById($id)->toArray();
-        if (empty($permission)) {
-            send_msg_json(ERROR_RETURN, "权限信息不存在");
-        }
+        
         // 获取所有权限信息
         $permissions = $permissionService->getPermissionForTree();
         // 生成树结构
@@ -382,10 +383,8 @@ class PermissionController extends Controller
         // 生成下拉菜单数据
         $selection = $permissionService->visitTree($tree);
         
-        $data = array(
-            "permission" => $permission,
-            "selection" => $selection
-        );
+        $data['selection'] = $selection;
+
         return send_msg_json(SUCCESS_RETURN, "success", $data);
     }
 
