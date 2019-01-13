@@ -13,13 +13,15 @@ class PermissionController extends Controller
      *
      * @return void
      */
-    public function getManagerList()
+    public function getManagerList(Request $request)
     {
         $permissionService = new PermissionService;
 
-        $list = $permissionService->getManagerList();
+        $params['name'] = trim($request->input('name',''));
+        
+        $list = $permissionService->getManagerList($params);
 
-        return $list;
+        return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
 
     /**
@@ -290,7 +292,9 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
         // 所有权限信息
-        $permissionList = $permissionService->getPermissionList(false);
+        $permissions = $permissionService->getPermissionForTree();
+        // 生成树结构
+        $permissionList = $permissionService->getTree($permissions);
         // 与角色绑定的权限id
         $rolePermissionIds = $permissionService->getRolePermissionByRoleId($id);
         

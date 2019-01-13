@@ -56,10 +56,10 @@ class LoginController extends Controller
     {
         $loginService = new LoginService;
         // 接收accessToken
-        $refreshToken = trim($request->header('refreshToken',''));
+        $refreshToken = trim($request->input('refreshToken',''));
         // 检查token是否传入
         if ($refreshToken == '') {
-            send_msg_json(ERROR_RETURN,"请传入刷新令牌");
+            send_msg_json(REFRESH_TOKEN_IS_ERROR,"请传入刷新令牌");
         }
         $data = $loginService->changeToken($refreshToken);
 

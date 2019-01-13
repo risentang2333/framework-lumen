@@ -25,7 +25,7 @@ class Admin
         // 根据accessToken查询管理员信息
         $manager = DB::table('managers')->select(['id','name','account','access_token','expire'])->where('access_token', $accessToken)->first();
         if (empty($manager)) {
-            send_msg_json(ERROR_RETURN, "管理员不存在");
+            send_msg_json(ACCESS_TOKEN_IS_ERROR, "访问令牌错误");
         }
         // 判断token是否过期
         if (time() > $manager->expire) {

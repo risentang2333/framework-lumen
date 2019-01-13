@@ -10,7 +10,7 @@ class LoginService
     public function login($account, $password)
     {
         // 过期时间
-        $expire = time() + 300;
+        $expire = time() + 120;
         // accessToken
         $accessToken = md5(time().$account);
 
@@ -44,7 +44,7 @@ class LoginService
             send_msg_json(REFRESH_TOKEN_IS_ERROR, '刷新令牌错误');
         }
         // 新的过期时间
-        $new_expire = time() + 300;
+        $new_expire = time() + 120;
         // 新的accessToken
         $new_accessToken = md5($manager->refresh_token);
         // 新的刷新token

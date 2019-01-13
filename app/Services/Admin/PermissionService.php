@@ -17,9 +17,16 @@ class PermissionService
      * @param integer $pageNumber
      * @return array
      */
-    public function getManagerList($pageNumber = 20)
+    public function getManagerList($params, $pageNumber = 20)
     {
-        $data = Managers::paginate($pageNumber)->toArray();
+        $data = Managers::select(['id','account','name'])
+                        ->where(function ($query) use ($params){
+                            if ($params['name']) {
+                                $query->where('name','like','%'.$params['name'].'%');
+                            }
+                        })
+                        ->paginate($pageNumber)
+                        ->toArray();
 
         return $data;
     }
