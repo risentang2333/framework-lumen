@@ -284,10 +284,15 @@ class PermissionService
      *
      * @return void
      */
-    public function getPermissionForTree()
+    public function getPermissionForTree($selectAll = true)
     {
         $data = Permissions::select(['id','name','parent_id'])
-                        ->where('status',0)
+                        ->where(function ($query) use ($selectAll) {
+                            $query->where('status', 0);
+                            if (!$selectAll) {
+                                $query->where('is_api', 0);
+                            }
+                        })
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')

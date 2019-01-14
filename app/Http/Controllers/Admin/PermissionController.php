@@ -294,11 +294,19 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
         // 所有权限信息
-        $permissions = $permissionService->getPermissionForTree();
-        // 生成树结构
-        $permissionList = $permissionService->getTree($permissions);
+        $permissions = $permissionService->getPermissionForTree(true);
         // 与角色绑定的权限id
         $rolePermissionIds = $permissionService->getRolePermissionByRoleId($id);
+        // 添加是否为选中项
+        foreach ($permissions as $key => $value) {
+            if (in_array($value['id'], $rolePermissionIds)) {
+                $permissions[$key]['is_on'] = true;
+            } else {
+                $permissions[$key]['is_on'] = false;
+            }
+        }
+        // 生成树结构
+        $permissionList = $permissionService->getTree($permissions);
         
         $data = array(
             "rolePermissionIds" => $rolePermissionIds,
@@ -383,7 +391,7 @@ class PermissionController extends Controller
         }
         
         // 获取所有权限信息
-        $permissions = $permissionService->getPermissionForTree();
+        $permissions = $permissionService->getPermissionForTree(false);
         // 生成树结构
         $tree = $permissionService->getTree($permissions);
         // 生成下拉菜单数据
