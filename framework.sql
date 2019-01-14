@@ -1,34 +1,19 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : 144.202.5.112
-Source Server Version : 50560
-Source Host           : 144.202.5.112:8888
+Source Server         : 127.0.0.1
+Source Server Version : 50553
+Source Host           : 127.0.0.1:3306
 Source Database       : framework
 
 Target Server Type    : MYSQL
-Target Server Version : 50560
+Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-01-10 16:46:57
+Date: 2019-01-14 10:41:35
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for item_category
--- ----------------------------
-DROP TABLE IF EXISTS `item_category`;
-CREATE TABLE `item_category` (
-  `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '',
-  `parent_id` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='项目分类';
-
--- ----------------------------
--- Records of item_category
--- ----------------------------
 
 -- ----------------------------
 -- Table structure for items
@@ -49,6 +34,21 @@ CREATE TABLE `items` (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for item_category
+-- ----------------------------
+DROP TABLE IF EXISTS `item_category`;
+CREATE TABLE `item_category` (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `parent_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='项目分类';
+
+-- ----------------------------
+-- Records of item_category
+-- ----------------------------
+
+-- ----------------------------
 -- Table structure for managers
 -- ----------------------------
 DROP TABLE IF EXISTS `managers`;
@@ -61,13 +61,14 @@ CREATE TABLE `managers` (
   `refresh_token` varchar(64) NOT NULL DEFAULT '',
   `expire` int(11) NOT NULL DEFAULT '0',
   `is_administrator` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为超级管理员 0：否，1:是',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '管理员删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'd1fb30dc8cec010e597f8084ce433c50', '5d56b91769b5f76ea54c0d7a6cdf1a62', '1547360796', '1');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '17548331c907aa6a24ed723a3fb8214f', '98cca5549ed6c0e060fc4d2a0f6380e7', '1547432577', '1', '0');
 
 -- ----------------------------
 -- Table structure for orders
@@ -92,6 +93,49 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for permissions
+-- ----------------------------
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE `permissions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `route` varchar(100) NOT NULL DEFAULT '' COMMENT '前端路由',
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '菜单名称',
+  `description` varchar(20) NOT NULL DEFAULT '',
+  `icon` varchar(30) NOT NULL DEFAULT '',
+  `sort_order` tinyint(2) NOT NULL DEFAULT '0' COMMENT '排序编号',
+  `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
+  `is_api` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为api接口路由',
+  `is_display` tinyint(1) NOT NULL DEFAULT '0' COMMENT '菜单是否显示，0：不显示，1：显示',
+  `is_administrator` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为超管权限， 0：否，1：是',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '权限删除状态0：正常，1：已删除',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
+
+-- ----------------------------
+-- Records of permissions
+-- ----------------------------
+INSERT INTO `permissions` VALUES ('1', 'admin/login', '接口-管理员登录', '', '', '0', '0', '0', '0', '0', '1');
+INSERT INTO `permissions` VALUES ('2', 'admin/changeToken', '接口-更新token', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('3', 'admin/permission/getMenu', '接口-获取菜单', '', '', '0', '0', '0', '0', '1', '0');
+INSERT INTO `permissions` VALUES ('4', 'admin/permission/getManagerList', '接口-获取管理员列表', '', '', '0', '0', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('5', 'admin/permission/getManagerRole', '接口-获取管理员角色信息', '', '', '0', '4', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('6', 'admin/permission/editManagerRole', '接口-绑定管理员角色', '', '', '0', '5', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('7', 'admin/permission/getManager', '接口-获取管理员信息', '', '', '0', '5', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('8', 'admin/permission/editManager', '接口-编辑管理员信息', '', '', '0', '4', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('9', 'admin/permission/deleteManager', '接口-删除管理员信息', '', '', '0', '0', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('10', 'admin/permission/getRoleList', '接口-获取角色列表', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('11', 'admin/permission/getRole', '接口-获取角色信息', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('12', 'admin/permission/editRole', '接口-编辑角色信息', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('13', 'admin/permission/deleteRole', '接口-删除角色', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('14', 'admin/permission/getRolePermission', '接口-获取角色权限信息', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('15', 'admin/permission/editRolePermission', '接口-编辑角色权限信息', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('16', 'admin/permission/getPermissionList', '接口-获取权限列表', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('17', 'admin/permission/addPermission', '接口-获取添加权限数据', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('18', 'admin/permission/getPermission', '接口-获取权限信息', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('19', 'admin/permission/editPermission', '接口-编辑权限', '', '', '0', '0', '0', '0', '0', '0');
+INSERT INTO `permissions` VALUES ('20', 'admin/permission/deleteRole', '接口-删除权限', '', '', '0', '0', '0', '0', '0', '0');
 
 -- ----------------------------
 -- Table structure for permission_role
@@ -129,46 +173,21 @@ INSERT INTO `permission_role` VALUES ('19', '19', '1');
 INSERT INTO `permission_role` VALUES ('20', '20', '1');
 
 -- ----------------------------
--- Table structure for permissions
+-- Table structure for roles
 -- ----------------------------
-DROP TABLE IF EXISTS `permissions`;
-CREATE TABLE `permissions` (
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE `roles` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `route` varchar(100) NOT NULL DEFAULT '' COMMENT '前端路由',
-  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '菜单名称',
-  `description` varchar(20) NOT NULL DEFAULT '',
-  `icon` varchar(30) NOT NULL DEFAULT '',
-  `sort_order` tinyint(2) NOT NULL DEFAULT '0' COMMENT '排序编号',
-  `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
-  `is_api` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为api接口路由',
-  `is_display` tinyint(1) NOT NULL DEFAULT '0' COMMENT '菜单是否显示，0：不显示，1：显示',
-  `is_administrator` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为超管权限， 0：否，1：是',
+  `name` varchar(20) NOT NULL DEFAULT '',
+  `is_administrator` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为超级管理员 0：否，1：是',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '角色删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
 
 -- ----------------------------
--- Records of permissions
+-- Records of roles
 -- ----------------------------
-INSERT INTO `permissions` VALUES ('1', 'admin/login', '接口-管理员登录', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('2', 'admin/changeToken', '接口-更新token', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('3', 'admin/permission/getMenu', '接口-获取菜单', '', '', '0', '0', '0', '0', '1');
-INSERT INTO `permissions` VALUES ('4', 'admin/permission/getManagerList', '接口-获取管理员列表', '', '', '0', '0', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('5', 'admin/permission/getManagerRole', '接口-获取管理员角色信息', '', '', '0', '4', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('6', 'admin/permission/editManagerRole', '接口-绑定管理员角色', '', '', '0', '5', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('7', 'admin/permission/getManager', '接口-获取管理员信息', '', '', '0', '5', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('8', 'admin/permission/editManager', '接口-编辑管理员信息', '', '', '0', '4', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('9', 'admin/permission/deleteManager', '接口-删除管理员信息', '', '', '0', '0', '0', '1', '1');
-INSERT INTO `permissions` VALUES ('10', 'admin/permission/getRoleList', '接口-获取角色列表', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('11', 'admin/permission/getRole', '接口-获取角色信息', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('12', 'admin/permission/editRole', '接口-编辑角色信息', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('13', 'admin/permission/deleteRole', '接口-删除角色', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('14', 'admin/permission/getRolePermission', '接口-获取角色权限信息', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('15', 'admin/permission/editRolePermission', '接口-编辑角色权限信息', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('16', 'admin/permission/getPermissionList', '接口-获取权限列表', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('17', 'admin/permission/addPermission', '接口-获取添加权限数据', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('18', 'admin/permission/getPermission', '接口-获取权限信息', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('19', 'admin/permission/editPermission', '接口-编辑权限', '', '', '0', '0', '0', '0', '0');
-INSERT INTO `permissions` VALUES ('20', 'admin/permission/deleteRole', '接口-删除权限', '', '', '0', '0', '0', '0', '0');
+INSERT INTO `roles` VALUES ('1', '超级管理员', '1', '1');
 
 -- ----------------------------
 -- Table structure for role_manager
@@ -185,22 +204,6 @@ CREATE TABLE `role_manager` (
 -- Records of role_manager
 -- ----------------------------
 INSERT INTO `role_manager` VALUES ('1', '1', '1');
-
--- ----------------------------
--- Table structure for roles
--- ----------------------------
-DROP TABLE IF EXISTS `roles`;
-CREATE TABLE `roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(20) NOT NULL DEFAULT '',
-  `is_administrator` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为超级管理员 0：否，1：是',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
-
--- ----------------------------
--- Records of roles
--- ----------------------------
-INSERT INTO `roles` VALUES ('1', '超级管理员', '1');
 
 -- ----------------------------
 -- Table structure for staff

@@ -255,6 +255,8 @@ class PermissionController extends Controller
      */
     public function deleteRole(Request $request)
     {
+        $permissionService = new PermissionService;
+
         $id = trim($request->input('id', ''));
         if ($id == '') {
             send_msg_json(ERROR_RETURN, "请传入角色id");
@@ -446,7 +448,7 @@ class PermissionController extends Controller
     }
 
     /**
-     * 物理删除权限
+     * 逻辑删除权限
      *
      * @param Request $request
      * @return string

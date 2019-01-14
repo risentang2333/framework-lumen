@@ -36,9 +36,9 @@ class Admin
         // 该用户所有权限
         $permissions = $this->getPermissionByManagerId($manager->id);
         // 判断是否有该路由权限
-        if (!in_array($route, $permissions)) {
-            send_msg_json(ERROR_RETURN, "没有".$route."权限");
-        }
+        // if (!in_array($route, $permissions)) {
+        //     send_msg_json(ERROR_RETURN, "没有".$route."权限");
+        // }
         
         return $next($request);
     }

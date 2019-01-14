@@ -21,6 +21,9 @@ class PermissionService
     {
         $data = Managers::select(['id','account','name'])
                         ->where(function ($query) use ($params){
+                            // 逻辑删除判断
+                            $query->where('status', 0);
+                            // 如果有姓名搜索项
                             if ($params['name']) {
                                 $query->where('name','like','%'.$params['name'].'%');
                             }
@@ -41,9 +44,9 @@ class PermissionService
     public function getRoleList($paginate = true, $pageNumber = 20)
     {
         if ($paginate) {
-            $data = Roles::paginate($pageNumber);
+            $data = Roles::where('status', 0)->paginate($pageNumber);
         } else {
-            $data = Roles::get();
+            $data = Roles::where('status', 0)->get();
         }
 
         return $data->toArray();
@@ -93,7 +96,7 @@ class PermissionService
      */
     public function getManagerById($id)
     {
-        $manager = Managers::select(['id','name','is_administrator'])->where('id',$id)->first();
+        $manager = Managers::where('status', 0)->find($id);
         
         return $manager;
     }
@@ -112,7 +115,10 @@ class PermissionService
             $manager = new Managers;
             $manager->account = $account;
         } else {
-            $manager = Managers::find($id);
+            $manager = Managers::where('status',0)->find($id);
+            if (empty($manager)) {
+                send_msg_json(ERROR_RETURN, "该管理员不存在");
+            }
         }
 
         $manager->name = $name;
@@ -142,7 +148,9 @@ class PermissionService
     public function deleteManager($id)
     {
         DB::transaction(function () use ($id){
-            Managers::find($id)->delete();
+            // 逻辑删除管理员表中管理员数据
+            DB::table('managers')->where('id', $id)->update(['status'=>1]);
+            // 物理删除角色管理员关系表中数据
             RoleManager::where('manager_id', $id)->delete();
         });
         return true;
@@ -156,7 +164,7 @@ class PermissionService
      */
     public function getRoleByRoleId($id)
     {
-        $role = Roles::find($id);
+        $role = Roles::where('status', 0)->find($id);
         
         return $role;
     }
@@ -173,7 +181,10 @@ class PermissionService
         if ($id == '') {
             $role = new Roles;
         } else {
-            $role = Roles::find($id);
+            $role = Roles::where('status', 0)->find($id);
+            if (empty($role)) {
+                send_msg_json(ERROR_RETURN, "该角色不存在");
+            }
         }
         
         $role->name = $name;
@@ -191,7 +202,11 @@ class PermissionService
     public function deleteRole($id)
     {
         DB::transaction(function () use ($id){
-            Roles::find($id)->delete();
+            // 逻辑删除角色表数据
+            DB::table('roles')->where('id', $id)->update(['status'=>1]);
+            // 物理删除角色管理员关系表
+            RoleManager::where('role_id', $id)->delete();
+            // 物理删除角色权限关系表
             PermissionRole::where('role_id', $id)->delete();
         });
         return true;
@@ -207,9 +222,9 @@ class PermissionService
     public function getPermissionList($paginate = true, $pageNumber = 20)
     {
         if ($paginate) {
-            $data = Permissions::paginate($pageNumber);
+            $data = Permissions::where('status',0)->paginate($pageNumber);
         } else {
-            $data = Permissions::select(['id', 'route', 'name'])->get();
+            $data = Permissions::where('status',0)->select(['id', 'route', 'name'])->get();
         }
 
         return $data->toArray();
@@ -259,8 +274,8 @@ class PermissionService
      */
     public function getPermissionById($id)
     {
-        $data = Permissions::find($id);
-        
+        $data = Permissions::where('status',0)->find($id);
+
         return $data;
     }
 
@@ -272,6 +287,7 @@ class PermissionService
     public function getPermissionForTree()
     {
         $data = Permissions::select(['id','name','parent_id'])
+                        ->where('status',0)
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')
@@ -337,7 +353,9 @@ class PermissionService
     public function deletePermission($id)
     {
         DB::transaction(function () use ($id){
-            Permissions::find($id)->delete();
+            // 逻辑删除权限表
+            DB::table('permissions')->where('id', $id)->update(['status'=>1]);
+            // 物理删除权限角色关系表
             PermissionRole::where('permission_id', $id)->delete();
         });
         return true;
@@ -357,7 +375,7 @@ class PermissionService
 
         $data = Permissions::select(['id','name','route','parent_id'])
                         ->whereIn('id',$permissionIds)
-                        ->where('is_display',1)
+                        ->where(['is_display'=>1, 'status'=>0])
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')
@@ -373,8 +391,10 @@ class PermissionService
      */
     public function editPermission($params)
     {
-        $permission = Permissions::find($params['id']);
-
+        $permission = Permissions::where('status',0)->find($params['id']);
+        if (empty($permission)) {
+            send_msg_json(ERROR_RETURN, "该权限不存在");
+        }
         $permission->route = $params['route'];
         $permission->name = $params['name'];
         $permission->description = $params['description'];
@@ -395,7 +415,7 @@ class PermissionService
      */
     public function getManagerByAccessToken($accessToken)
     {
-        $manager = Managers::where('access_token', $accessToken)->first();
+        $manager = Managers::where(['access_token'=>$accessToken, 'status'=>0])->first();
         
         return $manager;
     }

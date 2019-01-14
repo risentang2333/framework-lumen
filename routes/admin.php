@@ -49,7 +49,7 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     // 编辑权限信息
     Route::post('/editPermission', 'PermissionController@editPermission');
     // 物理删除权限
-    Route::post('/deleteRole', 'PermissionController@deleteRole');
+    Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
 Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取员工列表
