@@ -55,3 +55,7 @@ Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取员工列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
 });
+// 获取日志列表
+Route::group(['prefix' => 'log'], function () {
+    Route::get('/getLogList', 'LogController@getLogList');
+});

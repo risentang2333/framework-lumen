@@ -41,7 +41,7 @@ class PermissionService
      * @param integer $pageNumber
      * @return void
      */
-    public function getRoleList($paginate = true, $pageNumber = 20)
+    public function getRoleList($paginate = true, $pageNumber = 15)
     {
         if ($paginate) {
             $data = Roles::where('status', 0)->paginate($pageNumber);

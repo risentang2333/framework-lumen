@@ -100,4 +100,70 @@ if (!function_exists('send_msg_json')) {
         ], JSON_UNESCAPED_UNICODE));
     }
 }
+
+if (!function_exists('write_log')) {
+    
+    /**
+     * 编写日志
+     *
+     * @param string $accessToken
+     * @param string $message
+     * @return boolean
+     */
+    function write_log($accessToken, $message) {
+        // 操作者
+        $manager = \Illuminate\Support\Facades\DB::table('managers')->select('id','name')->where('access_token', $accessToken)->first();
+        // 操作者id
+        $manager_id = $manager->id;
+        // 操作者姓名
+        $name = $manager->name;
+        // 操作ip地址
+        $ip = get_ip();
+        // 创建时间
+        $created_at = time();
+        // 传递参数
+        $params = [
+            'manager_id' => $manager_id,
+            'name' => $name,
+            'ip' => $ip,
+            'message' => $message,
+            'created_at' => $created_at,
+        ];
+        // 写入
+        \App\Common\log::getInstance()->writeLog($params);
+
+        return true;
+    }
+}
+
+if (!function_exists('get_ip')) {
+    /**
+     * 获取执行ip地址
+     *
+     * @return void
+     */
+    function get_ip() {
+        // 判断服务器是否允许$_SERVER
+        if(isset($_SERVER)){    
+            if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])){
+                $realip = $_SERVER['HTTP_X_FORWARDED_FOR'];
+            }elseif(isset($_SERVER['HTTP_CLIENT_IP'])) {
+                $realip = $_SERVER['HTTP_CLIENT_IP'];
+            }else{
+                $realip = $_SERVER['REMOTE_ADDR'];
+            }
+        }else{
+            // 不允许就使用getenv获取  
+            if(getenv("HTTP_X_FORWARDED_FOR")){
+                $realip = getenv( "HTTP_X_FORWARDED_FOR");
+            }elseif(getenv("HTTP_CLIENT_IP")) {
+                $realip = getenv("HTTP_CLIENT_IP");
+            }else{
+                $realip = getenv("REMOTE_ADDR");
+            }
+        }
+
+        return $realip;
+    }
+}
     

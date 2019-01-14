@@ -36,12 +36,14 @@ class LoginController extends Controller
         $id = $manager->id;
         // 根据用户id查询角色id组
         $permissions = $permissionService->getPermissionByManagerId($id);
-
+        // 生成侧拉菜单
         $tree = $permissionService->getTree($permissions);
         $data = array(
             "manager" => $manager,
             "tree" => $tree
         );
+        // 添加日志
+        write_log($manager->access_token, '管理员登录');
         
         send_msg_json(SUCCESS_RETURN,"登录成功",$data);
     }

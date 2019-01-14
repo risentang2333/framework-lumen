@@ -183,7 +183,7 @@ class PermissionController extends Controller
     {
         $permissionService = new PermissionService;
 
-        $list = $permissionService->getRoleList(true, 20);
+        $list = $permissionService->getRoleList(true, 15);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -496,6 +496,6 @@ class PermissionController extends Controller
 
         $tree = $permissionService->getTree($permissions);
 
-        return send_msg_json(0, "success", $tree);
+        return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
 }
