@@ -14,6 +14,11 @@
 Route::post('/login', 'LoginController@login');
 // 刷新token
 Route::post('/changeToken', 'LoginController@changeToken');
+// 获取日志模块
+Route::group(['prefix' => 'log'], function () {
+    // 获取日志列表
+    Route::get('/getLogList', 'LogController@getLogList');
+});
 // 包含中间件，添加permission路由
 Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     // 获取菜单
@@ -55,7 +60,5 @@ Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取员工列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
 });
-// 获取日志列表
-Route::group(['prefix' => 'log'], function () {
-    Route::get('/getLogList', 'LogController@getLogList');
-});
+Route::get('/getAreaList', 'StaffController@getAreaList');
+

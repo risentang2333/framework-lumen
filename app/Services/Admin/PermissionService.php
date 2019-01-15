@@ -19,7 +19,7 @@ class PermissionService
      */
     public function getManagerList($params, $pageNumber = 20)
     {
-        $data = Managers::select(['id','account','name'])
+        $list = Managers::select(['id','account','name'])
                         ->where(function ($query) use ($params){
                             // 逻辑删除判断
                             $query->where('status', 0);
@@ -31,7 +31,7 @@ class PermissionService
                         ->paginate($pageNumber)
                         ->toArray();
 
-        return $data;
+        return $list;
     }
 
     /**

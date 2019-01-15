@@ -468,7 +468,6 @@ class PermissionController extends Controller
         if ($id == '') {
             send_msg_json(ERROR_RETURN, "请传入权限id");
         }
-
         $permission = $permissionService->getPermissionById($id);
         if (empty($permission)) {
             send_msg_json(ERROR_RETURN, "权限信息不存在");

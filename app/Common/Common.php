@@ -130,7 +130,7 @@ if (!function_exists('write_log')) {
             'created_at' => $created_at,
         ];
         // 写入
-        \App\Common\log::getInstance()->writeLog($params);
+        \App\Common\Log::getInstance()->writeLog($params);
 
         return true;
     }
