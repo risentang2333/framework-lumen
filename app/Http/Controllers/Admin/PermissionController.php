@@ -227,21 +227,19 @@ class PermissionController extends Controller
         $id = trim($request->input('id', ''));
         // 角色名
         $name = trim($request->input('name', ''));
-        if ($id == '') {
-            send_msg_json(ERROR_RETURN, "请传入角色id");
-        }
         if ($name == '') {
             send_msg_json(ERROR_RETURN, "请传入角色名");
         }
-        // 超级管理员角色不能修改
-        $role = $permissionService->getRoleByRoleId($id);
-        if (empty($role)) {
-            send_msg_json(ERROR_RETURN, "该角色不存在");
+        if ($id != '') {
+            $role = $permissionService->getRoleByRoleId($id);
+            if (empty($role)) {
+                send_msg_json(ERROR_RETURN, "该角色不存在");
+            }
+            // 超级管理员角色不能修改
+            if ($role->is_administrator == 1) {
+                send_msg_json(ERROR_RETURN, "超级管理员不能修改");
+            }
         }
-        if ($role->is_administrator == 1) {
-            send_msg_json(ERROR_RETURN, "超级管理员不能修改");
-        }
-
         $role = $permissionService->saveRole($id, $name);
 
         return send_msg_json(SUCCESS_RETURN, "编辑成功");
