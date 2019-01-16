@@ -72,7 +72,7 @@ class PermissionService
      * @param [type] $role
      * @return void
      */
-    public function editManagerRole($id, $roleIds)
+    public function saveManagerRole($id, $roleIds)
     {
         DB::transaction(function () use ($id, $roleIds){
             // 先把关系表中与管理员id有关的删除
@@ -138,7 +138,6 @@ class PermissionService
         return $manager->save();
     }
 
-
     /**
      * 物理删除管理员
      *
@@ -191,7 +190,6 @@ class PermissionService
 
         return $role->save();
     }
-
 
     /**
      * 物理删除角色
@@ -250,7 +248,7 @@ class PermissionService
      * @param array $permissions
      * @return string
      */
-    public function editRolePermission($id, $permissionIds)
+    public function saveRolePermission($id, $permissionIds)
     {
         DB::transaction(function () use ($id, $permissionIds){
             // 先把关系表中与角色id有关的删除
@@ -311,7 +309,7 @@ class PermissionService
         $tree = array();
         foreach($items as $item){
             if(isset($items[$item['parent_id']])){
-                $items[$item['parent_id']]['son'][] = &$items[$item['id']];
+                $items[$item['parent_id']]['children'][] = &$items[$item['id']];
             }else{
                 $tree[] = &$items[$item['id']];
             }
@@ -343,11 +341,11 @@ class PermissionService
                 $temp['names'] = $names.'>'.$value['name'];
             }
             array_push($selection, $temp);
-            if (isset($value['son'])) {
+            if (isset($value['children'])) {
                 if ($ids == 0) {
-                    $this->visitTree($items[$key]['son'], $value['id'], $value['name']);
+                    $this->visitTree($items[$key]['children'], $value['id'], $value['name']);
                 } else {
-                    $this->visitTree($items[$key]['son'], $ids.'-'.$value['id'], $names.'>'.$value['name']);
+                    $this->visitTree($items[$key]['children'], $ids.'-'.$value['id'], $names.'>'.$value['name']);
                 }
             }
         }
@@ -355,6 +353,12 @@ class PermissionService
         return $selection;
     }
 
+    /**
+     * 逻辑删除权限
+     *
+     * @param int $id
+     * @return boolean
+     */
     public function deletePermission($id)
     {
         DB::transaction(function () use ($id){
@@ -394,11 +398,15 @@ class PermissionService
      * @param [type] $params
      * @return void
      */
-    public function editPermission($params)
+    public function savePermission($params)
     {
-        $permission = Permissions::where('status',0)->find($params['id']);
-        if (empty($permission)) {
-            send_msg_json(ERROR_RETURN, "该权限不存在");
+        if ($params['id'] == '') {
+            $permission = new Permissions;
+        } else {
+            $permission = Permissions::where('status', 0)->find($params['id']);
+            if (empty($permission)) {
+                send_msg_json(ERROR_RETURN, "该权限不存在");
+            }
         }
         $permission->route = $params['route'];
         $permission->name = $params['name'];

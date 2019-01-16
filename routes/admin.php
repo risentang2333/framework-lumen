@@ -33,7 +33,7 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getManager', 'PermissionController@getManager');
     // 编辑管理员信息
     Route::post('/editManager', 'PermissionController@editManager');
-    // 物理删除管理员
+    // 逻辑删除管理员
     Route::post('/deleteManager', 'PermissionController@deleteManager');
     // 获取角色列表
     Route::get('/getRoleList', 'PermissionController@getRoleList');
@@ -41,7 +41,7 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getRole', 'PermissionController@getRole');
     // 编辑角色信息
     Route::post('/editRole', 'PermissionController@editRole');
-    // 物理删除角色
+    // 逻辑删除角色
     Route::post('/deleteRole', 'PermissionController@deleteRole');
     // 获取角色权限信息
     Route::get('/getRolePermission', 'PermissionController@getRolePermission');
@@ -53,12 +53,15 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::get('/getPermission', 'PermissionController@getPermission');
     // 编辑权限信息
     Route::post('/editPermission', 'PermissionController@editPermission');
-    // 物理删除权限
+    // 逻辑删除权限
     Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
 Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
-    // 获取员工列表
+    // 获取服务人员列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
+    // 获取服务人员信息
+    Route::get('/getStaff', 'StaffController@getStaff');
+    // 编辑服务人员信息
+    Route::get('/editStaff', 'StaffController@editStaff');
 });
 Route::get('/getAreaList', 'StaffController@getAreaList');
-

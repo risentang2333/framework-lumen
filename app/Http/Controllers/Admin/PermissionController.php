@@ -85,7 +85,7 @@ class PermissionController extends Controller
         if ($manager->is_administrator == 1) {
             send_msg_json(ERROR_RETURN, "超级管理员不可修改");
         }
-        $permissionService->editManagerRole($id, $roleIds);
+        $permissionService->saveManagerRole($id, $roleIds);
 
         return send_msg_json(SUCCESS_RETURN, "编辑成功");
 
@@ -107,6 +107,9 @@ class PermissionController extends Controller
         $manager = $permissionService->getManagerById($id);
         if (empty($manager)) {
             send_msg_json(ERROR_RETURN, '管理员不存在');
+        }
+        if ($manager->is_administrator == 1) {
+            send_msg_json(ERROR_RETURN, "超级管理员不可修改");
         }
         return send_msg_json(SUCCESS_RETURN, "success", $manager);
     }
@@ -130,6 +133,18 @@ class PermissionController extends Controller
         $password = trim($request->input('password', ''));
         // 二次输入密码
         $repassword = trim($request->input('repassword', ''));
+        // 成功时回传信息
+        $returnMsg = '添加成功';
+        if ($id != '') {
+            $manager = $permissionService->getManagerById($id);
+            if (empty($manager)) {
+                send_msg_json(ERROR_RETURN, '管理员不存在');
+            }
+            if ($manager->is_administrator == 1) {
+                send_msg_json(ERROR_RETURN, "超级管理员不可修改");
+            }
+            $returnMsg = '编辑成功';
+        }
         if ($name == '') {
             send_msg_json(ERROR_RETURN, "请传入姓名");
         }
@@ -144,7 +159,7 @@ class PermissionController extends Controller
         }
         $permissionService->saveManager($id, $name, $account, $password);
 
-        return send_msg_json(SUCCESS_RETURN, "编辑成功");
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 
     /**
@@ -227,6 +242,8 @@ class PermissionController extends Controller
         $id = trim($request->input('id', ''));
         // 角色名
         $name = trim($request->input('name', ''));
+        // 成功时回传信息
+        $returnMsg = '添加成功';
         if ($name == '') {
             send_msg_json(ERROR_RETURN, "请传入角色名");
         }
@@ -239,10 +256,11 @@ class PermissionController extends Controller
             if ($role->is_administrator == 1) {
                 send_msg_json(ERROR_RETURN, "超级管理员不能修改");
             }
+            $returnMsg = '编辑成功';
         }
         $role = $permissionService->saveRole($id, $name);
 
-        return send_msg_json(SUCCESS_RETURN, "编辑成功");
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 
     /**
@@ -338,7 +356,7 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }
         
-        $permissionService->editRolePermission($id, $permissionIds);
+        $permissionService->saveRolePermission($id, $permissionIds);
 
         return send_msg_json(SUCCESS_RETURN, "编辑成功");
     }
@@ -382,6 +400,10 @@ class PermissionController extends Controller
             if (empty($permission)) {
                 send_msg_json(ERROR_RETURN, "权限信息不存在");
             }
+
+            if ($permission['is_administrator'] == 1) {
+                send_msg_json(ERROR_RETURN, "基础权限无法修改");
+            }
             // 表单形式
             $data['method'] = "edit";
             // 通过id查到的权限
@@ -423,12 +445,23 @@ class PermissionController extends Controller
         $params['sort_order'] = trim($request->input('sort_order', 0));
         // 父级id，通过下拉框选择
         $params['parent_id'] = trim($request->input('parent_id', ''));
+        // 是否为接口
+        $params['is_api'] = trim($request->input('is_api', ''));
         // 是否侧拉展示
         $params['is_display'] = trim($request->input('is_display', ''));
-
-        $params['is_api'] = trim($request->input('is_api', ''));
-        if ($params['id'] == '') {
-            send_msg_json(ERROR_RETURN, "请传入权限id");
+        // 成功时回传信息
+        $returnMsg = '添加成功';
+        // 编辑权限时验证超管
+        if ($params['id'] != '') {
+            // 权限信息
+            $permission = $permissionService->getPermissionById($params['id']);
+            if (empty($permission)) {
+                send_msg_json(ERROR_RETURN, "该权限不存在");
+            }
+            if ($permission->is_administrator == 1) {
+                send_msg_json(ERROR_RETURN, "基础权限无法修改");
+            }
+            $returnMsg = '编辑成功';
         }
         if ($params['route'] == '') {
             send_msg_json(ERROR_RETURN, "请传入路由");
@@ -448,9 +481,9 @@ class PermissionController extends Controller
         if ($params['is_api'] == '') {
             send_msg_json(ERROR_RETURN, "请传入是否为接口");
         }
-        $permissionService->editPermission($params);
+        $permissionService->savePermission($params);
 
-        return send_msg_json(SUCCESS_RETURN, "编辑成功");
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 
     /**

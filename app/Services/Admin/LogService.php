@@ -26,12 +26,9 @@ class LogService
         } catch (\Exception $e) {
             $list['current_page'] = 1;
             $list['data'] = [];
-            $list['first_page_url'] = "http://10.0.0.33:1017/admin/log/getLogList?page=1";
             $list['from'] = null;
             $list['last_page'] = 1;
-            $list['last_page_url'] = "http://10.0.0.33:1017/admin/log/getLogList?page=1";
             $list['next_page_url'] = null;
-            $list['path'] = "http://10.0.0.33:1017/admin/log/getLogList";
             $list['per_page'] = 15;
             $list['prev_page_url'] = null;
             $list['to'] = null;
