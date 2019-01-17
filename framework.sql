@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-01-16 17:03:14
+Date: 2019-01-17 11:03:15
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -215,7 +215,7 @@ CREATE TABLE `managers` (
 -- Records of managers
 -- ----------------------------
 INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '9b0caaab7f0c960d2f585c422e96a109', '9087d701ce5625521006f2a9c39a6936', '1547455986', '0', '0');
-INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '8218205a9598a1bf5c4514e23a2771b3', '08f75dc3bee47e57e96541ecf9148dba', '1547703747', '0', '0');
+INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'f5c7766a5bd763aab890250dd6e25bdd', 'c9eff2bb4576055da7ba1f346088cda7', '1547775883', '0', '0');
 
 -- ----------------------------
 -- Table structure for orders
@@ -360,17 +360,19 @@ INSERT INTO `role_manager` VALUES ('5', '2', '2');
 DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '',
-  `phone` varchar(11) NOT NULL DEFAULT '',
-  `password` varchar(64) NOT NULL DEFAULT '',
-  `icon` varchar(100) NOT NULL DEFAULT '',
-  `age` tinyint(3) NOT NULL DEFAULT '0',
-  `level` tinyint(3) NOT NULL DEFAULT '0',
-  `service_type` tinyint(3) NOT NULL DEFAULT '0' COMMENT '服务类型',
-  `access_token` varchar(64) NOT NULL DEFAULT '',
-  `refresh_token` varchar(64) NOT NULL DEFAULT '',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
+  `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '密码',
+  `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
+  `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
+  `level` tinyint(3) NOT NULL DEFAULT '0' COMMENT '星级',
+  `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
+  `category` varchar(10) NOT NULL DEFAULT '' COMMENT '工种',
+  `access_token` varchar(64) NOT NULL DEFAULT '' COMMENT '认证令牌',
+  `refresh_token` varchar(64) NOT NULL DEFAULT '' COMMENT '刷新token',
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
-  `status` tinyint(1) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `created_at` int(11) NOT NULL COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
@@ -378,7 +380,7 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '13333333333', '', '', '1', '5', '2', '', '', '0', '0', '0');
+INSERT INTO `staff` VALUES ('1', '路人甲', '13333333333', '', '', '1', '5', '', '', '', '', '0', '0', '0', '0');
 
 -- ----------------------------
 -- Table structure for staff_category
@@ -389,11 +391,29 @@ CREATE TABLE `staff_category` (
   `name` varchar(30) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
 
 -- ----------------------------
 -- Records of staff_category
 -- ----------------------------
+INSERT INTO `staff_category` VALUES ('1', '家电维修', '0');
+INSERT INTO `staff_category` VALUES ('2', '空调清洗', '1');
+INSERT INTO `staff_category` VALUES ('3', '冰箱清洗', '1');
+INSERT INTO `staff_category` VALUES ('4', '洗衣机清洗', '1');
+INSERT INTO `staff_category` VALUES ('5', '热水器清洗', '1');
+INSERT INTO `staff_category` VALUES ('6', '燃气灶清洗', '1');
+INSERT INTO `staff_category` VALUES ('7', '饮水机清洗', '1');
+INSERT INTO `staff_category` VALUES ('8', '微波炉清洗', '1');
+INSERT INTO `staff_category` VALUES ('9', '房屋维修', '0');
+INSERT INTO `staff_category` VALUES ('10', '开换汽车锁', '9');
+INSERT INTO `staff_category` VALUES ('11', '开保险柜', '9');
+INSERT INTO `staff_category` VALUES ('12', '开换地锁', '9');
+INSERT INTO `staff_category` VALUES ('13', '门禁维修', '9');
+INSERT INTO `staff_category` VALUES ('14', '健康', '0');
+INSERT INTO `staff_category` VALUES ('15', '按摩理疗', '14');
+INSERT INTO `staff_category` VALUES ('16', '小儿推拿', '14');
+INSERT INTO `staff_category` VALUES ('17', '局部理疗', '14');
+INSERT INTO `staff_category` VALUES ('18', '产妇护理', '14');
 
 -- ----------------------------
 -- Table structure for users

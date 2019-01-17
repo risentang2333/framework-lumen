@@ -1,4 +1,5 @@
 <?php
+
 if (!function_exists('send_post_request')) {
     /**
      * PHP发送Json对象数据, 发送HTTP请求
