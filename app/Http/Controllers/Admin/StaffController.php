@@ -30,7 +30,7 @@ class StaffController extends Controller
      *
      * @return string
      */
-    public function getAreaList()
+    public function getAreaTree()
     {
         $staffService = new StaffService;
 
@@ -38,7 +38,7 @@ class StaffController extends Controller
 
         $tree = $staffService->getTree($areas);
 
-        return $tree;
+        return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
 
     /**
@@ -57,12 +57,25 @@ class StaffController extends Controller
         }
         // 工作人员信息
         $staff = $staffService->getStaffById($id)->toArray();
+        // 地区信息
+        $area = $staffService->getAreaForTree();
+        // 转化为树结构
+        $areaTree = $staffService->getTree($area);
+        // 工种
+        $category = $staffService->getCategoryForTree();
+        // 转化为树结构
+        $categoryTree = $staffService->getTree($category);
 
-        return send_msg_json(SUCCESS_RETURN, "success", $staff);
+        $data = array(
+            "staff" => $staff,
+            "areaTree" => $areaTree,
+            "categoryTree" => $categoryTree
+        );
+        return send_msg_json(SUCCESS_RETURN, "success", $data);
     }
 
     /**
-     * 编辑服务人员
+     * 编辑/添加服务人员
      *
      * @param Request $request
      * @return string
@@ -76,9 +89,38 @@ class StaffController extends Controller
         $params['name'] = trim($request->input('name', ''));
         // 服务人员手机号
         $params['phone'] = trim($request->input('phone', ''));
+        // 年龄
+        $params['age'] = trim($request->input('age', ''));
+        // 服务星级
+        $params['level'] = trim($request->input('level', ''));
+        // 住址
+        $params['address'] = trim($request->input('address', ''));
+        // 工种
+        $params['category'] = trim($request->input('category', ''));
+        // 操作版本号
+        $params['version'] = trim($request->input('version', 0));
+
+        if ($params['name'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
+        }
+        if ($params['phone'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员手机");
+        }
+        if ($params['age'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
+        }
+        if ($params['level'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员星级");
+        }
+        if ($params['address'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
+        }
+        if ($params['category'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员工种");
+        }
         
-        $staffService->saveStaff($params);
+        $returnMsg = $staffService->saveStaff($params);
         
-        return send_msg_json(SUCCESS_RETURN, "编辑成功");
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 }

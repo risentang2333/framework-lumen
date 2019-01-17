@@ -56,6 +56,7 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     // 逻辑删除权限
     Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
+// 服务人员模块
 Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取服务人员列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
