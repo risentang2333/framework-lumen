@@ -20,6 +20,8 @@ class StaffController extends Controller
 
         $params['name'] = trim($request->input('name',''));
 
+        $params['label_id'] = trim($request->input('label_id',''));
+
         $list = $staffService->getStaffList($params);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
@@ -56,7 +58,7 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请传入服务人员id");
         }
         // 工作人员信息
-        $staff = $staffService->getStaffById($id)->toArray();
+        $staff = $staffService->getStaffById($id);
         // 地区信息
         $area = $staffService->getAreaForTree();
         // 转化为树结构
@@ -91,14 +93,12 @@ class StaffController extends Controller
         $params['phone'] = trim($request->input('phone', ''));
         // 年龄
         $params['age'] = trim($request->input('age', ''));
-        // 服务星级
-        $params['level'] = trim($request->input('level', ''));
         // 住址
         $params['address'] = trim($request->input('address', ''));
-        // 工种
-        $params['category'] = trim($request->input('category', ''));
         // 操作版本号
         $params['version'] = trim($request->input('version', 0));
+
+        $params['labels'] = $request->input('labels', array());
 
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
@@ -109,14 +109,11 @@ class StaffController extends Controller
         if ($params['age'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
-        if ($params['level'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员星级");
-        }
         if ($params['address'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
         }
-        if ($params['category'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员工种");
+        if (empty($params['labels'])) {
+            send_msg_json(ERROR_RETURN, "请填写技能标签");
         }
         
         $returnMsg = $staffService->saveStaff($params);

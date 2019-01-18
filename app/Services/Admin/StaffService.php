@@ -2,9 +2,10 @@
 
 namespace App\Services\Admin;
 
-use App\Entities\staff;
+use App\Entities\Staff;
 use App\Entities\Areas;
-use App\Entities\StaffCategory;
+use App\Entities\StaffLabels;
+use App\Entities\ServiceCategories;
 use Illuminate\Support\Facades\DB;
 
 class StaffService 
@@ -26,7 +27,7 @@ class StaffService
      */
     public function getCategoryForTree()
     {
-        return StaffCategory::get()->keyBy('id')->toArray();
+        return ServiceCategories::get()->keyBy('id')->toArray();
     }
 
     /**
@@ -56,18 +57,21 @@ class StaffService
      */
     public function getStaffList($params, $pageNumber = 15)
     {
-        $list = staff::select(['id','name','phone','icon','age','level','address','category','version'])
-                        ->where(function ($query) use ($params){
-                            // 逻辑删除判断
-                            $query->where('status', 0);
-                            // 如果有姓名搜索项
-                            if ($params['name']) {
-                                $query->where('name','like','%'.$params['name'].'%');
-                            }
-                        })
-                        ->paginate($pageNumber)
-                        ->toArray();
-
+        $list = DB::table('staff')->select(['id','name','phone','icon','age','address','version'])
+            ->where(function ($query) use ($params){
+                // 逻辑删除判断
+                $query->where('status', 0);
+                // 如果有姓名搜索项
+                if ($params['name']) {
+                    $query->where('name','like','%'.$params['name'].'%');
+                }
+                // 根据服务类型筛选
+                if ($params['label_id']) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `service_id` = ?)', [$params['label_id']]);
+                }
+            })
+            ->paginate($pageNumber)
+            ->toArray();
         return $list;
     }
 
@@ -79,11 +83,19 @@ class StaffService
      */
     public function getStaffById($id)
     {
-        $data = staff::select(['id','name','phone','icon','age','level','address','category','version'])
-                    ->where(['status'=>0,'id'=>$id])->first();
-        if (empty($data)) {
+        $objStaff = Staff::select(['id','name','phone','icon','age','address','version'])
+            ->where(['status'=>0,'id'=>$id])->first();
+        if (empty($objStaff)) {
             send_msg_json(ERROR_RETURN, "该服务人员不存在");
         }
+        $staff = $objStaff->toArray();
+
+        $label = StaffLabels::select(['id','staff_id','service_id','name','level'])->get()->toArray();
+
+        $data = array(
+            "staff" => $staff,
+            "label" => $label
+        );
 
         return $data;
     }
@@ -96,29 +108,38 @@ class StaffService
      */
     public function saveStaff($params)
     {
-        if ($params['id'] == '') {
-            $staff = new Staff;
-            $returnMsg = '添加成功';
-        } else {
-            $staff = Staff::where('status', 0)->find($params['id']);
-            if (empty($staff)) {
-                send_msg_json(ERROR_RETURN, "该服务人员不存在");
+        $returnMsg = '';
+        DB::transaction(function () use (&$returnMsg, $params){
+            if ($params['id'] == '') {
+                $staff = new Staff;
+                $returnMsg = '添加成功';
+            } else {
+                $staff = Staff::where('status', 0)->find($params['id']);
+                if (empty($staff)) {
+                    send_msg_json(ERROR_RETURN, "该服务人员不存在");
+                }
+                if ($staff->version != $params['version']) {
+                    send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+                }
+                $staff->version = $params['version']+1;
+                $returnMsg = '编辑成功';
             }
-            if ($staff->version != $params['version']) {
-                send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+    
+            $staff->name = $params['name'];
+            $staff->phone = $params['phone'];
+            $staff->age = $params['age'];
+            $staff->address = $params['address'];
+            $staff->created_at = time();
+    
+            $staff->save();
+            // staff表操作id
+            $staffId = $staff->id;
+            // 标签数组
+            $labels = json_decode($params['labels'], true);
+            foreach ($labels as $key => $value) {
+                DB::table('staff_labels')->insert(['staff_id'=>$staffId, 'service_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level']]);
             }
-            $staff->version = $params['version']+1;
-            $returnMsg = '编辑成功';
-        }
-
-        $staff->name = $params['name'];
-        $staff->phone = $params['phone'];
-        $staff->age = $params['age'];
-        $staff->level = $params['level'];
-        $staff->address = $params['address'];
-        $staff->category = $params['category'];
-
-        $staff->save();
+        });
 
         return $returnMsg;
     }

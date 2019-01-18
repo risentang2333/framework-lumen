@@ -63,6 +63,6 @@ Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
     // 获取服务人员信息
     Route::get('/getStaff', 'StaffController@getStaff');
     // 编辑服务人员信息
-    Route::get('/editStaff', 'StaffController@editStaff');
+    Route::post('/editStaff', 'StaffController@editStaff');
 });
 Route::get('/getAreaList', 'StaffController@getAreaList');
