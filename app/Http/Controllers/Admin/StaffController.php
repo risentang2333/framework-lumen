@@ -87,27 +87,44 @@ class StaffController extends Controller
         $staffService = new StaffService;
         // 服务人员id
         $params['id'] = trim($request->input('id', ''));
+        // 身份证号
+        $params['id_number'] = trim($request->input('id_number', ''));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
         // 服务人员手机号
         $params['phone'] = trim($request->input('phone', ''));
         // 年龄
         $params['age'] = trim($request->input('age', ''));
+        // 银行卡号
+        $params['bank_card'] = trim($request->input('bank_card', ''));
         // 住址
         $params['address'] = trim($request->input('address', ''));
         // 操作版本号
         $params['version'] = trim($request->input('version', 0));
-
+        // 技能标签
         $params['labels'] = $request->input('labels', array());
 
+        if ($params['id_number'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
+        }
+        if (!verify_id_number($params['id_number'])) {
+            send_msg_json(ERROR_RETURN, "身份证号格式错误");
+        }
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
         }
         if ($params['phone'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员手机");
         }
+        // 验证手机号格式
+        if (!verify_phone($params['phone'])) {
+            send_msg_json(ERROR_RETURN, "手机号格式错误");
+        }
         if ($params['age'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
+        }
+        if ($params['bank_card'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写银行卡号");
         }
         if ($params['address'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员现住址");

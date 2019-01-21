@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Worker;
+namespace App\Services\Staff;
 
 use App\Entities\Workers;
 use Illuminate\Support\Facades\DB;

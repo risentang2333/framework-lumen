@@ -167,4 +167,40 @@ if (!function_exists('get_ip')) {
         return $realip;
     }
 }
+
+if (!function_exists('verify_phone')) {
+    /**
+     * 验证手机格式
+     *
+     * @param string $phone
+     * @return string
+     */
+    function verify_phone($phone) {
+        $pattern = '/^(13[0-9]|14[579]|15[0-3,5-9]|16[6]|17[0135678]|18[0-9]|19[89])\d{8}$/';
+
+        if (preg_match($pattern, $phone)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('verify_id_number')) {
+    /**
+     * 验证身份证格式
+     *
+     * @param string $phone
+     * @return string
+     */
+    function verify_id_number($id_number) {
+        $pattern = '/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/';
+
+        if (preg_match($pattern, $id_number)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
     

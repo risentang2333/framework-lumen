@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Worker;
+namespace App\Http\Controllers\Staff;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
-use App\Services\Worker\LoginService;
+use App\Services\Staff\LoginService;
 
 class LoginController extends Controller
 {
@@ -32,6 +32,10 @@ class LoginController extends Controller
         }
         if ($phone == '') {
             send_msg_json(10001,"请输入手机号");
+        }
+        // 验证手机号格式
+        if (!verify_phone($phone)) {
+            send_msg_json(ERROR_RETURN, "手机号格式错误");
         }
         if ($password == '') {
             send_msg_json(10002,"请输入密码");
@@ -68,6 +72,10 @@ class LoginController extends Controller
         $password = $request->input('password','');
         if ($phone == '') {
             send_msg_json(10001,"请输入手机号");
+        }
+        // 验证手机号格式
+        if (!verify_phone($phone)) {
+            send_msg_json(ERROR_RETURN, "手机号格式错误");
         }
         if ($password == '') {
             send_msg_json(10002,"请输入密码");

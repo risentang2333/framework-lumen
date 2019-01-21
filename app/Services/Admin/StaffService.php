@@ -4,7 +4,7 @@ namespace App\Services\Admin;
 
 use App\Entities\Staff;
 use App\Entities\Areas;
-use App\Entities\StaffLabels;
+use App\Entities\StaffSkills;
 use App\Entities\ServiceCategories;
 use Illuminate\Support\Facades\DB;
 
@@ -67,7 +67,7 @@ class StaffService
                 }
                 // 根据服务类型筛选
                 if ($params['label_id']) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `service_id` = ?)', [$params['label_id']]);
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_id` = ?)', [$params['label_id']]);
                 }
             })
             ->paginate($pageNumber)
@@ -90,7 +90,7 @@ class StaffService
         }
         $staff = $objStaff->toArray();
 
-        $label = StaffLabels::select(['id','staff_id','service_id','name','level'])->get()->toArray();
+        $label = StaffSkills::select(['id','staff_id','service_id','name','level'])->get()->toArray();
 
         $data = array(
             "staff" => $staff,
@@ -98,6 +98,21 @@ class StaffService
         );
 
         return $data;
+    }
+
+
+    /**
+     * 根据手机号查询员工
+     *
+     * @param string $phone
+     * @return object
+     */
+    public function getStaffByPhone($phone)
+    {
+        $staff = Staff::select(['id','name','phone','icon','age','address','version'])
+            ->where(['status'=>0,'phone'=>$phone])->first();
+        
+        return $staff;
     }
 
     /**
@@ -111,25 +126,33 @@ class StaffService
         $returnMsg = '';
         DB::transaction(function () use (&$returnMsg, $params){
             if ($params['id'] == '') {
+                if (!empty($this->getStaffByPhone($params['phone']))) {
+                    DB::rollback();
+                    send_msg_json(ERROR_RETURN, "该服务人员已存在");
+                }
                 $staff = new Staff;
+                $staff->created_at = time();
                 $returnMsg = '添加成功';
             } else {
                 $staff = Staff::where('status', 0)->find($params['id']);
                 if (empty($staff)) {
+                    DB::rollback();
                     send_msg_json(ERROR_RETURN, "该服务人员不存在");
                 }
                 if ($staff->version != $params['version']) {
+                    DB::rollback();
                     send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
                 }
                 $staff->version = $params['version']+1;
                 $returnMsg = '编辑成功';
             }
-    
+
+            $staff->id_number = $params['id_number'];
             $staff->name = $params['name'];
             $staff->phone = $params['phone'];
             $staff->age = $params['age'];
+            $staff->bank_card = $params['bank_card'];
             $staff->address = $params['address'];
-            $staff->created_at = time();
     
             $staff->save();
             // staff表操作id
@@ -137,10 +160,12 @@ class StaffService
             // 标签数组
             $labels = json_decode($params['labels'], true);
             foreach ($labels as $key => $value) {
-                DB::table('staff_labels')->insert(['staff_id'=>$staffId, 'service_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level']]);
+                DB::table('staff_skills')->insert(['staff_id'=>$staffId, 'service_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level']]);
             }
         });
 
         return $returnMsg;
     }
+
+    
 }
