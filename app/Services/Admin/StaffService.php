@@ -5,6 +5,7 @@ namespace App\Services\Admin;
 use App\Entities\Staff;
 use App\Entities\Areas;
 use App\Entities\StaffSkills;
+use App\Entities\StaffLabels;
 use App\Entities\ServiceCategories;
 use Illuminate\Support\Facades\DB;
 
@@ -66,8 +67,8 @@ class StaffService
                     $query->where('name','like','%'.$params['name'].'%');
                 }
                 // 根据服务类型筛选
-                if ($params['label_id']) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_id` = ?)', [$params['label_id']]);
+                if ($params['skill_id']) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_id` = ?)', [$params['skill_id']]);
                 }
             })
             ->paginate($pageNumber)
@@ -89,11 +90,14 @@ class StaffService
             send_msg_json(ERROR_RETURN, "该服务人员不存在");
         }
         $staff = $objStaff->toArray();
-
-        $label = StaffSkills::select(['id','staff_id','service_id','name','level'])->get()->toArray();
+        // 技能
+        $skill = StaffSkills::select(['id','staff_id','service_id','name','level'])->where('staff_id', $id)->get()->toArray();
+        // 服务标签
+        $label = StaffLabels::select(['id','staff_id'])->where('staff_id', $id)->get()->toArray();
 
         $data = array(
             "staff" => $staff,
+            "skill" => $skill,
             "label" => $label
         );
 
@@ -147,7 +151,6 @@ class StaffService
                 $returnMsg = '编辑成功';
             }
 
-            $staff->id_number = $params['id_number'];
             $staff->name = $params['name'];
             $staff->phone = $params['phone'];
             $staff->age = $params['age'];

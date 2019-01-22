@@ -352,6 +352,9 @@ class PermissionController extends Controller
         }
         // 超级管理员角色不能修改
         $role = $permissionService->getRoleByRoleId($id);
+        if (empty($role)) {
+            send_msg_json(ERROR_RETURN, "该角色不存在");
+        }
         if ($role->is_administrator == 1) {
             send_msg_json(ERROR_RETURN, "超级管理员不能修改");
         }

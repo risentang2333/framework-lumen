@@ -20,7 +20,7 @@ class StaffController extends Controller
 
         $params['name'] = trim($request->input('name',''));
 
-        $params['label_id'] = trim($request->input('label_id',''));
+        $params['skill_id'] = trim($request->input('skill_id',''));
 
         $list = $staffService->getStaffList($params);
 
@@ -87,29 +87,21 @@ class StaffController extends Controller
         $staffService = new StaffService;
         // 服务人员id
         $params['id'] = trim($request->input('id', ''));
-        // 身份证号
-        $params['id_number'] = trim($request->input('id_number', ''));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
         // 服务人员手机号
         $params['phone'] = trim($request->input('phone', ''));
         // 年龄
         $params['age'] = trim($request->input('age', ''));
-        // 银行卡号
-        $params['bank_card'] = trim($request->input('bank_card', ''));
         // 住址
         $params['address'] = trim($request->input('address', ''));
+        // 银行卡号
+        $params['bank_card'] = trim($request->input('bank_card', ''));
         // 操作版本号
         $params['version'] = trim($request->input('version', 0));
         // 技能标签
         $params['labels'] = $request->input('labels', array());
 
-        if ($params['id_number'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
-        }
-        if (!verify_id_number($params['id_number'])) {
-            send_msg_json(ERROR_RETURN, "身份证号格式错误");
-        }
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
         }

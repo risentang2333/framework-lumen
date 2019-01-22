@@ -70,15 +70,25 @@ class PermissionService
      *
      * @param [type] $id
      * @param [type] $role
-     * @return void
+     * @return boolean
      */
     public function saveManagerRole($id, $roleIds)
     {
-        DB::transaction(function () use ($id, $roleIds){
-            // 先把关系表中与管理员id有关的删除
-            DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id");
+        $original_roleIds = RoleManager::select('role_id')->where('manager_id', $id)->pluck('role_id')->toArray();
+        // 原关系数组与新数组交集
+        $array_intersect = array_intersect($roleIds, $original_roleIds);
+        // 需要删除的角色id
+        $delete_roleIds = implode(",", array_diff($original_roleIds, $array_intersect));
+        // 需要添加的角色id
+        $add_roleIds = array_diff($roleIds, $array_intersect);
+        DB::transaction(function () use ($id, $delete_roleIds, $add_roleIds){
+            // 如果存在删除的角色账号关系
+            if ($delete_roleIds) {
+                // 先把关系表中与需要删除的删除
+                DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id AND `role_id` IN ($delete_roleIds)");
+            }
             // 重新生成新关系
-            foreach ($roleIds as $value) {
+            foreach ($add_roleIds as $value) {
                 DB::table('role_manager')->insert([
                     'manager_id' => $id,
                     'role_id' => $value,
@@ -250,11 +260,21 @@ class PermissionService
      */
     public function saveRolePermission($id, $permissionIds)
     {
-        DB::transaction(function () use ($id, $permissionIds){
-            // 先把关系表中与角色id有关的删除
-            DB::delete("DELETE FROM `permission_role` WHERE `role_id` = $id");
+        $original_permissionIds = PermissionRole::select('permission_id')->where('role_id', $id)->pluck('permission_id')->toArray();
+        // 原关系数组与新数组交集
+        $array_intersect = array_intersect($permissionIds, $original_permissionIds);
+        // 需要删除的角色id
+        $delete_permissionIds = implode(",", array_diff($original_permissionIds, $array_intersect));
+        // 需要添加的角色id
+        $add_permissionIds = array_diff($permissionIds, $array_intersect);
+        DB::transaction(function () use ($id, $delete_permissionIds, $add_permissionIds){
+            // 如果存在删除的权限角色关系
+            if ($delete_permissionIds) {
+                // 先把关系表中需要删除的删除
+                DB::delete("DELETE FROM `permission_role` WHERE `role_id` = $id AND `permission_id` IN ($delete_permissionIds)");
+            }
             // 重新生成新关系
-            foreach ($permissionIds as $value) {
+            foreach ($add_permissionIds as $value) {
                 DB::table('permission_role')->insert([
                     'role_id' => $id,
                     'permission_id' => $value,
@@ -395,8 +415,8 @@ class PermissionService
     /**
      * 编辑权限
      *
-     * @param [type] $params
-     * @return void
+     * @param array $params
+     * @return boolean
      */
     public function savePermission($params)
     {
