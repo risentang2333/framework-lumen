@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-01-22 16:39:12
+Date: 2019-01-22 16:58:59
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -236,6 +236,22 @@ CREATE TABLE `orders` (
 
 -- ----------------------------
 -- Records of orders
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for order_files
+-- ----------------------------
+DROP TABLE IF EXISTS `order_files`;
+CREATE TABLE `order_files` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '订单id',
+  `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
+  `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
+
+-- ----------------------------
+-- Records of order_files
 -- ----------------------------
 
 -- ----------------------------
