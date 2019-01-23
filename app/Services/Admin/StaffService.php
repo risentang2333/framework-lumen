@@ -7,6 +7,7 @@ use App\Entities\Areas;
 use App\Entities\StaffSkills;
 use App\Entities\StaffLabels;
 use App\Entities\ServiceCategories;
+use App\Entities\StaffPapers;
 use Illuminate\Support\Facades\DB;
 
 class StaffService 
@@ -67,8 +68,16 @@ class StaffService
                     $query->where('name','like','%'.$params['name'].'%');
                 }
                 // 根据服务类型筛选
-                if ($params['skill_id']) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_id` = ?)', [$params['skill_id']]);
+                if ($params['service_category_id'] && empty($params['ability_ids'])) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?) AND `status` = 0', [$params['service_category_id']]);
+                }
+                // 根据特长标签搜索
+                if ($params['ability_ids'] && empty($params['service_category_id'])) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0', [implode(",",$params['ability_ids'])]);
+                }
+                // 如果服务类型特长都存在
+                if ($params['ability_ids'] && $params['service_category_id']) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skill_label` WHERE `skill_id` in (SELECT `id` FROM `staff_skills` WHERE `service_category_id` = ? AND `status` = 0) AND `label_id` IN (SELECT `id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0))', [$params['service_category_id'], implode(",",$params['ability_ids'])]);
                 }
             })
             ->paginate($pageNumber)
@@ -84,26 +93,70 @@ class StaffService
      */
     public function getStaffById($id)
     {
-        $objStaff = Staff::select(['id','name','phone','icon','age','address','version'])
+        $staff = Staff::select(['id','name','phone','icon','age','address','bank_card','version'])
             ->where(['status'=>0,'id'=>$id])->first();
-        if (empty($objStaff)) {
+        if (empty($staff)) {
             send_msg_json(ERROR_RETURN, "该服务人员不存在");
         }
-        $staff = $objStaff->toArray();
-        // 技能
-        $skill = StaffSkills::select(['id','staff_id','service_id','name','level'])->where('staff_id', $id)->get()->toArray();
-        // 服务标签
-        $label = StaffLabels::select(['id','staff_id'])->where('staff_id', $id)->get()->toArray();
 
-        $data = array(
-            "staff" => $staff,
-            "skill" => $skill,
-            "label" => $label
-        );
-
-        return $data;
+        return $staff;
     }
 
+    /**
+     * 根据员工id获取证书
+     *
+     * @param int $id
+     * @return object
+     */
+    public function getPaperByStaffId($id)
+    {
+        // 证书
+        $paper = StaffPapers::where(['staff_id'=>$id, 'status'=>0])->get();
+
+        return $paper;
+    }
+
+    /**
+     * 根据员工id获取能力标签
+     *
+     * @param int $id
+     * @return object
+     */
+    public function getLabelByStaffId($id)
+    {
+        $label = StaffLabels::where(['staff_id'=>$id, 'status'=>0])->get();
+
+        return $label;
+    }
+
+    /**
+     * 根据员工id获取技能标签材料证明集合
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getSkillLabelPaperByStaffId($id)
+    {
+        $skill = StaffSkills::where(['staff_id'=>$id, 'status'=>0])->get()->toArray();
+
+        if (!empty($skill)) {
+            foreach ($skill as $key => $value) {
+                // 查询技能所对应的标签
+                $label = DB::table('staff_labels')->where('status',0)->whereRaw('`id` IN (SELECT `label_id` FROM `staff_skill_label` WHERE `staff_id` = ? AND `skill_id` = ?)', [$id, $value['id']])->get()->toArray();
+                // 查询技能所对应的证书
+                $paper = DB::table('staff_papers')->where('status',0)->whereRaw('`id` IN (SELECT `paper_id` FROM `staff_skill_paper` WHERE `staff_id` = ? AND `skill_id` = ?)', [$id, $value['id']])->get()->toArray();
+                // 如果标签不为空，放入对应的技能中
+                if (!empty($label)) {
+                    $skill[$key]['label'] = $label;
+                }
+                if (!empty($paper)) {
+                    $skill[$key]['paper'] = $paper;
+                }
+            }
+        }
+
+        return $skill;
+    }
 
     /**
      * 根据手机号查询员工
@@ -163,12 +216,10 @@ class StaffService
             // 标签数组
             $labels = json_decode($params['labels'], true);
             foreach ($labels as $key => $value) {
-                DB::table('staff_skills')->insert(['staff_id'=>$staffId, 'service_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level']]);
+                DB::table('staff_skills')->updateOrInsert(['staff_id'=>$staffId, 'service_category_id'=>$value['id'], 'status'=>0],['staff_id'=>$staffId, 'service_category_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level'], 'workable'=>$value['workable'], 'review'=>$value['review']]);
             }
         });
 
         return $returnMsg;
     }
-
-    
 }

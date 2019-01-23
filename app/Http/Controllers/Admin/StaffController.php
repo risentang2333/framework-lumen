@@ -18,9 +18,12 @@ class StaffController extends Controller
     {
         $staffService = new StaffService;
 
+        // 服务人员姓名
         $params['name'] = trim($request->input('name',''));
-
-        $params['skill_id'] = trim($request->input('skill_id',''));
+        // 服务分类id
+        $params['service_category_id'] = trim($request->input('service_category_id',''));
+        // 能力标签id集合
+        $params['ability_ids'] = $request->input('ability_ids','');
 
         $list = $staffService->getStaffList($params);
 
@@ -58,22 +61,19 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请传入服务人员id");
         }
         // 工作人员信息
-        $staff = $staffService->getStaffById($id);
-        // 地区信息
-        $area = $staffService->getAreaForTree();
-        // 转化为树结构
-        $areaTree = $staffService->getTree($area);
-        // 工种
-        $category = $staffService->getCategoryForTree();
-        // 转化为树结构
-        $categoryTree = $staffService->getTree($category);
+        $staff = $staffService->getStaffById($id)->toArray();
+        // 证书
+        $paper = $staffService->getPaperByStaffId($id)->toArray();
+        // 能力
+        $label = $staffService->getLabelByStaffId($id)->toArray();
+        // 技能标签材料证明集合
+        $skill = $staffService->getSkillLabelPaperByStaffId($id);
 
-        $data = array(
-            "staff" => $staff,
-            "areaTree" => $areaTree,
-            "categoryTree" => $categoryTree
-        );
-        return send_msg_json(SUCCESS_RETURN, "success", $data);
+        $staff['paper'] = $paper;
+        $staff['label'] = $label;
+        $staff['skill'] = $skill;
+
+        return send_msg_json(SUCCESS_RETURN, "success", $staff);
     }
 
     /**
