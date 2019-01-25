@@ -57,12 +57,14 @@ Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
     Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
 // 服务人员模块
-Route::group(['prefix' => 'staff','middleware' => 'admin'], function () {
+Route::group(['prefix' => 'staff'], function () {
     // 获取服务人员列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
     // 获取服务人员信息
     Route::get('/getStaff', 'StaffController@getStaff');
     // 编辑服务人员信息
     Route::post('/editStaff', 'StaffController@editStaff');
+
+    Route::get('/getSkillList', 'StaffController@getSkillList');
 });
 Route::get('/getAreaList', 'StaffController@getAreaList');

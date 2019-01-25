@@ -6,12 +6,46 @@ use App\Entities\Staff;
 use App\Entities\Areas;
 use App\Entities\StaffSkills;
 use App\Entities\StaffLabels;
+use App\Entities\AbilityCategories;
 use App\Entities\ServiceCategories;
 use App\Entities\StaffPapers;
 use Illuminate\Support\Facades\DB;
 
 class StaffService 
 {
+    /**
+     * 员工技能列表查询字段
+     *
+     * @var array
+     */
+    private $staffSkillList = [
+        "staff_skills.id",
+        "staff_skills.staff_id",
+        "staff.name as staff_name",
+        "staff.address",
+        "staff_skills.service_category_id",
+        "staff_skills.name",
+        "staff_skills.level",
+        "staff_skills.workable",
+        "staff_skills.review",
+        "staff_skills.version",
+    ];
+
+    /**
+     * 员工列表查询字段
+     *
+     * @var array
+     */
+    private $staffList = [
+        'id',
+        'name',
+        'phone',
+        'icon',
+        'age',
+        'address',
+        'version'
+    ];
+    
     /**
      * 获取地区作为生成树结构前提
      *
@@ -30,6 +64,11 @@ class StaffService
     public function getCategoryForTree()
     {
         return ServiceCategories::get()->keyBy('id')->toArray();
+    }
+
+    public function getLabelForTree()
+    {
+        return AbilityCategories::get()->keyBy('id')->toArray();
     }
 
     /**
@@ -59,7 +98,7 @@ class StaffService
      */
     public function getStaffList($params, $pageNumber = 15)
     {
-        $list = DB::table('staff')->select(['id','name','phone','icon','age','address','version'])
+        $list = Staff::select($this->staffList)
             ->where(function ($query) use ($params){
                 // 逻辑删除判断
                 $query->where('status', 0);
@@ -213,13 +252,164 @@ class StaffService
             $staff->save();
             // staff表操作id
             $staffId = $staff->id;
-            // 标签数组
-            $labels = json_decode($params['labels'], true);
-            foreach ($labels as $key => $value) {
-                DB::table('staff_skills')->updateOrInsert(['staff_id'=>$staffId, 'service_category_id'=>$value['id'], 'status'=>0],['staff_id'=>$staffId, 'service_category_id'=>$value['id'], 'name'=>$value['name'], 'level'=>$value['level'], 'workable'=>$value['workable'], 'review'=>$value['review']]);
-            }
+            // 编辑员工能力标签
+            $this->saveStaffLabel($params['labels'], $staffId);
+            // 编辑员工证件
+            $this->saveStaffPaper($params['papers'], $staffId);
+            // 编辑员工技能
+            $this->saveStaffSkill($params['skills'], $staffId);
         });
 
         return $returnMsg;
+    }
+    /**
+     * 编辑员工能力标签
+     *
+     * @param array $labels
+     * @param int $staffId
+     * @return boolean
+     */
+    private function saveStaffLabel($labels, $staffId)
+    {
+        // 过滤标签数组，执行sql
+        if (!empty($labels)) {
+            array_walk($labels, function (&$item) use ($staffId){
+                if (empty($item['id'])) {
+                    $item['id'] = 0;
+                }
+                DB::table('staff_labels')->updateOrInsert(['id'=>$item['id']], ['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
+            });
+        }
+        return true;
+    }
+
+    /**
+     * 编辑员工证件
+     *
+     * @param array $papers
+     * @param int $staffId
+     * @return boolean
+     */
+    private function saveStaffPaper($papers, $staffId)
+    {
+        return true;
+    }
+
+    private function saveStaffSkill($skills, $staffId)
+    {
+        if (!empty($skills)) {
+            foreach ($skills as &$item) {
+                if (empty($item['id'])) {
+                    $item['id'] = 0;
+                }
+                DB::table('staff_skills')->updateOrInsert(['id'=>$item['id']], ['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
+                // 获取每一条技能的操作id
+                if (empty($item['id'])) {
+                    $skillId = DB::getPdo()->lastInsertId();
+                } else {
+                    $skillId = $item['id'];
+                }
+                // 编辑员工技能与标签关系表
+                $this->saveStaffSkillLabel($item['labels'], $staffId, $skillId);
+                // 编辑员工技能与材料关系表
+                // $this->saveStaffSkillPaper($item['papers'], $staffId, $skillId);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 编辑技能与标签关系表
+     *
+     * @param array $labels
+     * @param int $staffId
+     * @param int $skillId
+     * @return boolean
+     */
+    private function saveStaffSkillLabel($labels, $staffId, $skillId)
+    {
+        // 获取需要编辑的标签id集合
+        $labelIds = array_column($labels, 'id');
+        // 原关系id集合
+        $original_labelIds = DB::table('staff_skill_label')->select('label_id')->where(['staff_id'=>$staffId,'skill_id'=>$skillId])->pluck('label_id')->toArray();
+        // 原关系数组与新数组交集
+        $array_intersect = array_intersect($labelIds, $original_labelIds);
+        // 需要删除的标签id
+        $delete_labelIds = implode(",", array_diff($original_labelIds, $array_intersect));
+        // 需要添加的标签id
+        $add_labelIds = array_diff($labelIds, $array_intersect);
+        // 如果存在删除的权限角色关系
+        if (!empty($delete_labelIds)) {
+            // 先把关系表中需要删除的删除
+            DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `skill_id` = $skillId AND `label_id` IN ($delete_labelIds)");
+        }
+        if (!empty($add_labelIds)) {
+            // 重新生成新关系
+            foreach ($add_labelIds as $value) {
+                DB::table('staff_skill_label')->insert([
+                    'staff_id' => $staffId,
+                    'skill_id' => $skillId,
+                    'label_id' => $value,
+                ]);
+            }
+        }
+
+        return true;
+    }
+
+    
+    private function saveStaffSkillPaper($papers, $staffId, $skillId)
+    {
+        // 获取需要编辑的材料id集合
+        $paperIds = array_column($papers, 'id');
+        // 原关系id集合
+        $original_paperIds = DB::table('staff_skill_paper')->select('paper_id')->where(['staff_id'=>$staffId,'skill_id'=>$skillId])->pluck('paper_id')->toArray();
+        // 原关系数组与新数组交集
+        $array_intersect = array_intersect($paperIds, $original_paperIds);
+        // 需要删除的标签id
+        $delete_paperIds = implode(",", array_diff($original_paperIds, $array_intersect));
+        // 需要添加的标签id
+        $add_paperIds = array_diff($paperIds, $array_intersect);
+        // 如果存在删除的权限角色关系
+        if (!empty($delete_paperIds)) {
+            // 先把关系表中需要删除的删除
+            DB::delete("DELETE FROM `staff_skill_paper` WHERE `staff_id` = $staffId AND `skill_id` = $skillId AND `paper_id` IN ($delete_paperIds)");
+        }
+        if (!empty($add_paperIds)) {
+            // 重新生成新关系
+            foreach ($add_paperIds as $value) {
+                DB::table('staff_skill_paper')->insert([
+                    'staff_id' => $staffId,
+                    'skill_id' => $skillId,
+                    'paper_id' => $value,
+                ]);
+            }
+        }
+
+        return true;
+    }
+
+    public function getSkillList($params, $pageNumber = 15)
+    {
+        $list = StaffSkills::join('staff', function ($join) {
+            $join->on('staff.id', '=', 'staff_skills.staff_id');
+        })->select($this->staffSkillList)
+        ->where(function ($query) use ($params){
+            // 逻辑删除判断
+            $query->where('staff_skills.status', 0);
+            // 技能分类id
+            if ($params['service_category_id']) {
+                $query->where('service_category_id', $params['service_category_id']);
+            }
+        })
+        ->paginate($pageNumber)
+        ->toArray();
+
+        return $list;
+    }
+
+    public function staffSkillReview()
+    {
+        
     }
 }

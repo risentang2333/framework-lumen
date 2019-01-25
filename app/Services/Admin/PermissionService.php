@@ -83,18 +83,21 @@ class PermissionService
         $add_roleIds = array_diff($roleIds, $array_intersect);
         DB::transaction(function () use ($id, $delete_roleIds, $add_roleIds){
             // 如果存在删除的角色账号关系
-            if ($delete_roleIds) {
+            if (!empty($delete_roleIds)) {
                 // 先把关系表中与需要删除的删除
                 DB::delete("DELETE FROM `role_manager` WHERE `manager_id` = $id AND `role_id` IN ($delete_roleIds)");
             }
             // 重新生成新关系
-            foreach ($add_roleIds as $value) {
-                DB::table('role_manager')->insert([
-                    'manager_id' => $id,
-                    'role_id' => $value,
-                ]);
+            if (!empty($add_roleIds)) {
+                foreach ($add_roleIds as $value) {
+                    DB::table('role_manager')->insert([
+                        'manager_id' => $id,
+                        'role_id' => $value,
+                    ]);
+                }
             }
         });
+
         return true;
     }
 
@@ -269,16 +272,18 @@ class PermissionService
         $add_permissionIds = array_diff($permissionIds, $array_intersect);
         DB::transaction(function () use ($id, $delete_permissionIds, $add_permissionIds){
             // 如果存在删除的权限角色关系
-            if ($delete_permissionIds) {
+            if (!empty($delete_permissionIds)) {
                 // 先把关系表中需要删除的删除
                 DB::delete("DELETE FROM `permission_role` WHERE `role_id` = $id AND `permission_id` IN ($delete_permissionIds)");
             }
-            // 重新生成新关系
-            foreach ($add_permissionIds as $value) {
-                DB::table('permission_role')->insert([
-                    'role_id' => $id,
-                    'permission_id' => $value,
-                ]);
+            if (!empty($add_permissionIds)) {
+                // 重新生成新关系
+                foreach ($add_permissionIds as $value) {
+                    DB::table('permission_role')->insert([
+                        'role_id' => $id,
+                        'permission_id' => $value,
+                    ]);
+                }
             }
         });
         return true;
@@ -308,7 +313,7 @@ class PermissionService
                         ->where(function ($query) use ($selectAll) {
                             $query->where('status', 0);
                             if (!$selectAll) {
-                                $query->where('is_api', 0);
+                                $query->where('is_api', 1);
                             }
                         })
                         ->orderBy('sort_order','ASC')
@@ -404,7 +409,7 @@ class PermissionService
 
         $data = Permissions::select(['id','name','route','parent_id'])
                         ->whereIn('id',$permissionIds)
-                        ->where(['is_display'=>1, 'status'=>0])
+                        ->where(['is_display'=>2, 'status'=>0])
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')

@@ -186,17 +186,54 @@ if (!function_exists('verify_phone')) {
     }
 }
 
-if (!function_exists('verify_id_number')) {
+if (!function_exists('verify_identity_card')) {
     /**
      * 验证身份证格式
      *
-     * @param string $phone
+     * @param string $identity_card
      * @return string
      */
-    function verify_id_number($id_number) {
+    function verify_identity_card($identity_card) {
         $pattern = '/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/';
 
-        if (preg_match($pattern, $id_number)) {
+        if (preg_match($pattern, $identity_card)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+}
+
+if (!function_exists('verify_bank_card')) {
+    /**
+     * 验证银行卡格式
+     *
+     * @param string $number
+     * @return string
+     */
+    function verify_bank_card($number) {
+        $arr_number = str_split($number);
+        $last_n = $arr_number[count($arr_number)-1];
+        krsort($arr_number);
+        $i = 1;
+        $total = 0;
+        foreach ($arr_number as $n) {
+            if ($i%2 == 0) {
+                $ix = $n * 2;
+                if ($ix >= 10) {
+                    $nx = 1 + ($ix % 10);
+                    $total += $nx;
+                } else {
+                    $total += $ix;
+                }
+            } else {
+                $total += $n;
+            }
+            $i++;
+        }
+        $total -= $last_n;
+        $total *= 9;
+        if ($last_n == ($total % 10)) {
             return true;
         } else {
             return false;

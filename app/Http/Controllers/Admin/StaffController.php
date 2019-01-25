@@ -17,11 +17,10 @@ class StaffController extends Controller
     public function getStaffList(Request $request)
     {
         $staffService = new StaffService;
-
         // 服务人员姓名
         $params['name'] = trim($request->input('name',''));
         // 服务分类id
-        $params['service_category_id'] = trim($request->input('service_category_id',''));
+        $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
         // 能力标签id集合
         $params['ability_ids'] = $request->input('ability_ids','');
 
@@ -56,8 +55,8 @@ class StaffController extends Controller
     {
         $staffService = new StaffService;
         // 工作人员id
-        $id = trim($request->input('id', ''));
-        if ($id == '') {
+        $id = (int)trim($request->input('id', 0));
+        if (empty($id)) {
             send_msg_json(ERROR_RETURN, "请传入服务人员id");
         }
         // 工作人员信息
@@ -86,7 +85,7 @@ class StaffController extends Controller
     {
         $staffService = new StaffService;
         // 服务人员id
-        $params['id'] = trim($request->input('id', ''));
+        $params['id'] = (int)trim($request->input('id', 0));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
         // 服务人员手机号
@@ -98,9 +97,13 @@ class StaffController extends Controller
         // 银行卡号
         $params['bank_card'] = trim($request->input('bank_card', ''));
         // 操作版本号
-        $params['version'] = trim($request->input('version', 0));
-        // 技能标签
+        $params['version'] = (int)trim($request->input('version', 0));
+        // 证书
+        $params['papers'] = $request->input('papers', array());
+        // 能力标签
         $params['labels'] = $request->input('labels', array());
+        // 技能标签
+        $params['skills'] = $request->input('skills', array());
 
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
@@ -112,21 +115,56 @@ class StaffController extends Controller
         if (!verify_phone($params['phone'])) {
             send_msg_json(ERROR_RETURN, "手机号格式错误");
         }
-        if ($params['age'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
+        if ($params['address'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
         }
         if ($params['bank_card'] == '') {
             send_msg_json(ERROR_RETURN, "请填写银行卡号");
         }
-        if ($params['address'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
+        // 验证银行卡号
+        if (!verify_bank_card($params['bank_card'])) {
+            send_msg_json(ERROR_RETURN, "银行卡号格式错误");
         }
-        if (empty($params['labels'])) {
-            send_msg_json(ERROR_RETURN, "请填写技能标签");
+        if ($params['age'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
-        
+        print_r($params);exit;
         $returnMsg = $staffService->saveStaff($params);
-        
+
         return send_msg_json(SUCCESS_RETURN, $returnMsg);
+    }
+
+    public function getSkillList(Request $request)
+    {
+        $staffService = new StaffService;
+        // 服务分类id
+        $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
+
+        $list = $staffService->getSkillList($params);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $list);
+    }
+
+    public function staffSkillReview(Request $request)
+    {
+        $staffService = new StaffService;
+        // 员工技能id
+        $id = (int)trim($request->input('id', 0));
+        // 审核备注
+        $remark = trim($request->input('remark', ''));
+
+        $review = (int)trim($request->input('review', 0));
+
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入员工技能id");
+        }
+        if (empty($review)) {
+            send_msg_json(ERROR_RETURN, "请选择审核是否通过");
+        }
+        if ($remark == '') {
+            send_msg_json(ERROR_RETURN, "请填写审核备注");
+        }
+
+        没写完！
     }
 }
