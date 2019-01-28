@@ -9,6 +9,22 @@ use App\Services\Admin\StaffService;
 class StaffController extends Controller
 {
     /**
+     * 获取地区列表
+     *
+     * @return string
+     */
+    public function getAreaTree()
+    {
+        $staffService = new StaffService;
+
+        $areas = $staffService->getAreaForTree();
+
+        $tree = $staffService->getTree($areas);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $tree);
+    }
+
+    /**
      * 获取工作人员列表
      *
      * @param Request $request
@@ -27,22 +43,6 @@ class StaffController extends Controller
         $list = $staffService->getStaffList($params);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
-    }
-
-    /**
-     * 获取地区列表
-     *
-     * @return string
-     */
-    public function getAreaTree()
-    {
-        $staffService = new StaffService;
-
-        $areas = $staffService->getAreaForTree();
-
-        $tree = $staffService->getTree($areas);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
 
     /**
@@ -122,30 +122,52 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写银行卡号");
         }
         // 验证银行卡号
-        if (!verify_bank_card($params['bank_card'])) {
-            send_msg_json(ERROR_RETURN, "银行卡号格式错误");
-        }
+        // if (!verify_bank_card($params['bank_card'])) {
+        //     send_msg_json(ERROR_RETURN, "银行卡号格式错误");
+        // }
         if ($params['age'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
-        print_r($params);exit;
-        $returnMsg = $staffService->saveStaff($params);
+        $return = $staffService->saveStaff($params);
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
+        // 编写操作日志
+        if (empty($id)) {
+            $logMsg = "添加员工信息，操作id为：".$return['staffId'];
+        } else {
+            $logMsg = "编辑员工信息，操作id为：".$return['staffId'];
+        }
+        // 写入日志
+        write_log($accessToken, $logMsg);
 
-        return send_msg_json(SUCCESS_RETURN, $returnMsg);
+        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
-    public function getSkillList(Request $request)
+
+    /**
+     * 获取技能列表
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function getStaffSkillList(Request $request)
     {
         $staffService = new StaffService;
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
 
-        $list = $staffService->getSkillList($params);
+        $list = $staffService->getStaffSkillList($params);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
 
-    public function staffSkillReview(Request $request)
+    /**
+     * 审核员工技能
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function reviewStaffSkill(Request $request)
     {
         $staffService = new StaffService;
         // 员工技能id
@@ -154,6 +176,8 @@ class StaffController extends Controller
         $remark = trim($request->input('remark', ''));
 
         $review = (int)trim($request->input('review', 0));
+
+        $version = (int)trim($request->input('version', 0));
 
         if (empty($id)) {
             send_msg_json(ERROR_RETURN, "请传入员工技能id");
@@ -165,6 +189,37 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写审核备注");
         }
 
-        没写完！
+        $staffSkillId = $staffService->reviewStaffSkill($id, $review, $remark, $version);
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
+        // 写入日志
+        write_log($accessToken, "员工技能审核，操作id为：".$staffSkillId);
+        
+        return send_msg_json(SUCCESS_RETURN, "审核成功");
+    }
+
+    /**
+     * 逻辑删除员工技能，物理删除技能材料标签关系表
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function deleteStaffSkill(Request $request)
+    {
+        $staffService = new StaffService;
+        // 技能id
+        $id = (int)trim($request->input('id', 0));
+        // 版本号
+        $version = (int)trim($request->input('version', 0));
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入员工技能id");
+        }
+        $staffSkillId = $staffService->deleteStaffSkill($id, $version);
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
+        // 写入日志
+        write_log($accessToken, "删除员工技能，操作id为：".$staffSkillId);
+
+        return send_msg_json(SUCCESS_RETURN, "删除成功");
     }
 }

@@ -220,35 +220,31 @@ class StaffService
     public function saveStaff($params)
     {
         $returnMsg = '';
-        DB::transaction(function () use (&$returnMsg, $params){
-            if ($params['id'] == '') {
-                if (!empty($this->getStaffByPhone($params['phone']))) {
-                    DB::rollback();
-                    send_msg_json(ERROR_RETURN, "该服务人员已存在");
-                }
-                $staff = new Staff;
-                $staff->created_at = time();
-                $returnMsg = '添加成功';
-            } else {
-                $staff = Staff::where('status', 0)->find($params['id']);
-                if (empty($staff)) {
-                    DB::rollback();
-                    send_msg_json(ERROR_RETURN, "该服务人员不存在");
-                }
-                if ($staff->version != $params['version']) {
-                    DB::rollback();
-                    send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-                }
-                $staff->version = $params['version']+1;
-                $returnMsg = '编辑成功';
+        if ($params['id'] == '') {
+            if (!empty($this->getStaffByPhone($params['phone']))) {
+                send_msg_json(ERROR_RETURN, "该服务人员已存在");
             }
-
-            $staff->name = $params['name'];
-            $staff->phone = $params['phone'];
-            $staff->age = $params['age'];
-            $staff->bank_card = $params['bank_card'];
-            $staff->address = $params['address'];
-    
+            $staff = new Staff;
+            $staff->created_at = time();
+            $returnMsg = '添加成功';
+        } else {
+            $staff = Staff::where('status', 0)->find($params['id']);
+            if (empty($staff)) {
+                send_msg_json(ERROR_RETURN, "该服务人员不存在");
+            }
+            if ($staff->version != $params['version']) {
+                send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+            }
+            $staff->version = $params['version']+1;
+            $returnMsg = '编辑成功';
+        }
+        $staff->name = $params['name'];
+        $staff->phone = $params['phone'];
+        $staff->age = $params['age'];
+        $staff->bank_card = $params['bank_card'];
+        $staff->address = $params['address'];
+        // 保存并获取操作id
+        $staffId = DB::transaction(function () use ($staff, $params){
             $staff->save();
             // staff表操作id
             $staffId = $staff->id;
@@ -258,10 +254,16 @@ class StaffService
             $this->saveStaffPaper($params['papers'], $staffId);
             // 编辑员工技能
             $this->saveStaffSkill($params['skills'], $staffId);
+
+            return $staffId;
         });
 
-        return $returnMsg;
+        return array(
+            'returnMsg'=>$returnMsg,
+            'staffId'=>$staffId
+        );
     }
+
     /**
      * 编辑员工能力标签
      *
@@ -357,7 +359,14 @@ class StaffService
         return true;
     }
 
-    
+    /**
+     * 保存技能材料关系表
+     *
+     * @param array $papers
+     * @param int $staffId
+     * @param int $skillId
+     * @return boolean
+     */
     private function saveStaffSkillPaper($papers, $staffId, $skillId)
     {
         // 获取需要编辑的材料id集合
@@ -389,7 +398,7 @@ class StaffService
         return true;
     }
 
-    public function getSkillList($params, $pageNumber = 15)
+    public function getStaffSkillList($params, $pageNumber = 15)
     {
         $list = StaffSkills::join('staff', function ($join) {
             $join->on('staff.id', '=', 'staff_skills.staff_id');
@@ -408,8 +417,93 @@ class StaffService
         return $list;
     }
 
-    public function staffSkillReview()
+    /**
+     * 审核员工技能
+     *
+     * @param int $id
+     * @param int $review
+     * @param string $remark
+     * @param int $version
+     * @return int
+     */
+    public function reviewStaffSkill($id, $review, $remark, $version)
     {
-        
+        $staffSkill = StaffSkills::where('status', 0)->find($id);
+        if (empty($staffSkill)) {
+            send_msg_json(ERROR_RETURN, "该员工技能不存在");
+        }
+        if ($staffSkill->version != $version) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        $staffSkill->review = $review;
+        $staffSkill->remark = $remark;
+        $staffSkill->version = $version+1;
+
+        $staffSkill->save();
+
+        return $staffSkill->id;
+    }
+
+    /**
+     * 逻辑删除员工技能
+     *
+     * @param int $id
+     * @param int $version
+     * @return boolean
+     */
+    public function deleteStaffSkill($id, $version)
+    {
+        $staffSkill = StaffSkills::where('status', 0)->find($id);
+        if (empty($staffSkill)) {
+            send_msg_json(ERROR_RETURN, "该员工技能不存在");
+        }
+        if ($staffSkill->version != $version) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        $staffSkill->status = 1;
+
+        DB::transaction(function () use ($staffSkill, $id){
+            $staffSkill->save();
+            // 员工id
+            $staffId = $staffSkill->staff_id;
+            // 删除技能标签关系表
+            $this->deleteStaffSkillLabel($id, $staffId);
+            // 删除技能材料关系表
+            $this->deleteStaffSkillPaper($id, $staffId);
+
+            return true;
+        });
+        // 员工技能id
+        return $id;
+    }
+
+    /**
+     * 删除技能标签关系表
+     *
+     * @param int $id
+     * @param int $staffId
+     * @return boolean
+     */
+    private function deleteStaffSkillLabel($id, $staffId)
+    {
+        // 物理删除关系表数据
+        DB::table('staff_skill_label')->where(['skill_id'=>$id, 'staff_id'=>$staffId])->delete();
+
+        return true;
+    }
+
+    /**
+     * 删除技能材料关系表
+     *
+     * @param int $id
+     * @param int $staffId
+     * @return boolean
+     */
+    private function deleteStaffSkillPaper($id, $staffId)
+    {
+        // 物理删除
+        DB::table('staff_skill_paper')->where(['skill_id'=>$id, 'staff_id'=>$staffId])->delete();
+
+        return true;
     }
 }
