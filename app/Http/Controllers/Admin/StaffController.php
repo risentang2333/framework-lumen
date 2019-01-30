@@ -91,7 +91,7 @@ class StaffController extends Controller
         // 服务人员手机号
         $params['phone'] = trim($request->input('phone', ''));
         // 年龄
-        $params['age'] = trim($request->input('age', ''));
+        $params['age'] = (int)trim($request->input('age', 0));
         // 住址
         $params['address'] = trim($request->input('address', ''));
         // 银行卡号
@@ -125,7 +125,7 @@ class StaffController extends Controller
         // if (!verify_bank_card($params['bank_card'])) {
         //     send_msg_json(ERROR_RETURN, "银行卡号格式错误");
         // }
-        if ($params['age'] == '') {
+        if (empty($params['age'])) {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
         $return = $staffService->saveStaff($params);
@@ -138,11 +138,27 @@ class StaffController extends Controller
             $logMsg = "编辑员工信息，操作id为：".$return['staffId'];
         }
         // 写入日志
-        write_log($accessToken, $logMsg);
+        // write_log($accessToken, $logMsg);
 
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
+    public function deleteStaff(Request $request)
+    {
+        $staffService = new StaffService;
+        // 服务人员id
+        $id = (int)trim($request->input('id', 0));
+        // 操作版本号
+        $version = (int)trim($request->input('version', 0));
+
+        $staffService->deleteStaff($id, $version);
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
+        // 写入日志
+        write_log($accessToken, "删除服务人员，操作id为：".$id);
+
+        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
+    }
 
     /**
      * 获取技能列表
@@ -214,11 +230,11 @@ class StaffController extends Controller
         if (empty($id)) {
             send_msg_json(ERROR_RETURN, "请传入员工技能id");
         }
-        $staffSkillId = $staffService->deleteStaffSkill($id, $version);
+        $staffService->deleteStaffSkill($id, $version);
         // 访问令牌
         $accessToken = trim($request->header('accessToken',''));
         // 写入日志
-        write_log($accessToken, "删除员工技能，操作id为：".$staffSkillId);
+        write_log($accessToken, "删除员工技能，操作id为：".$id);
 
         return send_msg_json(SUCCESS_RETURN, "删除成功");
     }

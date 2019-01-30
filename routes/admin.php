@@ -64,8 +64,10 @@ Route::group(['prefix' => 'staff'], function () {
     Route::get('/getStaff', 'StaffController@getStaff');
     // 编辑服务人员信息
     Route::post('/editStaff', 'StaffController@editStaff');
+    // 删除服务人员
+    Route::post('/deleteStaff', 'StaffController@deleteStaff');
     // 获取技能列表
-    Route::get('/getStaffSkillList', 'StaffController@getSkillList');
+    Route::get('/getStaffSkillList', 'StaffController@getStaffSkillList');
     // 审核员工技能
     Route::post('/reviewStaffSkill', 'StaffController@reviewStaffSkill');
     // 删除员工技能

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-01-28 13:46:07
+Date: 2019-01-30 16:20:06
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -210,8 +210,8 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '9b0caaab7f0c960d2f585c422e96a109', '9087d701ce5625521006f2a9c39a6936', '1547455986', '0', '0');
-INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'bbda6dff1393b68ff5eb3e3dbaf98ab4', '1933f867c8f17fbeb0316ceef033c1d1', '1548395247', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'aac6bfd31f0e31b3f4b8e94c5a0ee2f3', 'f2a980c8174a11898cc9ed43efa17a4d', '1548898171', '0', '0');
+INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'ca1229a64d36ed3520457d58438ea60a', '978e6acf4b36123489159e7bdbefffc1', '1548898060', '0', '0');
 
 -- ----------------------------
 -- Table structure for orders
@@ -454,19 +454,15 @@ CREATE TABLE `staff` (
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', 'qwe', '13333333333', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548322317');
-INSERT INTO `staff` VALUES ('2', '唐朝', '13998836590', '', '', '', '0', '', '18', '辽宁省沈阳市皇姑区', '6342327208840284', '0', '0', '1548380213');
-INSERT INTO `staff` VALUES ('3', '唐朝测试', '13998856666', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548380297');
-INSERT INTO `staff` VALUES ('5', 'qwe', '13333333333', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '1', '1548382336');
-INSERT INTO `staff` VALUES ('6', 'qwe', '13333333336', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548643566');
-INSERT INTO `staff` VALUES ('7', 'qwe', '13333333334', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548643632');
-INSERT INTO `staff` VALUES ('8', 'qwe', '13333333337', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548643691');
-INSERT INTO `staff` VALUES ('9', 'qwerr', '13333333300', '', '', '', '0', '', '18', '辽宁省沈阳市', '12312432511453425', '0', '0', '1548644248');
+INSERT INTO `staff` VALUES ('1', '路人甲', '13333333333', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '1111111111111', '0', '0', '1548814246');
+INSERT INTO `staff` VALUES ('2', '路人乙', '13999999999', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '12312432511453425', '0', '0', '1548831896');
+INSERT INTO `staff` VALUES ('6', '路人丙', '13888888888', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '12312432511453425', '0', '1', '1548832537');
+INSERT INTO `staff` VALUES ('7', '路人丙', '13888888887', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '12312432511453425', '0', '0', '1548834271');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -479,44 +475,29 @@ CREATE TABLE `staff_labels` (
   `name` varchar(20) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
 
 -- ----------------------------
 -- Records of staff_labels
 -- ----------------------------
-INSERT INTO `staff_labels` VALUES ('1', '1', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('2', '2', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('3', '2', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('4', '2', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('5', '2', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('6', '3', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('7', '3', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('8', '3', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('9', '3', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('18', '5', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('19', '5', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('20', '5', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('21', '5', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('42', '5', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('43', '5', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('44', '5', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('45', '5', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('46', '0', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('47', '0', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('48', '0', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('49', '0', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('50', '0', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('51', '0', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('52', '0', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('53', '0', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('54', '0', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('55', '0', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('56', '0', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('57', '0', '7', '会打扫', '0');
-INSERT INTO `staff_labels` VALUES ('58', '9', '3', '有亲和力', '0');
-INSERT INTO `staff_labels` VALUES ('59', '9', '4', '有文化', '0');
-INSERT INTO `staff_labels` VALUES ('60', '9', '6', '会做饭', '0');
-INSERT INTO `staff_labels` VALUES ('61', '9', '7', '会打扫', '0');
+INSERT INTO `staff_labels` VALUES ('1', '1', '2', '干净立正', '0');
+INSERT INTO `staff_labels` VALUES ('2', '1', '3', '有亲和力', '0');
+INSERT INTO `staff_labels` VALUES ('3', '2', '3', '有亲和力', '0');
+INSERT INTO `staff_labels` VALUES ('4', '2', '4', '有文化', '0');
+INSERT INTO `staff_labels` VALUES ('5', '2', '6', '会做饭', '0');
+INSERT INTO `staff_labels` VALUES ('6', '2', '7', '会打扫', '0');
+INSERT INTO `staff_labels` VALUES ('19', '6', '3', '有亲和力', '1');
+INSERT INTO `staff_labels` VALUES ('20', '6', '4', '有文化', '1');
+INSERT INTO `staff_labels` VALUES ('21', '6', '6', '会做饭', '1');
+INSERT INTO `staff_labels` VALUES ('22', '6', '7', '会打扫', '1');
+INSERT INTO `staff_labels` VALUES ('27', '6', '3', '有亲和力', '0');
+INSERT INTO `staff_labels` VALUES ('28', '6', '4', '有文化', '0');
+INSERT INTO `staff_labels` VALUES ('29', '6', '6', '会做饭', '0');
+INSERT INTO `staff_labels` VALUES ('30', '6', '7', '会打扫', '0');
+INSERT INTO `staff_labels` VALUES ('31', '7', '3', '有亲和力', '0');
+INSERT INTO `staff_labels` VALUES ('32', '7', '4', '有文化', '0');
+INSERT INTO `staff_labels` VALUES ('33', '7', '6', '会做饭', '0');
+INSERT INTO `staff_labels` VALUES ('34', '7', '7', '会打扫', '0');
 
 -- ----------------------------
 -- Table structure for staff_papers
@@ -531,11 +512,13 @@ CREATE TABLE `staff_papers` (
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
 
 -- ----------------------------
 -- Records of staff_papers
 -- ----------------------------
+INSERT INTO `staff_papers` VALUES ('1', '1', 'identity', 'abcdefghi/index', '1', '1548814246', '0');
+INSERT INTO `staff_papers` VALUES ('2', '1', 'healthy', 'abcdfefsef/index', '2', '1548814246', '0');
 
 -- ----------------------------
 -- Table structure for staff_skills
@@ -553,17 +536,15 @@ CREATE TABLE `staff_skills` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
 
 -- ----------------------------
 -- Records of staff_skills
 -- ----------------------------
-INSERT INTO `staff_skills` VALUES ('1', '1', '2', '4', '5', '6', '3', '不通过', '1', '1');
-INSERT INTO `staff_skills` VALUES ('11', '5', '3', '4', '5', '6', '0', '', '1', '0');
-INSERT INTO `staff_skills` VALUES ('12', '0', '3', '4', '5', '6', '3', '不通过', '0', '1');
-INSERT INTO `staff_skills` VALUES ('13', '0', '3', '4', '5', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('14', '0', '3', '4', '5', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('15', '9', '3', '4', '5', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '2', '2', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '6', '0', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for staff_skill_label
@@ -575,19 +556,19 @@ CREATE TABLE `staff_skill_label` (
   `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工技能id',
   `label_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工标签id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='技能-标签 多对多关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='技能-标签 多对多关联表';
 
 -- ----------------------------
 -- Records of staff_skill_label
 -- ----------------------------
-INSERT INTO `staff_skill_label` VALUES ('10', '0', '12', '18');
-INSERT INTO `staff_skill_label` VALUES ('11', '0', '12', '19');
-INSERT INTO `staff_skill_label` VALUES ('12', '0', '13', '18');
-INSERT INTO `staff_skill_label` VALUES ('13', '0', '13', '19');
-INSERT INTO `staff_skill_label` VALUES ('14', '0', '14', '18');
-INSERT INTO `staff_skill_label` VALUES ('15', '0', '14', '19');
-INSERT INTO `staff_skill_label` VALUES ('16', '9', '15', '18');
-INSERT INTO `staff_skill_label` VALUES ('17', '9', '15', '19');
+INSERT INTO `staff_skill_label` VALUES ('1', '1', '1', '1');
+INSERT INTO `staff_skill_label` VALUES ('2', '1', '1', '2');
+INSERT INTO `staff_skill_label` VALUES ('3', '2', '2', '18');
+INSERT INTO `staff_skill_label` VALUES ('4', '2', '2', '19');
+INSERT INTO `staff_skill_label` VALUES ('5', '6', '7', '19');
+INSERT INTO `staff_skill_label` VALUES ('6', '6', '7', '20');
+INSERT INTO `staff_skill_label` VALUES ('7', '6', '8', '19');
+INSERT INTO `staff_skill_label` VALUES ('8', '6', '8', '20');
 
 -- ----------------------------
 -- Table structure for staff_skill_paper
@@ -599,11 +580,13 @@ CREATE TABLE `staff_skill_paper` (
   `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能表id',
   `paper_id` int(11) NOT NULL DEFAULT '0' COMMENT '证明id',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='技能-执照 多对多关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='技能-执照 多对多关联表';
 
 -- ----------------------------
 -- Records of staff_skill_paper
 -- ----------------------------
+INSERT INTO `staff_skill_paper` VALUES ('1', '1', '1', '1');
+INSERT INTO `staff_skill_paper` VALUES ('2', '1', '1', '2');
 
 -- ----------------------------
 -- Table structure for users
