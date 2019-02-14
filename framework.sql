@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-01-30 16:20:06
+Date: 2019-02-14 21:21:21
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -441,28 +441,34 @@ DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
+  `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
+  `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
   `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `wechat` varchar(50) NOT NULL DEFAULT '' COMMENT '微信号',
   `password` varchar(64) NOT NULL DEFAULT '' COMMENT '密码',
   `access_token` varchar(64) NOT NULL DEFAULT '' COMMENT '认证令牌',
   `refresh_token` varchar(64) NOT NULL DEFAULT '' COMMENT '刷新token',
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
   `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
   `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
+  `region` int(11) NOT NULL DEFAULT '0' COMMENT '地区',
   `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
+  `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
   `bank_card` varchar(30) NOT NULL DEFAULT '' COMMENT '银行卡号',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
+  `last_activity_time` int(11) NOT NULL DEFAULT '0' COMMENT '最后活动时间',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '13333333333', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '1111111111111', '0', '0', '1548814246');
-INSERT INTO `staff` VALUES ('2', '路人乙', '13999999999', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '12312432511453425', '0', '0', '1548831896');
-INSERT INTO `staff` VALUES ('6', '路人丙', '13888888888', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '12312432511453425', '0', '1', '1548832537');
-INSERT INTO `staff` VALUES ('7', '路人丙', '13888888887', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '12312432511453425', '0', '0', '1548834271');
+INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
+INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
+INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
+INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -527,9 +533,12 @@ DROP TABLE IF EXISTS `staff_skills`;
 CREATE TABLE `staff_skills` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `service_category_id` int(11) NOT NULL DEFAULT '0',
+  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
   `name` varchar(30) NOT NULL DEFAULT '',
   `level` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星级',
+  `service_length` int(5) NOT NULL DEFAULT '0' COMMENT '工龄',
+  `experience` int(5) NOT NULL DEFAULT '0' COMMENT '工作经验',
+  `job_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '职业类型 0：全部，1：全职，2：兼职',
   `workable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可工作 0：全部，1：可工作，2：不能工作',
   `review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '审核状态 0：全部，1：未审核， 2：通过，3：不通过',
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
@@ -541,10 +550,10 @@ CREATE TABLE `staff_skills` (
 -- ----------------------------
 -- Records of staff_skills
 -- ----------------------------
-INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '2', '2', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '0', '0', '1', '2', '2', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for staff_skill_label
