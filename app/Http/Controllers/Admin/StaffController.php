@@ -39,8 +39,10 @@ class StaffController extends Controller
         $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
         // 能力标签id集合
         $params['ability_ids'] = $request->input('ability_ids','');
+        // 一页几条，默认15条
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
 
-        $list = $staffService->getStaffList($params);
+        $list = $staffService->getStaffList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -88,12 +90,24 @@ class StaffController extends Controller
         $params['id'] = (int)trim($request->input('id', 0));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
+        // 身份证号
+        $params['identify'] = trim($request->input('identify', ''));
+        // 服务人员性别
+        $params['sex'] = (int)trim($request->input('sex', 1));
+        // 民族
+        $params['nation'] = trim($request->input('nation', ''));
         // 服务人员手机号
         $params['phone'] = trim($request->input('phone', ''));
+        // 微信号
+        $params['wechat'] = trim($request->input('wechat', ''));
+        // 地区
+        $params['region'] = (int)trim($request->input('region', 0));
         // 年龄
         $params['age'] = (int)trim($request->input('age', 0));
         // 住址
         $params['address'] = trim($request->input('address', ''));
+        // 教育程度
+        $params['education'] = trim($request->input('education', ''));
         // 银行卡号
         $params['bank_card'] = trim($request->input('bank_card', ''));
         // 操作版本号
@@ -110,6 +124,13 @@ class StaffController extends Controller
         }
         if ($params['phone'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员手机");
+        }
+        // 身份证号
+        if ($params['identify'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
+        }
+        if (!verify_identity($params['identify'])) {
+            send_msg_json(ERROR_RETURN, "身份证号格式错误");
         }
         // 验证手机号格式
         if (!verify_phone($params['phone'])) {
@@ -143,6 +164,12 @@ class StaffController extends Controller
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
+    /**
+     * 逻辑删除服务人员
+     *
+     * @param Request $request
+     * @return string
+     */
     public function deleteStaff(Request $request)
     {
         $staffService = new StaffService;

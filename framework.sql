@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-14 21:21:21
+Date: 2019-02-15 17:20:17
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -441,6 +441,8 @@ DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
+  `identity` varchar(20) NOT NULL DEFAULT '' COMMENT '身份证号',
+  `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
   `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
   `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
   `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
@@ -450,7 +452,6 @@ CREATE TABLE `staff` (
   `refresh_token` varchar(64) NOT NULL DEFAULT '' COMMENT '刷新token',
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
   `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
-  `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
   `region` int(11) NOT NULL DEFAULT '0' COMMENT '地区',
   `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
   `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
@@ -465,10 +466,10 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
-INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
-INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
-INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
+INSERT INTO `staff` VALUES ('1', '路人甲', '', '18', '1', '', '13333333333', '', '', '', '', '0', '', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
+INSERT INTO `staff` VALUES ('2', '路人乙', '', '18', '1', '', '13999999999', '', '', '', '', '0', '', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
+INSERT INTO `staff` VALUES ('6', '路人丙', '', '18', '1', '', '13888888888', '', '', '', '', '0', '', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
+INSERT INTO `staff` VALUES ('7', '路人丙', '', '18', '1', '', '13888888887', '', '', '', '', '0', '', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -512,7 +513,7 @@ DROP TABLE IF EXISTS `staff_papers`;
 CREATE TABLE `staff_papers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `type` enum('','identity','healthy') NOT NULL DEFAULT '',
+  `type` enum('','identity','healthy') NOT NULL DEFAULT '' COMMENT '证件类型，身份证，健康证',
   `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',

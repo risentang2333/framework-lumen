@@ -238,6 +238,9 @@ class StaffService
             $returnMsg = '编辑成功';
         }
         $staff->name = $params['name'];
+        $staff->sex = $params['sex'];
+        $staff->nation = $params['nation'];
+        $staff->wechat = $params['wechat'];
         $staff->phone = $params['phone'];
         $staff->age = $params['age'];
         $staff->bank_card = $params['bank_card'];

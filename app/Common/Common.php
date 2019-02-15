@@ -186,14 +186,14 @@ if (!function_exists('verify_phone')) {
     }
 }
 
-if (!function_exists('verify_identity_card')) {
+if (!function_exists('verify_identity')) {
     /**
      * 验证身份证格式
      *
      * @param string $identity_card
      * @return string
      */
-    function verify_identity_card($identity_card) {
+    function verify_identity($identity_card) {
         $pattern = '/(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/';
 
         if (preg_match($pattern, $identity_card)) {
