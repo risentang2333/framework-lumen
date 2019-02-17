@@ -23,7 +23,7 @@ class StaffService
         "staff_skills.staff_id",
         "staff.name as staff_name",
         "staff.address",
-        "staff_skills.service_category_id",
+        "staff_skills.service_item_id",
         "staff_skills.name",
         "staff_skills.level",
         "staff_skills.workable",
@@ -106,16 +106,16 @@ class StaffService
                     $query->where('name','like','%'.$params['name'].'%');
                 }
                 // 根据服务类型筛选
-                if ($params['service_category_id'] && empty($params['ability_ids'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?) AND `status` = 0', [$params['service_category_id']]);
+                if ($params['service_item_id'] && empty($params['ability_ids'])) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_item_id` = ?) AND `status` = 0', [$params['service_item_id']]);
                 }
                 // 根据特长标签搜索
-                if ($params['ability_ids'] && empty($params['service_category_id'])) {
+                if ($params['ability_ids'] && empty($params['service_item_id'])) {
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0', [implode(",",$params['ability_ids'])]);
                 }
                 // 如果服务类型特长都存在
-                if ($params['ability_ids'] && $params['service_category_id']) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skill_label` WHERE `skill_id` in (SELECT `id` FROM `staff_skills` WHERE `service_category_id` = ? AND `status` = 0) AND `label_id` IN (SELECT `id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0))', [$params['service_category_id'], implode(",",$params['ability_ids'])]);
+                if ($params['ability_ids'] && $params['service_item_id']) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skill_label` WHERE `skill_id` in (SELECT `id` FROM `staff_skills` WHERE `service_item_id` = ? AND `status` = 0) AND `label_id` IN (SELECT `id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0))', [$params['service_item_id'], implode(",",$params['ability_ids'])]);
                 }
             })
             ->paginate($pageNumber)
@@ -335,7 +335,7 @@ class StaffService
         if (empty($formId)) {
             if (!empty($skills)) {
                 array_walk($skills, function (&$item) use ($staffId){
-                    DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
+                    DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_item_id'=>$item['service_item_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
                     // 获取每一条技能的操作id
                     $skillId = DB::getPdo()->lastInsertId();
                     // 编辑员工技能与标签关系表
@@ -361,7 +361,7 @@ class StaffService
             if (!empty($skills)) {
                 array_walk($skills, function (&$item) use ($staffId, $array_intersect){
                     if (!in_array($item['id'], $array_intersect)) {
-                        DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
+                        DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_item_id'=>$item['service_item_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
                     }
                     // 获取每一条技能的操作id
                     if (empty($item['id'])) {
@@ -528,8 +528,8 @@ class StaffService
             // 逻辑删除判断
             $query->where('staff_skills.status', 0);
             // 技能分类id
-            if ($params['service_category_id']) {
-                $query->where('service_category_id', $params['service_category_id']);
+            if ($params['service_item_id']) {
+                $query->where('service_item_id', $params['service_item_id']);
             }
         })
         ->paginate($pageNumber)

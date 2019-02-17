@@ -36,9 +36,9 @@ class StaffController extends Controller
         // 服务人员姓名
         $params['name'] = trim($request->input('name',''));
         // 服务分类id
-        $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
+        $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
         // 能力标签id集合
-        $params['ability_ids'] = $request->input('ability_ids','');
+        $params['ability_ids'] = $request->input('ability_ids', '');
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
@@ -197,7 +197,7 @@ class StaffController extends Controller
     {
         $staffService = new StaffService;
         // 服务分类id
-        $params['service_category_id'] = (int)trim($request->input('service_category_id',''));
+        $params['service_item_id'] = (int)trim($request->input('service_item_id',''));
 
         $list = $staffService->getStaffSkillList($params);
 

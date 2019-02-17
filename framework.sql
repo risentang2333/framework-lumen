@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-15 17:20:17
+Date: 2019-02-17 18:58:14
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -210,7 +210,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'aac6bfd31f0e31b3f4b8e94c5a0ee2f3', 'f2a980c8174a11898cc9ed43efa17a4d', '1548898171', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'bb462a542fca29eb8e9ae40dda33065c', '827248c99634eb6d7c92ae6b66f05d29', '1550479084', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'ca1229a64d36ed3520457d58438ea60a', '978e6acf4b36123489159e7bdbefffc1', '1548898060', '0', '0');
 
 -- ----------------------------
@@ -221,24 +221,27 @@ CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(20) NOT NULL DEFAULT '',
   `user_id` int(11) NOT NULL DEFAULT '0',
+  `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `staff_id` int(11) NOT NULL DEFAULT '0',
   `service_item_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务内容id',
   `service_name` varchar(200) NOT NULL DEFAULT '' COMMENT '服务项目名',
-  `service_fee` float(11,2) NOT NULL DEFAULT '0.00',
-  `agency_fee` float(11,2) NOT NULL DEFAULT '0.00',
-  `total_amount` float(11,2) NOT NULL DEFAULT '0.00',
-  `pay_amount` float(11,2) NOT NULL DEFAULT '0.00',
-  `single_service` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否为单次服务 0：单次服务，1：常驻服务',
   `service_address` varchar(200) NOT NULL DEFAULT '',
   `service_start_time` int(11) NOT NULL DEFAULT '0',
   `service_end_time` int(11) NOT NULL DEFAULT '0',
+  `source` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单来源 0：全部，1：线下，2：线上，3：全部',
   `created_at` int(11) NOT NULL DEFAULT '0',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
 
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
+INSERT INTO `orders` VALUES ('1', '123', '0', '', '', '0', '0', '', '', '0', '0', '1', '0', '0');
+INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '', '0', '0', '', '', '0', '0', '2', '0', '0');
+INSERT INTO `orders` VALUES ('3', '123123', '0', '', '', '0', '0', '', '', '0', '0', '3', '0', '0');
+INSERT INTO `orders` VALUES ('4', '123123', '0', '', '', '0', '0', '', '', '0', '0', '1', '0', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -441,8 +444,6 @@ DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
-  `identity` varchar(20) NOT NULL DEFAULT '' COMMENT '身份证号',
-  `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
   `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
   `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
   `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
@@ -452,6 +453,7 @@ CREATE TABLE `staff` (
   `refresh_token` varchar(64) NOT NULL DEFAULT '' COMMENT '刷新token',
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
   `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
+  `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
   `region` int(11) NOT NULL DEFAULT '0' COMMENT '地区',
   `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
   `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
@@ -466,10 +468,10 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '', '18', '1', '', '13333333333', '', '', '', '', '0', '', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
-INSERT INTO `staff` VALUES ('2', '路人乙', '', '18', '1', '', '13999999999', '', '', '', '', '0', '', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
-INSERT INTO `staff` VALUES ('6', '路人丙', '', '18', '1', '', '13888888888', '', '', '', '', '0', '', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
-INSERT INTO `staff` VALUES ('7', '路人丙', '', '18', '1', '', '13888888887', '', '', '', '', '0', '', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
+INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
+INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
+INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
+INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -513,7 +515,7 @@ DROP TABLE IF EXISTS `staff_papers`;
 CREATE TABLE `staff_papers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `type` enum('','identity','healthy') NOT NULL DEFAULT '' COMMENT '证件类型，身份证，健康证',
+  `type` enum('','identity','healthy') NOT NULL DEFAULT '',
   `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
@@ -534,7 +536,7 @@ DROP TABLE IF EXISTS `staff_skills`;
 CREATE TABLE `staff_skills` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
+  `service_item_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
   `name` varchar(30) NOT NULL DEFAULT '',
   `level` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星级',
   `service_length` int(5) NOT NULL DEFAULT '0' COMMENT '工龄',

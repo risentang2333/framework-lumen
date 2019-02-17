@@ -73,4 +73,9 @@ Route::group(['prefix' => 'staff'], function () {
     // 删除员工技能
     Route::post('/deleteStaffSkill', 'StaffController@deleteStaffSkill');
 });
-Route::get('/getAreaList', 'StaffController@getAreaList');
+// 订单模块
+Route::group(['prefix' => 'order'], function () {
+    Route::get('/getOrderList', 'OrderController@getOrderList');
+});
+// 获取地区树
+Route::get('/getAreaTree', 'StaffController@getAreaTree');
