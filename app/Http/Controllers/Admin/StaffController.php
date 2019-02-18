@@ -24,6 +24,17 @@ class StaffController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
 
+    public function getServiceTree()
+    {
+        $staffService = new StaffService;
+
+        $service = $staffService->getCategoryForTree();
+
+        $tree = $staffService->getTree($service);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $tree);
+    }
+
     /**
      * 获取工作人员列表
      *
@@ -180,7 +191,7 @@ class StaffController extends Controller
 
         $staffService->deleteStaff($id, $version);
         // 访问令牌
-        $accessToken = trim($request->header('accessToken',''));
+        $accessToken = trim($request->header('accessToken', ''));
         // 写入日志
         write_log($accessToken, "删除服务人员，操作id为：".$id);
 

@@ -75,7 +75,13 @@ Route::group(['prefix' => 'staff'], function () {
 });
 // 订单模块
 Route::group(['prefix' => 'order'], function () {
+    // 获取订单列表
     Route::get('/getOrderList', 'OrderController@getOrderList');
+    // 获取需求订单
+    Route::get('/getDemandOrder', 'OrderController@getDemandOrder');
+    
 });
 // 获取地区树
 Route::get('/getAreaTree', 'StaffController@getAreaTree');
+
+Route::get('/getServiceTree', 'StaffController@getServiceTree');

@@ -32,4 +32,18 @@ class OrderController extends Controller
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
+    // 服务项id
+    // $service_item_id = (int)trim($request->input('service_item_id', 0));
+    // 服务名
+    // $service_name = trim($request->input('service_name', ''));
+    public function getDemandOrder(Request $request)
+    {
+        $orderService = new OrderService;
+        // 订单id
+        $id = (int)trim($request->input('id', 0));
+
+        $order = $orderService->getDemandOrder($id);
+
+        
+    }
 }

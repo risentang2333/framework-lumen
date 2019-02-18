@@ -56,4 +56,14 @@ class OrderService
             ->toArray();
         return $list;
     }
+
+    public function getDemandOrder($id)
+    {
+        $order = Orders::select(['id','code','user_id','user_name','phone','service_item_id','service_name','service_address','service_start_time','service_end_time','sourse'])->where('id', $id)->first();
+        if (empty($order)) {
+            send_msg_json(ERROR_RETURN, "该订单不存在");
+        }
+        
+        return $order->toArray();
+    }
 }

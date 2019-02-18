@@ -275,30 +275,28 @@ class StaffService
      */
     private function saveStaffLabel($labels, $formId, $staffId)
     {
-        // 如果为添加表单
-        if (empty($formId)) {
-            if (!empty($labels)) {
+        if (!empty($labels)) {
+            // 如果为添加表单
+            if (empty($formId)) {
                 array_walk($labels, function (&$item) use ($staffId){
                     DB::table('staff_labels')->insert(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
                 });
-            }
-        // 如果为编辑表单
-        } else {
-            $labelIds = array_column($labels, 'id');
-            // 原关系id集合
-            $original_labelIds = DB::table('staff_labels')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
-            // 原关系数组与新数组交集
-            $array_intersect = array_intersect($labelIds, $original_labelIds);
-            // 需要删除的标签id
-            $delete_labelIds = implode(",", array_diff($original_labelIds, $array_intersect));
-            if (!empty($delete_labelIds)) {
-                // 先逻辑删除员工标签表
-                DB::delete("UPDATE `staff_labels` SET `status` = 1 WHERE `id` IN ($delete_labelIds)");
-                // 再物理删除员工技能标签关系表
-                DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `label_id` IN ($delete_labelIds)");
-            }
+            // 如果为编辑表单
+            } else {
+                $labelIds = array_column($labels, 'id');
+                // 原关系id集合
+                $original_labelIds = DB::table('staff_labels')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+                // 原关系数组与新数组交集
+                $array_intersect = array_intersect($labelIds, $original_labelIds);
+                // 需要删除的标签id
+                $delete_labelIds = implode(",", array_diff($original_labelIds, $array_intersect));
+                if (!empty($delete_labelIds)) {
+                    // 先逻辑删除员工标签表
+                    DB::delete("UPDATE `staff_labels` SET `status` = 1 WHERE `id` IN ($delete_labelIds)");
+                    // 再物理删除员工技能标签关系表
+                    DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `label_id` IN ($delete_labelIds)");
+                }
 
-            if (!empty($labels)) {
                 array_walk($labels, function (&$item) use ($staffId, $array_intersect){
                     if (!in_array($item['id'], $array_intersect)) {
                         DB::table('staff_labels')->insert(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
