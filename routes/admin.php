@@ -73,13 +73,21 @@ Route::group(['prefix' => 'staff'], function () {
     // 删除员工技能
     Route::post('/deleteStaffSkill', 'StaffController@deleteStaffSkill');
 });
+// 服务项目模块
+Route::group(['prefix' => 'item'], function () {
+    // 获取服务项目列表
+    Route::get('/getItemList', 'ItemController@getItemList');
+    // 获取服务信息
+    Route::get('/getItem', 'ItemController@getItem');
+    // 编辑服务信息
+    Route::post('/editItem', 'ItemController@editItem');
+});
 // 订单模块
 Route::group(['prefix' => 'order'], function () {
     // 获取订单列表
     Route::get('/getOrderList', 'OrderController@getOrderList');
     // 获取需求订单
     Route::get('/getDemandOrder', 'OrderController@getDemandOrder');
-    
 });
 // 获取地区树
 Route::get('/getAreaTree', 'StaffController@getAreaTree');

@@ -42,7 +42,7 @@ class OrderController extends Controller
         // 订单id
         $id = (int)trim($request->input('id', 0));
 
-        $order = $orderService->getDemandOrder($id);
+        $order = $orderService->getDemandOrderById($id);
 
         
     }

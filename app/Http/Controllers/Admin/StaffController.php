@@ -97,6 +97,8 @@ class StaffController extends Controller
     public function editStaff(Request $request)
     {
         $staffService = new StaffService;
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
         // 服务人员id
         $params['id'] = (int)trim($request->input('id', 0));
         // 服务人员姓名
@@ -161,10 +163,9 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
         $return = $staffService->saveStaff($params);
-        // 访问令牌
-        $accessToken = trim($request->header('accessToken',''));
+        
         // 编写操作日志
-        if (empty($id)) {
+        if (empty($params['id'])) {
             $logMsg = "添加员工信息，操作id为：".$return['staffId'];
         } else {
             $logMsg = "编辑员工信息，操作id为：".$return['staffId'];
@@ -195,7 +196,7 @@ class StaffController extends Controller
         // 写入日志
         write_log($accessToken, "删除服务人员，操作id为：".$id);
 
-        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
+        return send_msg_json(SUCCESS_RETURN, "删除成功");
     }
 
     /**

@@ -8,11 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService 
 {
-    /**
-     * 员工列表查询字段
-     *
-     * @var array
-     */
     private $orderList = [
         'id',
         'code',
@@ -22,13 +17,6 @@ class OrderService
         'service_item_id',
         'service_name'
     ];
-
-    /**
-     * 获取员工列表
-     *
-     * @param array $params
-     * @return array
-     */
     public function getOrderList($params, $pageNumber = 15)
     {
         $list = Orders::select($this->orderList)
@@ -56,8 +44,7 @@ class OrderService
             ->toArray();
         return $list;
     }
-
-    public function getDemandOrder($id)
+    public function getDemandOrderById($id)
     {
         $order = Orders::select(['id','code','user_id','user_name','phone','service_item_id','service_name','service_address','service_start_time','service_end_time','sourse'])->where('id', $id)->first();
         if (empty($order)) {

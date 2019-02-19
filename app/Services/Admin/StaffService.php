@@ -54,7 +54,6 @@ class StaffService
     {
         return Areas::get()->keyBy('id')->toArray();
     }
-
     /**
      * 获取工种作为生成树结构前提
      *
