@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-17 18:58:14
+Date: 2019-02-19 15:02:31
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -210,7 +210,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'bb462a542fca29eb8e9ae40dda33065c', '827248c99634eb6d7c92ae6b66f05d29', '1550479084', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'ef327cdc766179d3f7d55011d4df90eb', '48b75aa38e25e1055fb206388dc89c5e', '1550626609', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'ca1229a64d36ed3520457d58438ea60a', '978e6acf4b36123489159e7bdbefffc1', '1548898060', '0', '0');
 
 -- ----------------------------
@@ -430,12 +430,17 @@ DROP TABLE IF EXISTS `service_items`;
 CREATE TABLE `service_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务分类id',
+  `service_name` varchar(200) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='基础服务表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='基础服务表';
 
 -- ----------------------------
 -- Records of service_items
 -- ----------------------------
+INSERT INTO `service_items` VALUES ('1', '2', 'name', '0', '1550545655', '0');
 
 -- ----------------------------
 -- Table structure for staff
@@ -463,7 +468,7 @@ CREATE TABLE `staff` (
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
 -- Records of staff
