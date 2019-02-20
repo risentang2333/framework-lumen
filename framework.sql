@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-19 15:02:31
+Date: 2019-02-20 17:09:50
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -219,29 +219,32 @@ INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62'
 DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) NOT NULL DEFAULT '0',
+  `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `code` varchar(20) NOT NULL DEFAULT '',
   `user_id` int(11) NOT NULL DEFAULT '0',
   `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
-  `staff_id` int(11) NOT NULL DEFAULT '0',
   `service_item_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务内容id',
-  `service_name` varchar(200) NOT NULL DEFAULT '' COMMENT '服务项目名',
+  `service_item_name` varchar(200) NOT NULL DEFAULT '' COMMENT '服务项目名',
   `service_address` varchar(200) NOT NULL DEFAULT '',
   `service_start_time` int(11) NOT NULL DEFAULT '0',
   `service_end_time` int(11) NOT NULL DEFAULT '0',
   `source` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单来源 0：全部，1：线下，2：线上，3：全部',
+  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
   `created_at` int(11) NOT NULL DEFAULT '0',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `code` (`code`) USING BTREE COMMENT '订单号唯一性约束'
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
 
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '123', '0', '', '', '0', '0', '', '', '0', '0', '1', '0', '0');
-INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '', '0', '0', '', '', '0', '0', '2', '0', '0');
-INSERT INTO `orders` VALUES ('3', '123123', '0', '', '', '0', '0', '', '', '0', '0', '3', '0', '0');
-INSERT INTO `orders` VALUES ('4', '123123', '0', '', '', '0', '0', '', '', '0', '0', '1', '0', '0');
+INSERT INTO `orders` VALUES ('1', '0', '', '123', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
+INSERT INTO `orders` VALUES ('2', '0', '', '121234234', '0', '', '', '0', '', '', '0', '0', '2', '', '0', '0');
+INSERT INTO `orders` VALUES ('3', '0', '', '12312345', '0', '', '', '0', '', '', '0', '0', '3', '', '0', '0');
+INSERT INTO `orders` VALUES ('4', '0', '', '1231236', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -398,30 +401,32 @@ CREATE TABLE `service_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='项目分类';
 
 -- ----------------------------
 -- Records of service_categories
 -- ----------------------------
-INSERT INTO `service_categories` VALUES ('1', '家电维修', '0');
-INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1');
-INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1');
-INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1');
-INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1');
-INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1');
-INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1');
-INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1');
-INSERT INTO `service_categories` VALUES ('9', '房屋维修', '0');
-INSERT INTO `service_categories` VALUES ('10', '开换汽车锁', '9');
-INSERT INTO `service_categories` VALUES ('11', '开保险柜', '9');
-INSERT INTO `service_categories` VALUES ('12', '开换地锁', '9');
-INSERT INTO `service_categories` VALUES ('13', '门禁维修', '9');
-INSERT INTO `service_categories` VALUES ('14', '健康', '0');
-INSERT INTO `service_categories` VALUES ('15', '按摩理疗', '14');
-INSERT INTO `service_categories` VALUES ('16', '小儿推拿', '14');
-INSERT INTO `service_categories` VALUES ('17', '局部理疗', '14');
-INSERT INTO `service_categories` VALUES ('18', '产妇护理', '14');
+INSERT INTO `service_categories` VALUES ('1', '家电维修', '0', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('9', '房屋维修', '0', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('10', '开换汽车锁', '9', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('11', '开保险柜', '9', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('12', '开换地锁', '9', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('13', '门禁维修', '9', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('14', '健康', '0', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('15', '按摩理疗', '14', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('16', '小儿推拿', '14', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('17', '局部理疗', '14', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('18', '产妇护理', '14', 'enable', '0');
 
 -- ----------------------------
 -- Table structure for service_items
@@ -430,7 +435,8 @@ DROP TABLE IF EXISTS `service_items`;
 CREATE TABLE `service_items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务分类id',
-  `service_name` varchar(200) NOT NULL DEFAULT '',
+  `service_item_name` varchar(200) NOT NULL DEFAULT '',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
@@ -440,7 +446,7 @@ CREATE TABLE `service_items` (
 -- ----------------------------
 -- Records of service_items
 -- ----------------------------
-INSERT INTO `service_items` VALUES ('1', '2', 'name', '0', '1550545655', '0');
+INSERT INTO `service_items` VALUES ('1', '2', 'name', 'enable', '0', '1550545655', '0');
 
 -- ----------------------------
 -- Table structure for staff
@@ -467,8 +473,9 @@ CREATE TABLE `staff` (
   `last_activity_time` int(11) NOT NULL DEFAULT '0' COMMENT '最后活动时间',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `phone` (`phone`) USING BTREE COMMENT '手机号唯一性约束'
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
 -- Records of staff
@@ -541,7 +548,7 @@ DROP TABLE IF EXISTS `staff_skills`;
 CREATE TABLE `staff_skills` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `service_item_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
+  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
   `name` varchar(30) NOT NULL DEFAULT '',
   `level` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星级',
   `service_length` int(5) NOT NULL DEFAULT '0' COMMENT '工龄',
@@ -617,9 +624,12 @@ CREATE TABLE `users` (
   `token` varchar(64) NOT NULL DEFAULT '',
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
   `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `phone` (`phone`) USING BTREE COMMENT '手机唯一性索引'
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
 
 -- ----------------------------
 -- Records of users
 -- ----------------------------
+INSERT INTO `users` VALUES ('1', '唐朝', '13998836590', '', '', '0', '');
+INSERT INTO `users` VALUES ('3', '唐朝2', '13998836591', '', '', '0', '');

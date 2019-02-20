@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
-use App\Services\Admin\ItemService;
+use App\Services\Admin\ServiceService;
 
-class ItemController extends Controller
+class ServiceController extends Controller
 {
     /**
      * 服务项目列表
@@ -16,15 +16,15 @@ class ItemController extends Controller
      */
     public function getItemList(Request $request)
     {
-        $itemService = new ItemService;
+        $serviceService = new ServiceService;
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 服务项目名
-        $params['service_name'] = $request->input('service_name', '');
+        $params['service_item_name'] = $request->input('service_item_name', '');
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
-        $list = $itemService->getItemList($params, $pageNumber);
+        $list = $serviceService->getItemList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -37,11 +37,11 @@ class ItemController extends Controller
      */
     public function getItem(Request $request)
     {
-        $itemService = new ItemService;
+        $serviceService = new ServiceService;
         // 订单id
         $id = (int)trim($request->input('id', 0));
 
-        $item = $itemService->getItemById($id);
+        $item = $serviceService->getItemById($id);
 
         return send_msg_json(SUCCESS_RETURN, "success", $item);
     }
@@ -54,7 +54,7 @@ class ItemController extends Controller
      */
     public function editItem(Request $request)
     {
-        $itemService = new ItemService;
+        $serviceService = new ServiceService;
         // 访问令牌
         $accessToken = trim($request->header('accessToken',''));
 
@@ -62,18 +62,18 @@ class ItemController extends Controller
 
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
 
-        $params['service_name'] = $request->input('service_name', '');
+        $params['service_item_name'] = $request->input('service_item_name', '');
 
         $params['version'] = (int)trim($request->input('version', 0));
         
         if (empty($params['service_category_id'])) {
             send_msg_json(ERROR_RETURN, "请选择服务类别");
         }
-        if ($params['service_name'] == '') {
+        if ($params['service_item_name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务名称");
         }
         // 保存服务项目
-        $return = $itemService->saveItem($params);
+        $return = $serviceService->saveItem($params);
         // 编写操作日志
         if (empty($params['id'])) {
             $logMsg = "添加服务项目，操作id为：".$return['itemId'];
@@ -85,20 +85,79 @@ class ItemController extends Controller
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
+    /**
+     * 删除服务项目
+     *
+     * @param Request $request
+     * @return void
+     */
     public function deleteItem(Request $request)
     {
-        $itemService = new ItemService;
+        $serviceService = new ServiceService;
         // 访问令牌
         $accessToken = trim($request->header('accessToken', ''));
-        // 服务人员id
+        // 服务项目id
         $id = (int)trim($request->input('id', 0));
         // 操作版本号
         $version = (int)trim($request->input('version', 0));
 
-        $itemService->deleteItem($id, $version);
+        $serviceService->deleteItem($id, $version);
         // 写入日志
         // write_log($accessToken, "删除服务人员，操作id为：".$id);
 
         return send_msg_json(SUCCESS_RETURN, "删除成功");
+    }
+
+    /**
+     * 启用/禁用服务项目
+     *
+     * @param Request $request
+     * @return void
+     */
+    public function changeItemType(Request $request)
+    {
+        $serviceService = new ServiceService;
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken', ''));
+        // 服务项目id
+        $id = (int)trim($request->input('id', 0));
+        // 启用/禁用状态
+        $type = trim($request->input('type', ''));
+        // 操作版本号
+        $version = (int)trim($request->input('version', 0));
+
+        $returnMsg = $serviceService->changeItemType($id, $type, $version);
+        // 写入日志
+        // write_log($accessToken, "删除服务人员，操作id为：".$id);
+
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
+    }
+
+    public function getCategoryList(Request $request)
+    {
+        $serviceService = new ServiceService;
+        // 服务项目名
+        $params['name'] = $request->input('name', '');
+        // 一页几条，默认15条
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
+
+        $list = $serviceService->getCategoryList($params, $pageNumber);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $list);
+    }
+
+    public function getCategory(Request $request)
+    {
+
+    }
+
+    public function editCategory(Request $request)
+    {
+        
+    }
+
+    public function changeCategoryType(Request $request)
+    {
+        
     }
 }

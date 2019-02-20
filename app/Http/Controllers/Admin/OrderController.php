@@ -22,9 +22,9 @@ class OrderController extends Controller
         // 订单来源
         $params['source'] = (int)trim($request->input('source', 0));
         // 订单号
-        $params['code'] = $request->input('code', '');
+        $params['code'] = trim($request->input('code', ''));
         // 手机号
-        $params['phone'] = $request->input('phone', '');
+        $params['phone'] = trim($request->input('phone', ''));
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
@@ -32,18 +32,86 @@ class OrderController extends Controller
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
-    // 服务项id
-    // $service_item_id = (int)trim($request->input('service_item_id', 0));
-    // 服务名
-    // $service_name = trim($request->input('service_name', ''));
+
     public function getDemandOrder(Request $request)
     {
         $orderService = new OrderService;
         // 订单id
         $id = (int)trim($request->input('id', 0));
 
-        $order = $orderService->getDemandOrderById($id);
+        $order = $orderService->getDemandOrderById($id)->toArray();
 
+        return send_msg_json(SUCCESS_RETURN, "success", $order);
+    }
+
+    public function editDemandOrder(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $params['id'] = (int)trim($request->input('id', 0));
         
+        $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+
+        $params['staff_name'] = trim($request->input('staff_name', ''));
+
+        $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
+
+        $params['service_item_name'] = trim($request->input('service_item_name', ''));
+
+        $params['user_id'] = trim($request->input('user_id', 0));
+
+        $params['user_name'] = trim($request->input('user_name', ''));
+
+        $params['phone'] = trim($request->input('phone', ''));
+
+        $params['service_address'] = trim($request->input('service_address', ''));
+
+        $params['service_start_time'] = (int)trim($request->input('service_start_time', 0));
+        
+        $params['service_end_time'] = (int)trim($request->input('service_end_time', 0));
+
+        $params['sourse'] = trim($request->input('sourse', 0));
+
+        $params['remark'] = trim($request->input('remark', ''));
+
+        if (empty($params['staff_id'])) {
+            send_msg_json(ERROR_RETURN, "请传入员工编号");
+        }
+        if ($params['staff_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入员工姓名");
+        }
+        if (empty($params['service_item_id'])) {
+            send_msg_json(ERROR_RETURN, "请选择服务项目");
+        }
+        if ($params['service_item_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入服务项目名");
+        }
+        if ($params['user_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写客户名");
+        }
+        if ($params['phone'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写客户手机号");
+        }
+        if ($params['service_address'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务地址");
+        }
+        if (empty($params['service_start_time']) || empty($params['service_end_time'])) {
+            send_msg_json(ERROR_RETURN, "请选择服务时间");
+        }
+        if (empty($params['sourse'])) {
+            send_msg_json(ERROR_RETURN, "请选择订单渠道");
+        }
+
+        // 保存需求订单
+        $return = $orderService->saveDemandOrder($params);
+        // 编写操作日志
+        if (empty($params['id'])) {
+            $logMsg = "添加需求订单，操作id为：".$return['orderId'];
+        } else {
+            $logMsg = "编辑需求订单，操作id为：".$return['orderId'];
+        }
+        // 写入日志
+        // write_log($accessToken, $logMsg);
+        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 }

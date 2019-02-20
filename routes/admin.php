@@ -74,13 +74,25 @@ Route::group(['prefix' => 'staff'], function () {
     Route::post('/deleteStaffSkill', 'StaffController@deleteStaffSkill');
 });
 // 服务项目模块
-Route::group(['prefix' => 'item'], function () {
+Route::group(['prefix' => 'service'], function () {
     // 获取服务项目列表
-    Route::get('/getItemList', 'ItemController@getItemList');
+    Route::get('/getItemList', 'ServiceController@getItemList');
     // 获取服务信息
-    Route::get('/getItem', 'ItemController@getItem');
+    Route::get('/getItem', 'ServiceController@getItem');
     // 编辑服务信息
-    Route::post('/editItem', 'ItemController@editItem');
+    Route::post('/editItem', 'ServiceController@editItem');
+    // 删除服务项目
+    Route::post('/deleteItem', 'ServiceController@deleteItem');
+    // 启用/停用服务
+    Route::post('/changeItemType', 'ServiceController@changeItemType');
+    // 获取服务分类列表
+    Route::get('/getCategoryList', 'ServiceController@getCategoryList');
+    // 获取服务
+    Route::get('/getCategory', 'ServiceController@getCategory');
+    // 编辑服务
+    Route::post('/editCategory', 'ServiceController@editCategory');
+    // 启用/停用服务
+    Route::post('/changeCategoryType', 'ServiceController@changeCategoryType');
 });
 // 订单模块
 Route::group(['prefix' => 'order'], function () {
@@ -88,8 +100,10 @@ Route::group(['prefix' => 'order'], function () {
     Route::get('/getOrderList', 'OrderController@getOrderList');
     // 获取需求订单
     Route::get('/getDemandOrder', 'OrderController@getDemandOrder');
+    // 编辑需求订单
+    Route::post('/editDemandOrder', 'OrderController@editDemandOrder');
 });
 // 获取地区树
 Route::get('/getAreaTree', 'StaffController@getAreaTree');
-
+// 获取服务树
 Route::get('/getServiceTree', 'StaffController@getServiceTree');

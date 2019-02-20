@@ -6,7 +6,7 @@ use App\Entities\ServiceItems;
 use App\Entities\ServiceCategories;
 use Illuminate\Support\Facades\DB;
 
-class ItemService 
+class ServiceService 
 {
     /**
      * 员工列表查询字段
@@ -16,11 +16,21 @@ class ItemService
     private $itemList = [
         'id',
         'service_category_id',
-        'service_name',
+        'service_item_name',
         'status',
         'created_at',
+        'type',
         'version',
     ];
+
+    private $categoryList = [
+        'id',
+        'name',
+        'parent_id',
+        'status',
+        'type',
+    ];
+
     /**
      * 获取服务项目列表
      *
@@ -39,8 +49,8 @@ class ItemService
                     $query->where('service_category_id',$params['service_category_id']);
                 }
                 // 如果有姓名搜索项
-                if ($params['service_name']) {
-                    $query->where('service_name','like','%'.$params['service_name'].'%');
+                if ($params['service_item_name']) {
+                    $query->where('service_item_name','like','%'.$params['service_item_name'].'%');
                 }
             })
             ->paginate($pageNumber)
@@ -55,7 +65,7 @@ class ItemService
      */
     public function getItemById($id)
     {
-        $item = ServiceItems::select(['id','service_category_id','service_name','status'])
+        $item = ServiceItems::select(['id','service_category_id','service_item_name','status'])
             ->where(['status'=>0,'id'=>$id])->first();
         if (empty($item)) {
             send_msg_json(ERROR_RETURN, "该服务项目不存在");
@@ -63,8 +73,15 @@ class ItemService
         return $item;
     }
 
+    /**
+     * 编辑/添加服务项目
+     *
+     * @param [type] $params
+     * @return array
+     */
     public function saveItem($params)
     {
+        $returnMsg = '';
         if (empty($params['id'])) {
             $item = new ServiceItems;
             // 创建时间
@@ -86,7 +103,7 @@ class ItemService
         // 服务分类id
         $item->service_category_id = $params['service_category_id'];
         // 服务项目名
-        $item->service_name = $params['service_name'];
+        $item->service_item_name = $params['service_item_name'];
         // 保存
         $item->save();
 
@@ -97,17 +114,17 @@ class ItemService
     }
 
     /**
-     * 逻辑删除员工
+     * 删除服务项目
      *
-     * @param int $id 员工id
-     * @param int $version
+     * @param [type] $id
+     * @param [type] $version
      * @return void
      */
     public function deleteItem($id, $version)
     {
         $item = ServiceItems::where('status', 0)->find($id);
         if (empty($item)) {
-            send_msg_json(ERROR_RETURN, "该员工不存在");
+            send_msg_json(ERROR_RETURN, "该服务不存在");
         }
         if ($item->version != $version) {
             send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
@@ -116,5 +133,46 @@ class ItemService
         $item->status = 1;
 
         return $item->save();
+    }
+
+    /**
+     * 启用/禁用服务项目
+     *
+     * @param [type] $id
+     * @param [type] $type
+     * @param [type] $version
+     * @return void
+     */
+    public function changeItemType($id, $type, $version)
+    {
+        $item = ServiceItems::where('status', 0)->find($id);
+        if (empty($item)) {
+            send_msg_json(ERROR_RETURN, "该服务不存在");
+        }
+        if ($item->version != $version) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        $item->type = $type;
+        $item->save();
+        // 返回信息
+        $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
+
+        return $returnMsg;
+    }
+
+    public function getCategoryList($params, $pageNumber = 15)
+    {
+        $list = ServiceCategories::select($this->categoryList)
+            ->where(function ($query) use ($params){
+                // 逻辑删除判断
+                $query->where('status', 0);
+                // 如果有姓名搜索项
+                if ($params['name']) {
+                    $query->where('name','like','%'.$params['name'].'%');
+                }
+            })
+            ->paginate($pageNumber)
+            ->toArray();
+        return $list;
     }
 }
