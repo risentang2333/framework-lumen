@@ -324,7 +324,7 @@ class PermissionController extends Controller
             }
         }
         // 生成树结构
-        $permissionList = $permissionService->getTree($permissions);
+        $permissionList = getTree($permissions);
         
         $data = array(
             "rolePermissionIds" => $rolePermissionIds,
@@ -416,7 +416,7 @@ class PermissionController extends Controller
         // 获取所有权限信息
         $permissions = $permissionService->getPermissionForTree(false);
         // 生成树结构
-        $tree = $permissionService->getTree($permissions);
+        $tree = getTree($permissions);
         // 生成下拉菜单数据
         $selection = $permissionService->visitTree($tree);
         
@@ -530,7 +530,7 @@ class PermissionController extends Controller
         // 根据用户id查询角色id组
         $permissions = $permissionService->getPermissionByManagerId($id);
 
-        $tree = $permissionService->getTreeForMenu($permissions);
+        $tree = getTree($permissions, true);
 
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }

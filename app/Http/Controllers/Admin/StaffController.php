@@ -19,7 +19,7 @@ class StaffController extends Controller
 
         $areas = $staffService->getAreaForTree();
 
-        $tree = $staffService->getTree($areas);
+        $tree = getTree($areas);
 
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
@@ -30,7 +30,7 @@ class StaffController extends Controller
 
         $service = $staffService->getCategoryForTree();
 
-        $tree = $staffService->getTree($service);
+        $tree = getTree($service);
 
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }

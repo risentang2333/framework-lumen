@@ -326,49 +326,6 @@ class PermissionService
     }
 
     /**
-     * 为测拉菜单生成树结构
-     *
-     * @param array $items
-     * @return array
-     */
-    public function getTreeForMenu($items)
-    {
-        $tree = array();
-        foreach($items as $item){
-            if(isset($items[$item['parent_id']])){
-                // 当路由不显示的时候
-                if ($item['is_display'] == 2) {
-                    $items[$item['parent_id']]['contains'][] = &$items[$item['id']];
-                } else {
-                    $items[$item['parent_id']]['children'][] = &$items[$item['id']];
-                }
-            }else{
-                $tree[] = &$items[$item['id']];
-            }
-        }
-        return $tree;
-    }
-
-    /**
-     * 生成树结构
-     *
-     * @param array $items
-     * @return array
-     */
-    public function getTree($items)
-    {
-        $tree = array();
-        foreach($items as $item){
-            if(isset($items[$item['parent_id']])){
-                $items[$item['parent_id']]['children'][] = &$items[$item['id']];
-            }else{
-                $tree[] = &$items[$item['id']];
-            }
-        }
-        return $tree;
-    }
-
-    /**
      * 遍历树结构每个节点，生成“父节点-子节点”结构
      *
      * @param array $items

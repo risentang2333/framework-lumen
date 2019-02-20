@@ -70,25 +70,6 @@ class StaffService
     }
 
     /**
-     * 生成树结构
-     *
-     * @param array $items
-     * @return array
-     */
-    public function getTree($items)
-    {
-        $tree = array();
-        foreach($items as $item){
-            if(isset($items[$item['parent_id']])){
-                $items[$item['parent_id']]['children'][] = &$items[$item['id']];
-            }else{
-                $tree[] = &$items[$item['id']];
-            }
-        }
-        return $tree;
-    }
-
-    /**
      * 获取员工列表
      *
      * @param array $params

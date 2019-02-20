@@ -240,4 +240,34 @@ if (!function_exists('verify_bank_card')) {
         }
     }
 }
+
+if (!function_exists('getTree')) {
+    /**
+     * 生成树结构
+     *
+     * @param array $items
+     * @return array
+     */
+    function getTree($items, $forMenu = false)
+    {
+        $tree = array();
+        foreach($items as $item){
+            if(isset($items[$item['parent_id']])){
+                if ($forMenu) {
+                    // 当路由不显示的时候
+                    if ($item['is_display'] == 2) {
+                        $items[$item['parent_id']]['contains'][] = &$items[$item['id']];
+                    } else {
+                        $items[$item['parent_id']]['children'][] = &$items[$item['id']];
+                    }
+                } else {
+                    $items[$item['parent_id']]['children'][] = &$items[$item['id']];
+                }
+            }else{
+                $tree[] = &$items[$item['id']];
+            }
+        }
+        return $tree;
+    }
+}
     
