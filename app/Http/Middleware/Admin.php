@@ -32,12 +32,12 @@ class Admin
             send_msg_json(ACCESS_TOKEN_IS_EXPIRE, '访问令牌已过期');
         }
         // 获取路由信息
-        $route = $request->path();
+        $router = $request->path();
         // 该用户所有权限
         $permissions = $this->getPermissionByManagerId($manager->id);
         // 判断是否有该路由权限
-        // if (!in_array($route, $permissions)) {
-        //     send_msg_json(ERROR_RETURN, "没有".$route."权限");
+        // if (!in_array($router, $permissions)) {
+        //     send_msg_json(ERROR_RETURN, "没有".$router."权限");
         // }
         
         return $next($request);
@@ -51,9 +51,9 @@ class Admin
      */
     private function getPermissionByManagerId($id)
     {
-        $data = DB::select("SELECT `route` FROM `permissions` WHERE `id` IN (SELECT `permission_id` FROM `permission_role` WHERE `role_id` IN (SELECT `role_id` FROM `role_manager` WHERE `manager_id` = $id)) ORDER BY sort_order ASC");
+        $data = DB::select("SELECT `router` FROM `permissions` WHERE `id` IN (SELECT `permission_id` FROM `permission_role` WHERE `role_id` IN (SELECT `role_id` FROM `role_manager` WHERE `manager_id` = $id)) ORDER BY sort_order ASC");
         
-        $permissions = array_column($data, 'route');
+        $permissions = array_column($data, 'router');
 
         return $permissions;
     }

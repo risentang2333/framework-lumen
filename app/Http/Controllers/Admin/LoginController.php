@@ -37,7 +37,7 @@ class LoginController extends Controller
         // 根据用户id查询角色id组
         $permissions = $permissionService->getPermissionByManagerId($id);
         // 生成侧拉菜单
-        $tree = $permissionService->getTree($permissions);
+        $tree = $permissionService->getTreeForMenu($permissions);
         $data = array(
             "manager" => $manager,
             "tree" => $tree

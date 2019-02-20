@@ -20,7 +20,7 @@ Route::group(['prefix' => 'log'], function () {
     Route::get('/getLogList', 'LogController@getLogList');
 });
 // 包含中间件，添加permission路由
-Route::group(['prefix' => 'permission','middleware' => 'admin'], function () {
+Route::group(['prefix' => 'permission'], function () {
     // 获取菜单
     Route::get('/getMenu', 'PermissionController@getMenu');
     // 获取管理员列表

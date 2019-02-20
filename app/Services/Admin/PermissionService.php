@@ -235,7 +235,7 @@ class PermissionService
         if ($paginate) {
             $data = Permissions::where('status',0)->paginate($pageNumber);
         } else {
-            $data = Permissions::where('status',0)->select(['id', 'route', 'name'])->get();
+            $data = Permissions::where('status',0)->select(['id', 'router', 'title'])->get();
         }
 
         return $data->toArray();
@@ -298,7 +298,9 @@ class PermissionService
     public function getPermissionById($id)
     {
         $data = Permissions::where('status',0)->find($id);
-
+        if (empty($data)) {
+            send_msg_json(ERROR_RETURN, "该权限不存在");
+        }
         return $data;
     }
 
@@ -309,18 +311,42 @@ class PermissionService
      */
     public function getPermissionForTree($selectAll = true)
     {
-        $data = Permissions::select(['id','name','parent_id'])
+        $data = Permissions::select(['id','title','parent_id'])
                         ->where(function ($query) use ($selectAll) {
                             $query->where('status', 0);
-                            if (!$selectAll) {
-                                $query->where('is_api', 1);
-                            }
+                            // if (!$selectAll) {
+                            //     $query->where('is_api', 1);
+                            // }
                         })
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')
                         ->toArray();
         return $data;
+    }
+
+    /**
+     * 为测拉菜单生成树结构
+     *
+     * @param array $items
+     * @return array
+     */
+    public function getTreeForMenu($items)
+    {
+        $tree = array();
+        foreach($items as $item){
+            if(isset($items[$item['parent_id']])){
+                // 当路由不显示的时候
+                if ($item['is_display'] == 2) {
+                    $items[$item['parent_id']]['contains'][] = &$items[$item['id']];
+                } else {
+                    $items[$item['parent_id']]['children'][] = &$items[$item['id']];
+                }
+            }else{
+                $tree[] = &$items[$item['id']];
+            }
+        }
+        return $tree;
     }
 
     /**
@@ -347,30 +373,30 @@ class PermissionService
      *
      * @param array $items
      * @param integer $ids
-     * @param string $names
+     * @param string $titles
      * @return array
      */
-    public function visitTree($items, $ids = 0, $names = '')
+    public function visitTree($items, $ids = 0, $titles = '')
     {
         // static $selection = array();
-        static $selection = array(["id"=>0, "ids"=>"0", "names"=>"基础"]);
+        static $selection = array(["id"=>0, "ids"=>"0", "titles"=>"基础"]);
         $temp = array();
         foreach ($items as $key => $value) {
             if ($ids == 0) {
                 $temp['id'] = $value['id'];
                 $temp['ids'] = (string)$value['id'];
-                $temp['names'] = $value['name'];
+                $temp['titles'] = $value['title'];
             } else {
                 $temp['id'] = $value['id'];
                 $temp['ids'] = $ids.'-'.$value['id'];
-                $temp['names'] = $names.'>'.$value['name'];
+                $temp['titles'] = $titles.'>'.$value['title'];
             }
             array_push($selection, $temp);
             if (isset($value['children'])) {
                 if ($ids == 0) {
-                    $this->visitTree($items[$key]['children'], $value['id'], $value['name']);
+                    $this->visitTree($items[$key]['children'], $value['id'], $value['title']);
                 } else {
-                    $this->visitTree($items[$key]['children'], $ids.'-'.$value['id'], $names.'>'.$value['name']);
+                    $this->visitTree($items[$key]['children'], $ids.'-'.$value['id'], $titles.'>'.$value['title']);
                 }
             }
         }
@@ -407,9 +433,9 @@ class PermissionService
 
         $permissionIds = PermissionRole::whereIn('role_id',$roleIds)->pluck('permission_id');
 
-        $data = Permissions::select(['id','name','route','parent_id'])
+        $data = Permissions::select(['id','title','router','parent_id','is_display'])
                         ->whereIn('id',$permissionIds)
-                        ->where(['is_display'=>2, 'status'=>0])
+                        ->where('status', 0)
                         ->orderBy('sort_order','ASC')
                         ->get()
                         ->keyBy('id')
@@ -433,14 +459,14 @@ class PermissionService
                 send_msg_json(ERROR_RETURN, "该权限不存在");
             }
         }
-        $permission->route = $params['route'];
-        $permission->name = $params['name'];
+        $permission->router = $params['router'];
+        $permission->title = $params['title'];
         $permission->description = $params['description'];
-        $permission->icon = $params['icon'];
+        // $permission->icon = $params['icon'];
         $permission->sort_order = $params['sort_order'];
         $permission->parent_id = $params['parent_id'];
         $permission->is_display = $params['is_display'];
-        $permission->is_api = $params['is_api'];
+        // $permission->is_api = $params['is_api'];
 
         return $permission->save();
     }

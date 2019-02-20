@@ -404,7 +404,7 @@ class PermissionController extends Controller
                 send_msg_json(ERROR_RETURN, "权限信息不存在");
             }
 
-            if ($permission['is_administrator'] == 1) {
+            if ($permission['is_administrator'] == 2) {
                 send_msg_json(ERROR_RETURN, "基础权限无法修改");
             }
             // 表单形式
@@ -437,21 +437,19 @@ class PermissionController extends Controller
         // 权限id,必传
         $params['id'] = (int)trim($request->input('id', 0));
         // 权限路由，必传
-        $params['route'] = trim($request->input('route', ''));
+        $params['router'] = trim($request->input('router', ''));
         // 权限名称，必传
-        $params['name'] = trim($request->input('name', ''));
+        $params['title'] = trim($request->input('title', ''));
         // 权限描述，必传
         $params['description'] = trim($request->input('description', ''));
         // 权限图标
-        $params['icon'] = trim($request->input('icon', ''));
+        // $params['icon'] = trim($request->input('icon', ''));
         // 排序顺序
         $params['sort_order'] = trim($request->input('sort_order', 0));
         // 父级id，通过下拉框选择
         $params['parent_id'] = trim($request->input('parent_id', ''));
-        // 是否为接口
-        $params['is_api'] = (int)trim($request->input('is_api', 0));
         // 是否侧拉展示
-        $params['is_display'] = (int)trim($request->input('is_display', 0));
+        $params['is_display'] = (int)trim($request->input('is_display', 1));
         // 成功时回传信息
         $returnMsg = '添加成功';
         // 编辑权限时验证超管
@@ -466,10 +464,10 @@ class PermissionController extends Controller
             }
             $returnMsg = '编辑成功';
         }
-        if ($params['route'] == '') {
+        if ($params['router'] == '') {
             send_msg_json(ERROR_RETURN, "请传入路由");
         }
-        if ($params['name'] == '') {
+        if ($params['title'] == '') {
             send_msg_json(ERROR_RETURN, "请传入权限名");
         }
         if ($params['description'] == '') {
@@ -480,9 +478,6 @@ class PermissionController extends Controller
         }
         if (empty($params['is_display'])) {
             send_msg_json(ERROR_RETURN, "请传入是否展示");
-        }
-        if (empty($params['is_api'])) {
-            send_msg_json(ERROR_RETURN, "请传入是否为接口");
         }
         $permissionService->savePermission($params);
 
@@ -535,7 +530,7 @@ class PermissionController extends Controller
         // 根据用户id查询角色id组
         $permissions = $permissionService->getPermissionByManagerId($id);
 
-        $tree = $permissionService->getTree($permissions);
+        $tree = $permissionService->getTreeForMenu($permissions);
 
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }

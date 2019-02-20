@@ -38,7 +38,7 @@ class ServiceController extends Controller
     public function getItem(Request $request)
     {
         $serviceService = new ServiceService;
-        // 订单id
+        // 商品id
         $id = (int)trim($request->input('id', 0));
 
         $item = $serviceService->getItemById($id);
@@ -148,7 +148,13 @@ class ServiceController extends Controller
 
     public function getCategory(Request $request)
     {
+        $serviceService = new ServiceService;
+        // 分类id
+        $id = (int)trim($request->input('id', 0));
 
+        $item = $serviceService->getCategoryById($id);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $item);
     }
 
     public function editCategory(Request $request)

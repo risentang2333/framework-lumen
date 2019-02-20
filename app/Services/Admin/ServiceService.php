@@ -175,4 +175,14 @@ class ServiceService
             ->toArray();
         return $list;
     }
+
+    public function getCategoryById($id)
+    {
+        $item = ServiceItems::select(['id','name','parent_id','type','status'])
+            ->where(['status'=>0,'id'=>$id])->first();
+        if (empty($item)) {
+            send_msg_json(ERROR_RETURN, "该服务项目不存在");
+        }
+        return $item;
+    }
 }
