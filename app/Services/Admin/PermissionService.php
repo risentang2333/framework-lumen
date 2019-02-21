@@ -114,6 +114,11 @@ class PermissionService
         return $manager;
     }
 
+    public function getManagerByAccount($account)
+    {
+        return Managers::select(['id','account','name','access_token','refresh_token'])->where('account', $account)->first();
+    }
+
     /**
      * 编辑管理员信息
      *
@@ -126,6 +131,9 @@ class PermissionService
     {
         if ($id == '') {
             $manager = new Managers;
+            if (!empty($this->getManagerByAccount($account))) {
+                send_msg_json(ERROR_RETURN, "该账号已存在");
+            }
             $manager->account = $account;
         } else {
             $manager = Managers::where('status',0)->find($id);

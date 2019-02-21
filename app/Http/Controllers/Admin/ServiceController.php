@@ -159,7 +159,34 @@ class ServiceController extends Controller
 
     public function editCategory(Request $request)
     {
+        $serviceService = new ServiceService;
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken',''));
+
+        $params['id'] = (int)trim($request->input('id', 0));
+
+        $params['parent_id'] = (int)trim($request->input('parent_id', 0));
+
+        $params['name'] = $request->input('name', '');
+
+        $params['type'] = $request->input('type', '');
+
+        $params['version'] = (int)trim($request->input('version', 0));
         
+        if ($params['name'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务分类名");
+        }
+        // 保存服务项目
+        $return = $serviceService->saveCategory($params);
+        // 编写操作日志
+        if (empty($params['id'])) {
+            $logMsg = "添加服务分类，操作id为：".$return['categoryId'];
+        } else {
+            $logMsg = "编辑服务分类，操作id为：".$return['categoryId'];
+        }
+        // 写入日志
+        // write_log($accessToken, $logMsg);
+        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
     public function changeCategoryType(Request $request)

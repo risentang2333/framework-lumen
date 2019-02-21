@@ -125,11 +125,11 @@ class StaffController extends Controller
         $params['bank_card'] = trim($request->input('bank_card', ''));
         // 操作版本号
         $params['version'] = (int)trim($request->input('version', 0));
-        // 证书
+        // 证书(数组)
         $params['papers'] = $request->input('papers', array());
-        // 能力标签
+        // 能力标签(数组)
         $params['labels'] = $request->input('labels', array());
-        // 技能标签
+        // 技能标签(数组)
         $params['skills'] = $request->input('skills', array());
 
         if ($params['name'] == '') {
@@ -139,12 +139,12 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写服务人员手机");
         }
         // 身份证号
-        if ($params['identify'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
-        }
-        if (!verify_identity($params['identify'])) {
-            send_msg_json(ERROR_RETURN, "身份证号格式错误");
-        }
+        // if ($params['identify'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
+        // }
+        // if (!verify_identity($params['identify'])) {
+        //     send_msg_json(ERROR_RETURN, "身份证号格式错误");
+        // }
         // 验证手机号格式
         if (!verify_phone($params['phone'])) {
             send_msg_json(ERROR_RETURN, "手机号格式错误");

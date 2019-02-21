@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : 144.202.5.112
-Source Server Version : 50560
-Source Host           : 144.202.5.112:8888
+Source Server         : 127.0.0.1
+Source Server Version : 50553
+Source Host           : 127.0.0.1:3306
 Source Database       : framework
 
 Target Server Type    : MYSQL
-Target Server Version : 50560
+Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-20 22:45:05
+Date: 2019-02-21 15:00:38
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -204,44 +204,18 @@ CREATE TABLE `managers` (
   `expire` int(11) NOT NULL DEFAULT '0',
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超级管理员0：全部， 1：否，2:是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '管理员删除状态0：正常，1：已删除',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='管理员表';
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `account` (`account`) USING BTREE COMMENT '唯一性约束'
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '25451c787cbe34da3369f41ef52b987b', '1854ee5df7bdf9129e0939488acceb1f', '1550760291', '0', '0');
-INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', 'e7450c9dd0b541c164b35917c49201fc', 'b4eae6a6d9949c0385eb72076f54d231', '1550760276', '0', '0');
-
--- ----------------------------
--- Table structure for order_files
--- ----------------------------
-DROP TABLE IF EXISTS `order_files`;
-CREATE TABLE `order_files` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '订单id',
-  `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
-  `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
-
--- ----------------------------
--- Records of order_files
--- ----------------------------
-
--- ----------------------------
--- Table structure for order_logs
--- ----------------------------
-DROP TABLE IF EXISTS `order_logs`;
-CREATE TABLE `order_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `order_id` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
-
--- ----------------------------
--- Records of order_logs
--- ----------------------------
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '81f3dab0028bc4706dd1935188838142', '8aa1914293289e242c564d84f11c33cc', '1550813025', '0', '0');
+INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '9ed6f7130aa7371dd3bf21e86fbb9adc', '30a3dc82e903b9512a416eace829b2d3', '1550760783', '0', '0');
+INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
+INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
+INSERT INTO `managers` VALUES ('5', 'hrAdmin1', '9039ee4c58399a548a1b10cd1d924a54', '人力资源1', '5b2096696f91ef308fc917a21a46b0e3', '626c27064da86cbfbc3ab85a80543298', '1550762127', '1', '0');
 
 -- ----------------------------
 -- Table structure for orders
@@ -277,37 +251,34 @@ INSERT INTO `orders` VALUES ('3', '0', '', '12312345', '0', '', '', '0', '', '',
 INSERT INTO `orders` VALUES ('4', '0', '', '1231236', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
 
 -- ----------------------------
--- Table structure for permission_role
+-- Table structure for order_files
 -- ----------------------------
-DROP TABLE IF EXISTS `permission_role`;
-CREATE TABLE `permission_role` (
+DROP TABLE IF EXISTS `order_files`;
+CREATE TABLE `order_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `permission_id` int(11) NOT NULL DEFAULT '0',
-  `role_id` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
+  `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '订单id',
+  `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
+  `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
 
 -- ----------------------------
--- Records of permission_role
+-- Records of order_files
 -- ----------------------------
-INSERT INTO `permission_role` VALUES ('1', '2', '1');
-INSERT INTO `permission_role` VALUES ('2', '3', '1');
-INSERT INTO `permission_role` VALUES ('3', '4', '1');
-INSERT INTO `permission_role` VALUES ('4', '6', '1');
-INSERT INTO `permission_role` VALUES ('5', '5', '1');
-INSERT INTO `permission_role` VALUES ('6', '1', '1');
-INSERT INTO `permission_role` VALUES ('7', '7', '1');
-INSERT INTO `permission_role` VALUES ('8', '8', '1');
-INSERT INTO `permission_role` VALUES ('9', '9', '1');
-INSERT INTO `permission_role` VALUES ('10', '2', '2');
-INSERT INTO `permission_role` VALUES ('11', '3', '2');
-INSERT INTO `permission_role` VALUES ('12', '4', '2');
-INSERT INTO `permission_role` VALUES ('13', '6', '2');
-INSERT INTO `permission_role` VALUES ('14', '5', '2');
-INSERT INTO `permission_role` VALUES ('15', '1', '2');
-INSERT INTO `permission_role` VALUES ('16', '7', '2');
-INSERT INTO `permission_role` VALUES ('17', '8', '2');
-INSERT INTO `permission_role` VALUES ('18', '9', '2');
+
+-- ----------------------------
+-- Table structure for order_logs
+-- ----------------------------
+DROP TABLE IF EXISTS `order_logs`;
+CREATE TABLE `order_logs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
+
+-- ----------------------------
+-- Records of order_logs
+-- ----------------------------
 
 -- ----------------------------
 -- Table structure for permissions
@@ -324,13 +295,13 @@ CREATE TABLE `permissions` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超管权限 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '权限删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
 
 -- ----------------------------
 -- Records of permissions
 -- ----------------------------
 INSERT INTO `permissions` VALUES ('1', '/auth/roleConfig', '角色权限配置', '角色的配置', '0', '5', '2', '1', '0');
-INSERT INTO `permissions` VALUES ('2', '/auth', '权限管理', '权限管理，不能点击', '0', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('2', '/auth', '权限管理', '权限管理，不能点击', '1', '0', '1', '1', '0');
 INSERT INTO `permissions` VALUES ('3', '/auth/accountList', '账户列表', '账户列表', '0', '2', '1', '1', '0');
 INSERT INTO `permissions` VALUES ('4', '/auth/accountEdit', '账户配置', '账户配置，不展示', '0', '3', '2', '1', '0');
 INSERT INTO `permissions` VALUES ('5', '/auth/roleList', '角色列表', '角色列表', '1', '2', '1', '1', '0');
@@ -338,23 +309,46 @@ INSERT INTO `permissions` VALUES ('6', '/auth/accountConfig', '角色配置', '�
 INSERT INTO `permissions` VALUES ('7', '/auth/roleEdit', '角色编辑', '角色编辑', '1', '5', '2', '1', '0');
 INSERT INTO `permissions` VALUES ('8', '/auth/authList', '权限配置', '权限配置', '2', '2', '1', '1', '0');
 INSERT INTO `permissions` VALUES ('9', '/auth/authConfig', '权限信息配置', '权限信息配置', '0', '8', '2', '1', '0');
+INSERT INTO `permissions` VALUES ('10', '/homePage', '首页', '首页', '0', '0', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('11', '/staff', '人力资源管理', '人力资源管理', '2', '0', '2', '1', '0');
+INSERT INTO `permissions` VALUES ('12', '/staff/staffList', '服务人员列表', '服务人员列表', '0', '11', '1', '1', '0');
+INSERT INTO `permissions` VALUES ('13', '/sale', '销售管理', '销售管理', '3', '0', '2', '1', '0');
+INSERT INTO `permissions` VALUES ('14', '/sale/orderList', '订单列表', '订单列表', '0', '13', '1', '1', '0');
 
 -- ----------------------------
--- Table structure for role_manager
+-- Table structure for permission_role
 -- ----------------------------
-DROP TABLE IF EXISTS `role_manager`;
-CREATE TABLE `role_manager` (
+DROP TABLE IF EXISTS `permission_role`;
+CREATE TABLE `permission_role` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `manager_id` int(11) NOT NULL DEFAULT '0',
+  `permission_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
 
 -- ----------------------------
--- Records of role_manager
+-- Records of permission_role
 -- ----------------------------
-INSERT INTO `role_manager` VALUES ('1', '1', '1');
-INSERT INTO `role_manager` VALUES ('13', '2', '2');
+INSERT INTO `permission_role` VALUES ('1', '2', '1');
+INSERT INTO `permission_role` VALUES ('2', '3', '1');
+INSERT INTO `permission_role` VALUES ('3', '4', '1');
+INSERT INTO `permission_role` VALUES ('4', '6', '1');
+INSERT INTO `permission_role` VALUES ('5', '5', '1');
+INSERT INTO `permission_role` VALUES ('6', '1', '1');
+INSERT INTO `permission_role` VALUES ('7', '7', '1');
+INSERT INTO `permission_role` VALUES ('8', '8', '1');
+INSERT INTO `permission_role` VALUES ('9', '9', '1');
+INSERT INTO `permission_role` VALUES ('19', '10', '1');
+INSERT INTO `permission_role` VALUES ('21', '11', '1');
+INSERT INTO `permission_role` VALUES ('22', '12', '1');
+INSERT INTO `permission_role` VALUES ('23', '13', '1');
+INSERT INTO `permission_role` VALUES ('24', '14', '1');
+INSERT INTO `permission_role` VALUES ('25', '13', '2');
+INSERT INTO `permission_role` VALUES ('26', '14', '2');
+INSERT INTO `permission_role` VALUES ('27', '11', '3');
+INSERT INTO `permission_role` VALUES ('28', '12', '3');
+INSERT INTO `permission_role` VALUES ('29', '10', '2');
+INSERT INTO `permission_role` VALUES ('30', '10', '3');
 
 -- ----------------------------
 -- Table structure for roles
@@ -366,13 +360,33 @@ CREATE TABLE `roles` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超级管理员 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '角色删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
 
 -- ----------------------------
 -- Records of roles
 -- ----------------------------
 INSERT INTO `roles` VALUES ('1', '超级管理员', '0', '0');
-INSERT INTO `roles` VALUES ('2', '管理员', '0', '0');
+INSERT INTO `roles` VALUES ('2', '销售管理员', '0', '0');
+INSERT INTO `roles` VALUES ('3', '人力资源管理员', '1', '0');
+
+-- ----------------------------
+-- Table structure for role_manager
+-- ----------------------------
+DROP TABLE IF EXISTS `role_manager`;
+CREATE TABLE `role_manager` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `manager_id` int(11) NOT NULL DEFAULT '0',
+  `role_id` int(11) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
+
+-- ----------------------------
+-- Records of role_manager
+-- ----------------------------
+INSERT INTO `role_manager` VALUES ('1', '1', '1');
+INSERT INTO `role_manager` VALUES ('13', '2', '2');
+INSERT INTO `role_manager` VALUES ('15', '5', '3');
+INSERT INTO `role_manager` VALUES ('16', '4', '2');
 
 -- ----------------------------
 -- Table structure for service_categories
@@ -446,7 +460,6 @@ CREATE TABLE `staff` (
   `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
   `icon` varchar(100) NOT NULL DEFAULT '' COMMENT '头像图标',
   `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
-  `region` int(11) NOT NULL DEFAULT '0' COMMENT '地区',
   `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
   `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
   `bank_card` varchar(30) NOT NULL DEFAULT '' COMMENT '银行卡号',
@@ -461,10 +474,10 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
-INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
-INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
-INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '0', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
+INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
+INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
+INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
+INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -523,6 +536,53 @@ INSERT INTO `staff_papers` VALUES ('1', '1', 'identity', 'abcdefghi/index', '1',
 INSERT INTO `staff_papers` VALUES ('2', '1', 'healthy', 'abcdfefsef/index', '2', '1548814246', '0');
 
 -- ----------------------------
+-- Table structure for staff_service_regions
+-- ----------------------------
+DROP TABLE IF EXISTS `staff_service_regions`;
+CREATE TABLE `staff_service_regions` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
+  `region_id` int(11) NOT NULL DEFAULT '0' COMMENT '地区id',
+  `code` varchar(10) NOT NULL DEFAULT '' COMMENT '行政区划代码',
+  `region_name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务地区',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
+
+-- ----------------------------
+-- Records of staff_service_regions
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for staff_skills
+-- ----------------------------
+DROP TABLE IF EXISTS `staff_skills`;
+CREATE TABLE `staff_skills` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
+  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `level` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星级',
+  `service_length` int(5) NOT NULL DEFAULT '0' COMMENT '工龄',
+  `experience` int(5) NOT NULL DEFAULT '0' COMMENT '工作经验',
+  `job_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '职业类型 0：全部，1：全职，2：兼职',
+  `workable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可工作 0：全部，1：可工作，2：不能工作',
+  `review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '审核状态 0：全部，1：未审核， 2：通过，3：不通过',
+  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
+
+-- ----------------------------
+-- Records of staff_skills
+-- ----------------------------
+INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '0', '0', '1', '2', '2', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+
+-- ----------------------------
 -- Table structure for staff_skill_label
 -- ----------------------------
 DROP TABLE IF EXISTS `staff_skill_label`;
@@ -563,35 +623,6 @@ CREATE TABLE `staff_skill_paper` (
 -- ----------------------------
 INSERT INTO `staff_skill_paper` VALUES ('1', '1', '1', '1');
 INSERT INTO `staff_skill_paper` VALUES ('2', '1', '1', '2');
-
--- ----------------------------
--- Table structure for staff_skills
--- ----------------------------
-DROP TABLE IF EXISTS `staff_skills`;
-CREATE TABLE `staff_skills` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能类型id',
-  `name` varchar(30) NOT NULL DEFAULT '',
-  `level` tinyint(1) NOT NULL DEFAULT '0' COMMENT '星级',
-  `service_length` int(5) NOT NULL DEFAULT '0' COMMENT '工龄',
-  `experience` int(5) NOT NULL DEFAULT '0' COMMENT '工作经验',
-  `job_type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '职业类型 0：全部，1：全职，2：兼职',
-  `workable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可工作 0：全部，1：可工作，2：不能工作',
-  `review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '审核状态 0：全部，1：未审核， 2：通过，3：不通过',
-  `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
-
--- ----------------------------
--- Records of staff_skills
--- ----------------------------
-INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '0', '0', '1', '2', '2', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
-INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for users

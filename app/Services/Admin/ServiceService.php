@@ -88,7 +88,7 @@ class ServiceService
             $item->created_at = time();
             $returnMsg = '添加成功';
         } else {
-            $item = ServiceItems::find($id);
+            $item = ServiceItems::where('status', 0)->find($params['id']);
             if (empty($item)) {
                 send_msg_json(ERROR_RETURN, "该服务不存在");
             }
@@ -178,11 +178,43 @@ class ServiceService
 
     public function getCategoryById($id)
     {
-        $item = ServiceItems::select(['id','name','parent_id','type','status'])
+        $category = ServiceCategories::select(['id','name','parent_id','type','status'])
             ->where(['status'=>0,'id'=>$id])->first();
-        if (empty($item)) {
+        if (empty($category)) {
             send_msg_json(ERROR_RETURN, "该服务项目不存在");
         }
-        return $item;
+        return $category;
+    }
+
+    public function saveCategory($params)
+    {
+        $returnMsg = '';
+        if (empty($params['id'])) {
+            $category = new ServiceCategories;
+            $returnMsg = '添加成功';
+        } else {
+            $category = ServiceCategories::where('status', 0)->find($params['id']);
+            if (empty($category)) {
+                send_msg_json(ERROR_RETURN, "该服务分类不存在");
+            }
+            if ($category->version != $params['version']) {
+                send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+            }
+            // 版本号+1
+            $category->version = $params['version']+1;
+            // 返回信息
+            $returnMsg = '编辑成功';
+        }
+        // 服务分类id
+        $category->parent_id = $params['parent_id'];
+        // 服务分类名
+        $category->name = $params['name'];
+        // 保存
+        $category->save();
+
+        return array(
+            'returnMsg'=>$returnMsg,
+            'categoryId'=>$category->id
+        );
     }
 }
