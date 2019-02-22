@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-22 17:01:23
+Date: 2019-02-22 22:17:28
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -582,48 +582,6 @@ INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '0', '0',
 INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
-
--- ----------------------------
--- Table structure for staff_skill_label
--- ----------------------------
-DROP TABLE IF EXISTS `staff_skill_label`;
-CREATE TABLE `staff_skill_label` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工技能id',
-  `label_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工标签id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='技能-标签 多对多关联表';
-
--- ----------------------------
--- Records of staff_skill_label
--- ----------------------------
-INSERT INTO `staff_skill_label` VALUES ('1', '1', '1', '1');
-INSERT INTO `staff_skill_label` VALUES ('2', '1', '1', '2');
-INSERT INTO `staff_skill_label` VALUES ('3', '2', '2', '18');
-INSERT INTO `staff_skill_label` VALUES ('4', '2', '2', '19');
-INSERT INTO `staff_skill_label` VALUES ('5', '6', '7', '19');
-INSERT INTO `staff_skill_label` VALUES ('6', '6', '7', '20');
-INSERT INTO `staff_skill_label` VALUES ('7', '6', '8', '19');
-INSERT INTO `staff_skill_label` VALUES ('8', '6', '8', '20');
-
--- ----------------------------
--- Table structure for staff_skill_paper
--- ----------------------------
-DROP TABLE IF EXISTS `staff_skill_paper`;
-CREATE TABLE `staff_skill_paper` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
-  `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能表id',
-  `paper_id` int(11) NOT NULL DEFAULT '0' COMMENT '证明id',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='技能-执照 多对多关联表';
-
--- ----------------------------
--- Records of staff_skill_paper
--- ----------------------------
-INSERT INTO `staff_skill_paper` VALUES ('1', '1', '1', '1');
-INSERT INTO `staff_skill_paper` VALUES ('2', '1', '1', '2');
 
 -- ----------------------------
 -- Table structure for users
