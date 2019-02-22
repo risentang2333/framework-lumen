@@ -86,16 +86,15 @@ class StaffService
                     $query->where('name','like','%'.$params['name'].'%');
                 }
                 // 根据服务类型筛选
-                if ($params['service_category_id'] && empty($params['ability_ids'])) {
+                if ($params['service_category_id']) {
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?) AND `status` = 0', [$params['service_category_id']]);
                 }
                 // 根据特长标签搜索
-                if ($params['ability_ids'] && empty($params['service_category_id'])) {
+                if ($params['ability_ids']) {
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0', [implode(",",$params['ability_ids'])]);
                 }
-                // 如果服务类型特长都存在
-                if ($params['ability_ids'] && $params['service_category_id']) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skill_label` WHERE `skill_id` in (SELECT `id` FROM `staff_skills` WHERE `service_category_id` = ? AND `status` = 0) AND `label_id` IN (SELECT `id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0))', [$params['service_category_id'], implode(",",$params['ability_ids'])]);
+                if ($params['ability_ids']) {
+                    # code...
                 }
             })
             ->paginate($pageNumber)
@@ -272,14 +271,16 @@ class StaffService
                 $delete_labelIds = implode(",", array_diff($original_labelIds, $array_intersect));
                 if (!empty($delete_labelIds)) {
                     // 先逻辑删除员工标签表
-                    DB::delete("UPDATE `staff_labels` SET `status` = 1 WHERE `id` IN ($delete_labelIds)");
-                    // 再物理删除员工技能标签关系表
-                    DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `label_id` IN ($delete_labelIds)");
+                    DB::table('staff_labels')->whereIn('id', $delete_labelIds)->update(['status'=>1]);
                 }
 
                 array_walk($labels, function (&$item) use ($staffId, $array_intersect){
+                    // 添加
                     if (!in_array($item['id'], $array_intersect)) {
                         DB::table('staff_labels')->insert(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
+                    // 更新
+                    } else {
+                        DB::table('staff_labels')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -310,128 +311,36 @@ class StaffService
      */
     private function saveStaffSkill($skills, $formId, $staffId)
     {
-        if (empty($formId)) {
-            if (!empty($skills)) {
+        if (!empty($skills)) {
+            if (empty($formId)) {
                 array_walk($skills, function (&$item) use ($staffId){
                     DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
-                    // 获取每一条技能的操作id
-                    $skillId = DB::getPdo()->lastInsertId();
-                    // 编辑员工技能与标签关系表
-                    $this->saveStaffSkillLabel($item['labels'], $staffId, $skillId);
-                    // 编辑员工技能与材料关系表
-                    // $this->saveStaffSkillPaper($item['papers'], $staffId, $skillId);
                 });
-            }
-        } else {
-            $skillIds = array_column($skills, 'id');
-            // 原关系id集合
-            $original_skillIds = DB::table('staff_skills')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
-            // 原关系数组与新数组交集
-            $array_intersect = array_intersect($skillIds, $original_skillIds);
-            // 需要删除的标签id
-            $delete_skillIds = implode(",", array_diff($original_skillIds, $array_intersect));
-            if (!empty($delete_skillIds)) {
-                // 先逻辑删除员工标签表
-                DB::delete("UPDATE `staff_skills` SET `status` = 1 WHERE `id` IN ($delete_skillIds)");
-                // 再物理删除员工技能标签关系表
-                DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `skill_id` IN ($delete_skillIds)");
-            }
-            if (!empty($skills)) {
+            } else {
+                $skillIds = array_column($skills, 'id');
+                // 原关系id集合
+                $original_skillIds = DB::table('staff_skills')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+                // 原关系数组与新数组交集
+                $array_intersect = array_intersect($skillIds, $original_skillIds);
+                // 需要删除的标签id
+                $delete_skillIds = array_diff($original_skillIds, $array_intersect);
+                if (!empty($delete_skillIds)) {
+                    // 逻辑删除员工标签表
+                    DB::table('staff_skills')->whereIn('id', $delete_skillIds)->update(['status'=>1]);
+                }
+                // 创建和添加
                 array_walk($skills, function (&$item) use ($staffId, $array_intersect){
+                    // 添加
                     if (!in_array($item['id'], $array_intersect)) {
                         DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
-                    }
-                    // 获取每一条技能的操作id
-                    if (empty($item['id'])) {
-                        $skillId = DB::getPdo()->lastInsertId();
+                    // 更新
                     } else {
-                        $skillId = $item['id'];
+                        Db::table('staff_skills')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable']]);
                     }
-                    // 编辑员工技能与标签关系表
-                    $this->saveStaffSkillLabel($item['labels'], $staffId, $skillId);
-                    // 编辑员工技能与材料关系表
-                    // $this->saveStaffSkillPaper($item['papers'], $staffId, $skillId);
                 });
             }
         }
-        return true;
-    }
-
-    /**
-     * 编辑技能与标签关系表
-     *
-     * @param array $labels
-     * @param int $staffId
-     * @param int $skillId
-     * @return boolean
-     */
-    private function saveStaffSkillLabel($labels, $staffId, $skillId)
-    {
-        // 获取需要编辑的标签id集合
-        $labelIds = array_column($labels, 'id');
-        // 原关系id集合
-        $original_labelIds = DB::table('staff_skill_label')->select('label_id')->where(['staff_id'=>$staffId,'skill_id'=>$skillId])->pluck('label_id')->toArray();
-        // 原关系数组与新数组交集
-        $array_intersect = array_intersect($labelIds, $original_labelIds);
-        // 需要删除的标签id
-        $delete_labelIds = implode(",", array_diff($original_labelIds, $array_intersect));
-        // 需要添加的标签id
-        $add_labelIds = array_diff($labelIds, $array_intersect);
-        // 如果存在删除的权限角色关系
-        if (!empty($delete_labelIds)) {
-            // 先把关系表中需要删除的删除
-            DB::delete("DELETE FROM `staff_skill_label` WHERE `staff_id` = $staffId AND `skill_id` = $skillId AND `label_id` IN ($delete_labelIds)");
-        }
-        if (!empty($add_labelIds)) {
-            // 重新生成新关系
-            foreach ($add_labelIds as $value) {
-                DB::table('staff_skill_label')->insert([
-                    'staff_id' => $staffId,
-                    'skill_id' => $skillId,
-                    'label_id' => $value,
-                ]);
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * 保存技能材料关系表
-     *
-     * @param array $papers
-     * @param int $staffId
-     * @param int $skillId
-     * @return boolean
-     */
-    private function saveStaffSkillPaper($papers, $staffId, $skillId)
-    {
-        // 获取需要编辑的材料id集合
-        $paperIds = array_column($papers, 'id');
-        // 原关系id集合
-        $original_paperIds = DB::table('staff_skill_paper')->select('paper_id')->where(['staff_id'=>$staffId,'skill_id'=>$skillId])->pluck('paper_id')->toArray();
-        // 原关系数组与新数组交集
-        $array_intersect = array_intersect($paperIds, $original_paperIds);
-        // 需要删除的标签id
-        $delete_paperIds = implode(",", array_diff($original_paperIds, $array_intersect));
-        // 需要添加的标签id
-        $add_paperIds = array_diff($paperIds, $array_intersect);
-        // 如果存在删除的权限角色关系
-        if (!empty($delete_paperIds)) {
-            // 先把关系表中需要删除的删除
-            DB::delete("DELETE FROM `staff_skill_paper` WHERE `staff_id` = $staffId AND `skill_id` = $skillId AND `paper_id` IN ($delete_paperIds)");
-        }
-        if (!empty($add_paperIds)) {
-            // 重新生成新关系
-            foreach ($add_paperIds as $value) {
-                DB::table('staff_skill_paper')->insert([
-                    'staff_id' => $staffId,
-                    'skill_id' => $skillId,
-                    'paper_id' => $value,
-                ]);
-            }
-        }
-
+        
         return true;
     }
 
@@ -460,33 +369,11 @@ class StaffService
             DB::table('staff_labels')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
             // 删除员工证件表,没写完
             DB::table('staff_papers')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
-            // 删除员工技能表及其关系表
-            $this->deleteStaffSkillsByStaffId($id);
+            // 删除员工技能表
+            DB::table('staff_skills')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
             // 最后需要删除图片            
             return true;
         });
-        return true;
-    }
-
-    /**
-     * 根据员工id删除所有技能
-     *
-     * @param int $id
-     * @return boolean
-     */
-    private function deleteStaffSkillsByStaffId($id)
-    {
-        // 该员工所有技能id集合
-        $staffSkillIds = DB::table('staff_skills')->select(['id'])->where(['status'=>0, 'staff_id'=>$id])->pluck('id');
-        // 删除员工技能表数据
-        DB::table('staff_skills')->where(['status'=>0, 'staff_id'=>$id])->update(['status'=>1]);
-        // 遍历删除关系表
-        foreach ($staffSkillIds as $value) {
-            // 删除员工技能标签关系表
-            $this->deleteStaffSkillLabel($value, $id);
-            // 删除员工证书关系表
-            $this->deleteStaffSkillPaper($value, $id);
-        }
         return true;
     }
 
@@ -561,48 +448,8 @@ class StaffService
         }
         $staffSkill->status = 1;
 
-        DB::transaction(function () use ($staffSkill, $id){
-            $staffSkill->save();
-            // 员工id
-            $staffId = $staffSkill->staff_id;
-            // 删除技能标签关系表
-            $this->deleteStaffSkillLabel($id, $staffId);
-            // 删除技能材料关系表
-            $this->deleteStaffSkillPaper($id, $staffId);
+        $staffSkill->version = $version+1;
 
-            return true;
-        });
-        // 员工技能id
-        return true;
-    }
-
-    /**
-     * 删除技能标签关系表
-     *
-     * @param int $id
-     * @param int $staffId
-     * @return boolean
-     */
-    private function deleteStaffSkillLabel($id, $staffId)
-    {
-        // 物理删除关系表数据
-        DB::table('staff_skill_label')->where(['skill_id'=>$id, 'staff_id'=>$staffId])->delete();
-
-        return true;
-    }
-
-    /**
-     * 删除技能材料关系表
-     *
-     * @param int $id
-     * @param int $staffId
-     * @return boolean
-     */
-    private function deleteStaffSkillPaper($id, $staffId)
-    {
-        // 物理删除
-        DB::table('staff_skill_paper')->where(['skill_id'=>$id, 'staff_id'=>$staffId])->delete();
-
-        return true;
+        return $staffSkill->save();
     }
 }
