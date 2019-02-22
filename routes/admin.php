@@ -94,6 +94,10 @@ Route::group(['prefix' => 'service', 'middleware' => ['admin']], function () {
     // 启用/停用服务
     Route::post('/changeCategoryType', 'ServiceController@changeCategoryType');
 });
+// 能力标签模块
+Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
+    
+});
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 获取订单列表

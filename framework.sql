@@ -10,16 +10,16 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-22 16:37:51
+Date: 2019-02-22 17:01:23
 */
 
 SET FOREIGN_KEY_CHECKS=0;
 
 -- ----------------------------
--- Table structure for ability_categories
+-- Table structure for abilities
 -- ----------------------------
-DROP TABLE IF EXISTS `ability_categories`;
-CREATE TABLE `ability_categories` (
+DROP TABLE IF EXISTS `abilities`;
+CREATE TABLE `abilities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
@@ -27,22 +27,22 @@ CREATE TABLE `ability_categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
--- Records of ability_categories
+-- Records of abilities
 -- ----------------------------
-INSERT INTO `ability_categories` VALUES ('1', '形象气质类', '0');
-INSERT INTO `ability_categories` VALUES ('2', '干净立正', '1');
-INSERT INTO `ability_categories` VALUES ('3', '有亲和力', '1');
-INSERT INTO `ability_categories` VALUES ('4', '有文化', '1');
-INSERT INTO `ability_categories` VALUES ('5', '职业技能类', '0');
-INSERT INTO `ability_categories` VALUES ('6', '会做饭', '5');
-INSERT INTO `ability_categories` VALUES ('7', '会打扫', '5');
-INSERT INTO `ability_categories` VALUES ('8', '做过日常保洁', '5');
-INSERT INTO `ability_categories` VALUES ('9', '高级技能类', '0');
-INSERT INTO `ability_categories` VALUES ('10', '专业护工', '9');
-INSERT INTO `ability_categories` VALUES ('11', '十年以上经验', '9');
-INSERT INTO `ability_categories` VALUES ('12', '会营养搭配', '9');
-INSERT INTO `ability_categories` VALUES ('13', '会高级熨烫', '9');
-INSERT INTO `ability_categories` VALUES ('14', '会早教', '9');
+INSERT INTO `abilities` VALUES ('1', '形象气质类', '0');
+INSERT INTO `abilities` VALUES ('2', '干净立正', '1');
+INSERT INTO `abilities` VALUES ('3', '有亲和力', '1');
+INSERT INTO `abilities` VALUES ('4', '有文化', '1');
+INSERT INTO `abilities` VALUES ('5', '职业技能类', '0');
+INSERT INTO `abilities` VALUES ('6', '会做饭', '5');
+INSERT INTO `abilities` VALUES ('7', '会打扫', '5');
+INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5');
+INSERT INTO `abilities` VALUES ('9', '高级技能类', '0');
+INSERT INTO `abilities` VALUES ('10', '专业护工', '9');
+INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9');
+INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9');
+INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9');
+INSERT INTO `abilities` VALUES ('14', '会早教', '9');
 
 -- ----------------------------
 -- Table structure for areas
