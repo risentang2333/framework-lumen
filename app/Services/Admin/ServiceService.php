@@ -29,6 +29,7 @@ class ServiceService
         'parent_id',
         'status',
         'type',
+        'version'
     ];
 
     /**
@@ -65,7 +66,7 @@ class ServiceService
      */
     public function getItemById($id)
     {
-        $item = ServiceItems::select(['id','service_category_id','service_item_name','status'])
+        $item = ServiceItems::select(['id','service_category_id','service_item_name','type','version','created_at','status'])
             ->where(['status'=>0,'id'=>$id])->first();
         if (empty($item)) {
             send_msg_json(ERROR_RETURN, "该服务项目不存在");
@@ -147,12 +148,13 @@ class ServiceService
     {
         $item = ServiceItems::where('status', 0)->find($id);
         if (empty($item)) {
-            send_msg_json(ERROR_RETURN, "该服务不存在");
+            send_msg_json(ERROR_RETURN, "该服务项目不存在");
         }
         if ($item->version != $version) {
             send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
         }
         $item->type = $type;
+        $item->version = $version+1;
         $item->save();
         // 返回信息
         $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
@@ -160,6 +162,13 @@ class ServiceService
         return $returnMsg;
     }
 
+    /**
+     * 获取分类列表
+     *
+     * @param [type] $params
+     * @param integer $pageNumber
+     * @return void
+     */
     public function getCategoryList($params, $pageNumber = 15)
     {
         $list = ServiceCategories::select($this->categoryList)
@@ -176,16 +185,28 @@ class ServiceService
         return $list;
     }
 
+    /**
+     * 获取分类通过id
+     *
+     * @param int $id
+     * @return void
+     */
     public function getCategoryById($id)
     {
-        $category = ServiceCategories::select(['id','name','parent_id','type','status'])
+        $category = ServiceCategories::select(['id','name','parent_id','version','type','status'])
             ->where(['status'=>0,'id'=>$id])->first();
         if (empty($category)) {
-            send_msg_json(ERROR_RETURN, "该服务项目不存在");
+            send_msg_json(ERROR_RETURN, "该服务分类不存在");
         }
         return $category;
     }
 
+    /**
+     * 创建/编辑分类
+     *
+     * @param [type] $params
+     * @return void
+     */
     public function saveCategory($params)
     {
         $returnMsg = '';
@@ -216,5 +237,37 @@ class ServiceService
             'returnMsg'=>$returnMsg,
             'categoryId'=>$category->id
         );
+    }
+
+    /**
+     * 启用/禁用服务分类
+     *
+     * @param [type] $id
+     * @param [type] $type
+     * @param [type] $version
+     * @return void
+     */
+    public function changeCategoryType($id, $type, $version)
+    {
+        $category = ServiceCategories::where('status', 0)->find($id);
+        if (empty($category)) {
+            send_msg_json(ERROR_RETURN, "该服务分类不存在");
+        }
+        if ($category->version != $version) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        $category->type = $type;
+        $category->version = $version+1;
+
+        DB::transaction(function () use ($category, $type, $id){
+            // 保存状态表
+            $category->save();
+            // 修改服务服务项目表
+            DB::table('service_items')->where(['service_category_id'=>$id, 'status'=>0])->update(['type'=>$type]);
+        });
+        // 返回信息
+        $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
+
+        return $returnMsg;
     }
 }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-21 15:00:38
+Date: 2019-02-22 16:37:51
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -211,7 +211,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '81f3dab0028bc4706dd1935188838142', '8aa1914293289e242c564d84f11c33cc', '1550813025', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '00e75c7192137eadd4a558f698f22eee', 'a4215ed40324797e14e168cc94d9b51e', '1550903592', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '9ed6f7130aa7371dd3bf21e86fbb9adc', '30a3dc82e903b9512a416eace829b2d3', '1550760783', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
@@ -398,30 +398,31 @@ CREATE TABLE `service_categories` (
   `parent_id` int(11) NOT NULL DEFAULT '0',
   `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='项目分类';
 
 -- ----------------------------
 -- Records of service_categories
 -- ----------------------------
-INSERT INTO `service_categories` VALUES ('1', '家电维修', '0', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('9', '房屋维修', '0', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('10', '开换汽车锁', '9', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('11', '开保险柜', '9', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('12', '开换地锁', '9', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('13', '门禁维修', '9', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('14', '健康', '0', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('15', '按摩理疗', '14', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('16', '小儿推拿', '14', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('17', '局部理疗', '14', 'enable', '0');
-INSERT INTO `service_categories` VALUES ('18', '产妇护理', '14', 'enable', '0');
+INSERT INTO `service_categories` VALUES ('1', '家电维修1', '0', 'disable', '0', '2');
+INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('9', '房屋维修', '0', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('10', '开换汽车锁', '9', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('11', '开保险柜', '9', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('12', '开换地锁', '9', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('13', '门禁维修', '9', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('14', '健康', '0', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('15', '按摩理疗', '14', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('16', '小儿推拿', '14', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('17', '局部理疗', '14', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('18', '产妇护理', '14', 'enable', '0', '0');
 
 -- ----------------------------
 -- Table structure for service_items
@@ -441,7 +442,7 @@ CREATE TABLE `service_items` (
 -- ----------------------------
 -- Records of service_items
 -- ----------------------------
-INSERT INTO `service_items` VALUES ('1', '2', 'name', 'enable', '0', '1550545655', '0');
+INSERT INTO `service_items` VALUES ('1', '2', '哈哈', 'disable', '0', '1550545655', '3');
 
 -- ----------------------------
 -- Table structure for staff

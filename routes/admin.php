@@ -20,7 +20,7 @@ Route::group(['prefix' => 'log'], function () {
     Route::get('/getLogList', 'LogController@getLogList');
 });
 // 包含中间件，添加permission路由
-Route::group(['prefix' => 'permission'], function () {
+Route::group(['prefix' => 'permission', 'middleware' => ['admin']], function () {
     // 获取菜单
     Route::get('/getMenu', 'PermissionController@getMenu');
     // 获取管理员列表
@@ -57,7 +57,7 @@ Route::group(['prefix' => 'permission'], function () {
     Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
 // 服务人员模块，没加中间件
-Route::group(['prefix' => 'staff'], function () {
+Route::group(['prefix' => 'staff', 'middleware' => ['admin']], function () {
     // 获取服务人员列表
     Route::get('/getStaffList', 'StaffController@getStaffList');
     // 获取服务人员信息
@@ -74,7 +74,7 @@ Route::group(['prefix' => 'staff'], function () {
     Route::post('/deleteStaffSkill', 'StaffController@deleteStaffSkill');
 });
 // 服务项目模块
-Route::group(['prefix' => 'service'], function () {
+Route::group(['prefix' => 'service', 'middleware' => ['admin']], function () {
     // 获取服务项目列表
     Route::get('/getItemList', 'ServiceController@getItemList');
     // 获取服务信息
@@ -95,7 +95,7 @@ Route::group(['prefix' => 'service'], function () {
     Route::post('/changeCategoryType', 'ServiceController@changeCategoryType');
 });
 // 订单模块
-Route::group(['prefix' => 'order'], function () {
+Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 获取订单列表
     Route::get('/getOrderList', 'OrderController@getOrderList');
     // 获取需求订单

@@ -40,7 +40,10 @@ class ServiceController extends Controller
         $serviceService = new ServiceService;
         // 商品id
         $id = (int)trim($request->input('id', 0));
-
+        // 判断id
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入id");
+        }
         $item = $serviceService->getItemById($id);
 
         return send_msg_json(SUCCESS_RETURN, "success", $item);
@@ -65,7 +68,6 @@ class ServiceController extends Controller
         $params['service_item_name'] = $request->input('service_item_name', '');
 
         $params['version'] = (int)trim($request->input('version', 0));
-        
         if (empty($params['service_category_id'])) {
             send_msg_json(ERROR_RETURN, "请选择服务类别");
         }
@@ -81,7 +83,7 @@ class ServiceController extends Controller
             $logMsg = "编辑服务项目，操作id为：".$return['itemId'];
         }
         // 写入日志
-        // write_log($accessToken, $logMsg);
+        write_log($accessToken, $logMsg);
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
@@ -100,10 +102,13 @@ class ServiceController extends Controller
         $id = (int)trim($request->input('id', 0));
         // 操作版本号
         $version = (int)trim($request->input('version', 0));
-
+        // 判断id
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入id");
+        }
         $serviceService->deleteItem($id, $version);
         // 写入日志
-        // write_log($accessToken, "删除服务人员，操作id为：".$id);
+        write_log($accessToken, "删除服务人员，操作id为：".$id);
 
         return send_msg_json(SUCCESS_RETURN, "删除成功");
     }
@@ -125,14 +130,33 @@ class ServiceController extends Controller
         $type = trim($request->input('type', ''));
         // 操作版本号
         $version = (int)trim($request->input('version', 0));
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入服务分类id");
+        }
+        // 判断状态格式
+        if (!in_array($type, array('enable','disable'))) {
+            send_msg_json(ERROR_RETURN, "状态格式错误");
+        }
 
         $returnMsg = $serviceService->changeItemType($id, $type, $version);
+        // 编写日志
+        if ($type == 'enable') {
+            $logMsg = "启用服务分类，操作id为：".$id;
+        } else if ($type == 'disable') {
+            $logMsg = "停用服务分类，操作id为：".$id;
+        }
         // 写入日志
-        // write_log($accessToken, "删除服务人员，操作id为：".$id);
+        write_log($accessToken, $logMsg);
 
         return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 
+    /**
+     * 服务分类列表
+     *
+     * @param Request $request
+     * @return string
+     */
     public function getCategoryList(Request $request)
     {
         $serviceService = new ServiceService;
@@ -146,6 +170,12 @@ class ServiceController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
 
+    /**
+     * 获取服务分类
+     *
+     * @param Request $request
+     * @return void
+     */
     public function getCategory(Request $request)
     {
         $serviceService = new ServiceService;
@@ -157,6 +187,12 @@ class ServiceController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $item);
     }
 
+    /**
+     * 编辑分类
+     *
+     * @param Request $request
+     * @return void
+     */
     public function editCategory(Request $request)
     {
         $serviceService = new ServiceService;
@@ -168,8 +204,6 @@ class ServiceController extends Controller
         $params['parent_id'] = (int)trim($request->input('parent_id', 0));
 
         $params['name'] = $request->input('name', '');
-
-        $params['type'] = $request->input('type', '');
 
         $params['version'] = (int)trim($request->input('version', 0));
         
@@ -185,12 +219,43 @@ class ServiceController extends Controller
             $logMsg = "编辑服务分类，操作id为：".$return['categoryId'];
         }
         // 写入日志
-        // write_log($accessToken, $logMsg);
+        write_log($accessToken, $logMsg);
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
-
+    
+    /**
+     * 启用/禁用服务分类
+     *
+     * @param Request $request
+     * @return void
+     */
     public function changeCategoryType(Request $request)
     {
-        
+        $serviceService = new ServiceService;
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken', ''));
+        // 服务分类id
+        $id = (int)trim($request->input('id', 0));
+        // 启用/禁用状态
+        $type = trim($request->input('type', ''));
+        // 操作版本号
+        $version = (int)trim($request->input('version', 0));
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入服务分类id");
+        }
+        if (!in_array($type, array('enable','disable'))) {
+            send_msg_json(ERROR_RETURN, "状态格式错误");
+        }
+        // 判断状态格式
+        $returnMsg = $serviceService->changeCategoryType($id, $type, $version);
+        if ($type == 'enable') {
+            $logMsg = "启用服务分类，操作id为：".$id;
+        } else if ($type == 'disable') {
+            $logMsg = "停用服务分类，操作id为：".$id;
+        }
+        // 写入日志
+        write_log($accessToken, $logMsg);
+
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 }
