@@ -27,10 +27,47 @@ class ServiceService
         'id',
         'name',
         'parent_id',
-        'status',
         'type',
         'version'
     ];
+
+    public function getCategoryForTree()
+    {
+        $data = ServiceCategories::select(['id','name','parent_id'])
+                    ->where('status', 0)
+                    ->get()
+                    ->keyBy('id')
+                    ->toArray();
+        return $data;
+    }
+
+    public function visitTree($items, $ids = 0, $names = '')
+    {
+        // static $selection = array();
+        static $selection = array(["id"=>0, "ids"=>"0", "names"=>"基础"]);
+        $temp = array();
+        foreach ($items as $key => $value) {
+            if ($ids == 0) {
+                $temp['id'] = $value['id'];
+                $temp['ids'] = (string)$value['id'];
+                $temp['names'] = $value['name'];
+            } else {
+                $temp['id'] = $value['id'];
+                $temp['ids'] = $ids.'-'.$value['id'];
+                $temp['names'] = $names.'>'.$value['name'];
+            }
+            array_push($selection, $temp);
+            if (isset($value['children'])) {
+                if ($ids == 0) {
+                    $this->visitTree($items[$key]['children'], $value['id'], $value['name']);
+                } else {
+                    $this->visitTree($items[$key]['children'], $ids.'-'.$value['id'], $names.'>'.$value['name']);
+                }
+            }
+        }
+        
+        return $selection;
+    }
 
     /**
      * 获取服务项目列表
@@ -230,6 +267,8 @@ class ServiceService
         $category->parent_id = $params['parent_id'];
         // 服务分类名
         $category->name = $params['name'];
+        // 启用/禁用
+        $category->type = $params['type'];
         // 保存
         $category->save();
 
@@ -262,6 +301,8 @@ class ServiceService
         DB::transaction(function () use ($category, $type, $id){
             // 保存状态表
             $category->save();
+            // 启用/禁用所有子节点服务
+            DB::table('service_categories')->where(['parent_id'=>$id, 'status'=>0])->update(['type'=>$type]);
             // 修改服务服务项目表
             DB::table('service_items')->where(['service_category_id'=>$id, 'status'=>0])->update(['type'=>$type]);
         });

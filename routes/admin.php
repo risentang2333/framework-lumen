@@ -15,7 +15,7 @@ Route::post('/login', 'LoginController@login');
 // 刷新token
 Route::post('/changeToken', 'LoginController@changeToken');
 // 获取日志模块
-Route::group(['prefix' => 'log'], function () {
+Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
     // 获取日志列表
     Route::get('/getLogList', 'LogController@getLogList');
 });
@@ -96,7 +96,14 @@ Route::group(['prefix' => 'service', 'middleware' => ['admin']], function () {
 });
 // 能力标签模块
 Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
-    
+    // 获取能力标签列表
+    Route::get('/getAbilityList', 'AbilityController@getAbilityList');
+    // 获取能力标签
+    Route::get('/getAbility', 'AbilityController@getAbility');
+    // 编辑能力标签
+    Route::get('/editAbility', 'AbilityController@editAbility');
+    // 删除能力标签
+    Route::get('/deleteAbility', 'ServiceController@deleteAbility');
 });
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
@@ -107,7 +114,15 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 编辑需求订单
     Route::post('/editDemandOrder', 'OrderController@editDemandOrder');
 });
-// 获取地区树
-Route::get('/getAreaTree', 'StaffController@getAreaTree');
-// 获取服务树
-Route::get('/getServiceTree', 'StaffController@getServiceTree');
+
+// 通用下拉框数据
+Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
+    // 获取地区树
+    Route::get('/getAreaTree', 'CommonController@getAreaTree');
+    // 获取服务树
+    Route::get('/getServiceTree', 'CommonController@getServiceTree');
+    // 获取能力标签树
+    Route::get('/getLabelTree', 'CommonController@getLabelTree');
+    // 获取证书种类下拉数据
+    Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
+});

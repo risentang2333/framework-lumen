@@ -181,10 +181,28 @@ class ServiceController extends Controller
         $serviceService = new ServiceService;
         // 分类id
         $id = (int)trim($request->input('id', 0));
+        if (empty($id)) {
+            $method = 'add';
+            $category = array();
+        } else {
+            $method = 'edit';
+            // 根据id获取服务分类
+            $category = $serviceService->getCategoryById($id)->toArray();
+        }
+        // 所有服务分类
+        $categories = $serviceService->getCategoryForTree();
+        // 生成树结构
+        $tree = getTree($categories);
+        // 生成下拉菜单数据
+        $selection = $serviceService->visitTree($tree);
 
-        $item = $serviceService->getCategoryById($id);
+        $data = array(
+            'method' => $method,
+            'category' => $category,
+            'selection' => $selection
+        );
 
-        return send_msg_json(SUCCESS_RETURN, "success", $item);
+        return send_msg_json(SUCCESS_RETURN, "success", $data);
     }
 
     /**
@@ -203,12 +221,17 @@ class ServiceController extends Controller
 
         $params['parent_id'] = (int)trim($request->input('parent_id', 0));
 
-        $params['name'] = $request->input('name', '');
+        $params['name'] = trim($request->input('name', ''));
+        // 启用/禁用状态
+        $params['type'] = trim($request->input('type', ''));
 
         $params['version'] = (int)trim($request->input('version', 0));
         
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务分类名");
+        }
+        if (!in_array($params['type'], array('enable','disable'))) {
+            send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
         // 保存服务项目
         $return = $serviceService->saveCategory($params);
@@ -244,7 +267,7 @@ class ServiceController extends Controller
             send_msg_json(ERROR_RETURN, "请传入服务分类id");
         }
         if (!in_array($type, array('enable','disable'))) {
-            send_msg_json(ERROR_RETURN, "状态格式错误");
+            send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
         // 判断状态格式
         $returnMsg = $serviceService->changeCategoryType($id, $type, $version);

@@ -9,33 +9,6 @@ use App\Services\Admin\StaffService;
 class StaffController extends Controller
 {
     /**
-     * 获取地区列表
-     *
-     * @return string
-     */
-    public function getAreaTree()
-    {
-        $staffService = new StaffService;
-
-        $areas = $staffService->getAreaForTree();
-
-        $tree = getTree($areas);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
-    }
-
-    public function getServiceTree()
-    {
-        $staffService = new StaffService;
-
-        $service = $staffService->getCategoryForTree();
-
-        $tree = getTree($service);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
-    }
-
-    /**
      * 获取工作人员列表
      *
      * @param Request $request
@@ -79,12 +52,15 @@ class StaffController extends Controller
         // 能力
         $label = $staffService->getLabelByStaffId($id)->toArray();
         // 技能标签材料证明集合
-        $skill = $staffService->getSkillLabelPaperByStaffId($id);
+        $skill = $staffService->getSkillByStaffId($id)->toArray();
+        // 服务地区
+        $region = $staffService->getRegionByStaffId($id)->toArray();
 
         $staff['paper'] = $paper;
         $staff['label'] = $label;
         $staff['skill'] = $skill;
-
+        $staff['region'] = $region;
+        
         return send_msg_json(SUCCESS_RETURN, "success", $staff);
     }
 
@@ -113,8 +89,6 @@ class StaffController extends Controller
         $params['phone'] = trim($request->input('phone', ''));
         // 微信号
         $params['wechat'] = trim($request->input('wechat', ''));
-        // 地区
-        $params['region'] = (int)trim($request->input('region', 0));
         // 年龄
         $params['age'] = (int)trim($request->input('age', 0));
         // 住址
@@ -125,6 +99,8 @@ class StaffController extends Controller
         $params['bank_card'] = trim($request->input('bank_card', ''));
         // 操作版本号
         $params['version'] = (int)trim($request->input('version', 0));
+        // 服务地区
+        $params['service_region'] = $request->input('service_region', array());
         // 证书(数组)
         $params['papers'] = $request->input('papers', array());
         // 能力标签(数组)

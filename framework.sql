@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-22 22:17:28
+Date: 2019-02-23 16:04:13
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -23,26 +23,27 @@ CREATE TABLE `abilities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
 -- Records of abilities
 -- ----------------------------
-INSERT INTO `abilities` VALUES ('1', '形象气质类', '0');
-INSERT INTO `abilities` VALUES ('2', '干净立正', '1');
-INSERT INTO `abilities` VALUES ('3', '有亲和力', '1');
-INSERT INTO `abilities` VALUES ('4', '有文化', '1');
-INSERT INTO `abilities` VALUES ('5', '职业技能类', '0');
-INSERT INTO `abilities` VALUES ('6', '会做饭', '5');
-INSERT INTO `abilities` VALUES ('7', '会打扫', '5');
-INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5');
-INSERT INTO `abilities` VALUES ('9', '高级技能类', '0');
-INSERT INTO `abilities` VALUES ('10', '专业护工', '9');
-INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9');
-INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9');
-INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9');
-INSERT INTO `abilities` VALUES ('14', '会早教', '9');
+INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', '0');
+INSERT INTO `abilities` VALUES ('2', '干净立正', '1', '0');
+INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', '0');
+INSERT INTO `abilities` VALUES ('4', '有文化', '1', '0');
+INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', '0');
+INSERT INTO `abilities` VALUES ('6', '会做饭', '5', '0');
+INSERT INTO `abilities` VALUES ('7', '会打扫', '5', '0');
+INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', '0');
+INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', '0');
+INSERT INTO `abilities` VALUES ('10', '专业护工', '9', '0');
+INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', '0');
+INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', '0');
+INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', '0');
+INSERT INTO `abilities` VALUES ('14', '会早教', '9', '0');
 
 -- ----------------------------
 -- Table structure for areas
@@ -212,7 +213,7 @@ CREATE TABLE `managers` (
 -- Records of managers
 -- ----------------------------
 INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '00e75c7192137eadd4a558f698f22eee', 'a4215ed40324797e14e168cc94d9b51e', '1550903592', '0', '0');
-INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '9ed6f7130aa7371dd3bf21e86fbb9adc', '30a3dc82e903b9512a416eace829b2d3', '1550760783', '0', '0');
+INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '8af9be608f8cdc8461ad7b7b78a366ac', 'f4fed610df804a10d8557dc479f39496', '1550979241', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
 INSERT INTO `managers` VALUES ('5', 'hrAdmin1', '9039ee4c58399a548a1b10cd1d924a54', '人力资源1', '5b2096696f91ef308fc917a21a46b0e3', '626c27064da86cbfbc3ab85a80543298', '1550762127', '1', '0');
@@ -279,6 +280,24 @@ CREATE TABLE `order_logs` (
 -- ----------------------------
 -- Records of order_logs
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for paper_type
+-- ----------------------------
+DROP TABLE IF EXISTS `paper_type`;
+CREATE TABLE `paper_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
+  `type` varchar(10) NOT NULL DEFAULT '' COMMENT '类型码',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
+
+-- ----------------------------
+-- Records of paper_type
+-- ----------------------------
+INSERT INTO `paper_type` VALUES ('1', '身份证', 'identify', '0');
+INSERT INTO `paper_type` VALUES ('2', '健康证', 'healthy', '0');
 
 -- ----------------------------
 -- Table structure for permissions
@@ -465,7 +484,6 @@ CREATE TABLE `staff` (
   `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
   `bank_card` varchar(30) NOT NULL DEFAULT '' COMMENT '银行卡号',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `last_activity_time` int(11) NOT NULL DEFAULT '0' COMMENT '最后活动时间',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE,
@@ -475,10 +493,10 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '0', '1548814246', '0');
-INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '0', '1548831896', '0');
-INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548832537', '1');
-INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '0', '1548834271', '0');
+INSERT INTO `staff` VALUES ('1', '路人甲', '1', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '1548814246', '0');
+INSERT INTO `staff` VALUES ('2', '路人乙', '1', '', '13999999999', '', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '1548831896', '0');
+INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '13888888888', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548832537', '1');
+INSERT INTO `staff` VALUES ('7', '路人丙', '1', '', '13888888887', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548834271', '0');
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -522,7 +540,7 @@ DROP TABLE IF EXISTS `staff_papers`;
 CREATE TABLE `staff_papers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `type` enum('','identity','healthy') NOT NULL DEFAULT '',
+  `type` varchar(10) NOT NULL DEFAULT '' COMMENT '证件类型',
   `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
