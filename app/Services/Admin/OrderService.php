@@ -115,8 +115,6 @@ class OrderService
             $returnMsg = '编辑成功';
         }
 
-        $order->staff_id = $params['staff_id'];
-        $order->staff_name = $params['staff_name'];
         $order->service_item_id = $params['service_item_id'];
         $order->service_item_name = $params['service_item_name'];
         $order->user_id = $params['user_id'];

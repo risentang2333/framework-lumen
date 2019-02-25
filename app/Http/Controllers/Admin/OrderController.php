@@ -38,6 +38,9 @@ class OrderController extends Controller
         $orderService = new OrderService;
         // 订单id
         $id = (int)trim($request->input('id', 0));
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
 
         $order = $orderService->getDemandOrderById($id)->toArray();
 
@@ -48,12 +51,10 @@ class OrderController extends Controller
     {
         $orderService = new OrderService;
 
+        $accessToken = trim($request->header('accessToken',''));
+
         $params['id'] = (int)trim($request->input('id', 0));
         
-        $params['staff_id'] = (int)trim($request->input('staff_id', 0));
-
-        $params['staff_name'] = trim($request->input('staff_name', ''));
-
         $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
 
         $params['service_item_name'] = trim($request->input('service_item_name', ''));
@@ -74,12 +75,6 @@ class OrderController extends Controller
 
         $params['remark'] = trim($request->input('remark', ''));
 
-        if (empty($params['staff_id'])) {
-            send_msg_json(ERROR_RETURN, "请传入员工编号");
-        }
-        if ($params['staff_name'] == '') {
-            send_msg_json(ERROR_RETURN, "请传入员工姓名");
-        }
         if (empty($params['service_item_id'])) {
             send_msg_json(ERROR_RETURN, "请选择服务项目");
         }
@@ -113,5 +108,37 @@ class OrderController extends Controller
         // 写入日志
         // write_log($accessToken, $logMsg);
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
+    }
+
+    public function matchStaff(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+
+        $params['order_id'] = (int)trim($request->input('order_id', 0));
+
+        $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+        
+        $params['staff_name'] = trim($request->input('staff_name', ''));
+
+        if (empty($params['order_id'])) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+
+        if (empty($params['staff_id'])) {
+            send_msg_json(ERROR_RETURN, "请传入服务人员id");
+        }
+
+        if ($params['staff_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入服务人员名");
+        }
+
+        $orderService->matchStaff($params);
+        
+        // 写入日志
+        write_log($accessToken, "匹配服务人员，订单id：".$params['order_id']."服务人员id：".$params['staff_id']);
+        
+        return send_msg_json(SUCCESS_RETURN, "匹配成功");
     }
 }

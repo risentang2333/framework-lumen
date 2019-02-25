@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-25 17:05:04
+Date: 2019-02-25 22:12:17
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -225,8 +225,6 @@ INSERT INTO `managers` VALUES ('5', 'hrAdmin1', '9039ee4c58399a548a1b10cd1d924a5
 DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0',
-  `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `code` varchar(20) NOT NULL DEFAULT '',
   `user_id` int(11) NOT NULL DEFAULT '0',
   `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
@@ -247,10 +245,10 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '0', '', '123', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
-INSERT INTO `orders` VALUES ('2', '0', '', '121234234', '0', '', '', '0', '', '', '0', '0', '2', '', '0', '0');
-INSERT INTO `orders` VALUES ('3', '0', '', '12312345', '0', '', '', '0', '', '', '0', '0', '3', '', '0', '0');
-INSERT INTO `orders` VALUES ('4', '0', '', '1231236', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
+INSERT INTO `orders` VALUES ('1', '123', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
+INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '', '0', '', '', '0', '0', '2', '', '0', '0');
+INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '', '0', '', '', '0', '0', '3', '', '0', '0');
+INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -280,6 +278,22 @@ CREATE TABLE `order_logs` (
 
 -- ----------------------------
 -- Records of order_logs
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for order_staff
+-- ----------------------------
+DROP TABLE IF EXISTS `order_staff`;
+CREATE TABLE `order_staff` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `order_id` int(11) NOT NULL DEFAULT '0',
+  `staff_id` int(11) NOT NULL DEFAULT '0',
+  `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
+
+-- ----------------------------
+-- Records of order_staff
 -- ----------------------------
 
 -- ----------------------------
