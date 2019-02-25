@@ -192,7 +192,7 @@ class ServiceController extends Controller
         // 所有服务分类
         $categories = $serviceService->getCategoryForTree();
         // 生成树结构
-        $tree = getTree($categories);
+        $tree = getTree($categories, false);
         // 生成下拉菜单数据
         $selection = $serviceService->visitTree($tree);
 
@@ -269,8 +269,21 @@ class ServiceController extends Controller
         if (!in_array($type, array('enable','disable'))) {
             send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
+        // 验证操作版本
+        $category = $serviceService->getCategoryById($id);
+        if ($category->version != $version) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        // 获取所有分类
+        $categories = $serviceService->getCategoryForTree();
+        // 生成树
+        $tree = getTree($categories, false);
+        // 需要改变状态的树
+        $changeTree = filterTreeById($tree, $id);
+        // 需要改变状态的id集合
+        $changeIds = getFilterIds($changeTree);
         // 判断状态格式
-        $returnMsg = $serviceService->changeCategoryType($id, $type, $version);
+        $returnMsg = $serviceService->changeCategoryType($changeIds, $type, $version);
         if ($type == 'enable') {
             $logMsg = "启用服务分类，操作id为：".$id;
         } else if ($type == 'disable') {

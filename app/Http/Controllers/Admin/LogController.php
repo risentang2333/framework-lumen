@@ -17,6 +17,8 @@ class LogController extends Controller
         $endTime = trim($request->input('endTime',''));
         // 名字
         $params['name'] = trim($request->input('name',''));
+
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
         // 当不传时间时按当天计算
         if ($startTime == '' || $endTime == '') {
             // 该月第一天时间戳
@@ -31,7 +33,7 @@ class LogController extends Controller
         // 指定查询表
         $table = 'log_'.date('Ym',$startTime);
         
-        $list = $logService->getLogList($startTime, $endTime, $table, $params, 15);
+        $list = $logService->getLogList($startTime, $endTime, $table, $params, $pageNumber);
         // 开始时间
         $list['startTime'] = $startTime;
         // 结束时间

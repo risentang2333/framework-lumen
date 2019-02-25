@@ -18,8 +18,10 @@ class PermissionController extends Controller
         $permissionService = new PermissionService;
 
         $params['name'] = trim($request->input('name',''));
+
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
         
-        $list = $permissionService->getManagerList($params);
+        $list = $permissionService->getManagerList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -193,11 +195,13 @@ class PermissionController extends Controller
      *
      * @return string
      */
-    public function getRoleList()
+    public function getRoleList(Request $request)
     {
         $permissionService = new PermissionService;
 
-        $list = $permissionService->getRoleList(true, 15);
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
+
+        $list = $permissionService->getRoleList(true, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -324,7 +328,7 @@ class PermissionController extends Controller
             }
         }
         // 生成树结构
-        $permissionList = getTree($permissions);
+        $permissionList = getTree($permissions, false);
         
         $data = array(
             "rolePermissionIds" => $rolePermissionIds,
@@ -369,11 +373,13 @@ class PermissionController extends Controller
      *
      * @return void
      */
-    public function getPermissionList()
+    public function getPermissionList(Request $request)
     {
         $permissionService = new PermissionService;
         
-        $list = $permissionService->getPermissionList(true, 20);
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
+        
+        $list = $permissionService->getPermissionList(true, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -399,11 +405,6 @@ class PermissionController extends Controller
         } else {
             // 获取当前权限信息
             $permission = $permissionService->getPermissionById($id)->toArray();
-            
-            if (empty($permission)) {
-                send_msg_json(ERROR_RETURN, "权限信息不存在");
-            }
-
             if ($permission['is_administrator'] == 2) {
                 send_msg_json(ERROR_RETURN, "基础权限无法修改");
             }
@@ -456,9 +457,6 @@ class PermissionController extends Controller
         if (!empty($params['id'])) {
             // 权限信息
             $permission = $permissionService->getPermissionById($params['id']);
-            if (empty($permission)) {
-                send_msg_json(ERROR_RETURN, "该权限不存在");
-            }
             if ($permission->is_administrator == 2) {
                 send_msg_json(ERROR_RETURN, "基础权限无法修改");
             }
@@ -498,13 +496,18 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "请传入权限id");
         }
         $permission = $permissionService->getPermissionById($id);
-        if (empty($permission)) {
-            send_msg_json(ERROR_RETURN, "权限信息不存在");
-        }
         if ($permission->is_administrator == 2) {
-            send_msg_json(ERROR_RETURN, "超管权限无法删除");
+            send_msg_json(ERROR_RETURN, "基础权限无法删除");
         }
-        $permissionService->deletePermission($id);
+        $permissions = $permissionService->getPermissionForTree(false);
+        // 获取所有权限树结构
+        $tree = getTree($permissions, false);
+        // 获取待删除的树
+        $deleteTree = filterTreeById($tree, $id);
+        // 获取待删除id
+        $deleteIds = getFilterIds($deleteTree);
+        // 删除权限
+        $permissionService->deletePermission($deleteIds);
 
         return send_msg_json(SUCCESS_RETURN, "删除成功");
     }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-23 16:04:13
+Date: 2019-02-25 17:05:04
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,26 +24,27 @@ CREATE TABLE `abilities` (
   `name` varchar(50) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
 -- Records of abilities
 -- ----------------------------
-INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', '0');
-INSERT INTO `abilities` VALUES ('2', '干净立正', '1', '0');
-INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', '0');
-INSERT INTO `abilities` VALUES ('4', '有文化', '1', '0');
-INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', '0');
-INSERT INTO `abilities` VALUES ('6', '会做饭', '5', '0');
-INSERT INTO `abilities` VALUES ('7', '会打扫', '5', '0');
-INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', '0');
-INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', '0');
-INSERT INTO `abilities` VALUES ('10', '专业护工', '9', '0');
-INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', '0');
-INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', '0');
-INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', '0');
-INSERT INTO `abilities` VALUES ('14', '会早教', '9', '0');
+INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', '0', '0');
+INSERT INTO `abilities` VALUES ('2', '干净立正', '1', '0', '0');
+INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', '0', '0');
+INSERT INTO `abilities` VALUES ('4', '有文化', '1', '0', '0');
+INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', '0', '0');
+INSERT INTO `abilities` VALUES ('6', '会做饭', '5', '0', '0');
+INSERT INTO `abilities` VALUES ('7', '会打扫', '5', '0', '0');
+INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', '0', '0');
+INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', '0', '0');
+INSERT INTO `abilities` VALUES ('10', '专业护工', '9', '0', '0');
+INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', '0', '0');
+INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', '0', '0');
+INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', '0', '0');
+INSERT INTO `abilities` VALUES ('14', '会早教', '9', '0', '0');
 
 -- ----------------------------
 -- Table structure for areas
@@ -212,7 +213,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '00e75c7192137eadd4a558f698f22eee', 'a4215ed40324797e14e168cc94d9b51e', '1550903592', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '3a070b246d2dd12b89ecd743002dabbf', 'ab0df9b27854f7a6f3159ef32548c397', '1551167637', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '8af9be608f8cdc8461ad7b7b78a366ac', 'f4fed610df804a10d8557dc479f39496', '1550979241', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
@@ -600,6 +601,48 @@ INSERT INTO `staff_skills` VALUES ('1', '1', '2', '空调清洗', '4', '0', '0',
 INSERT INTO `staff_skills` VALUES ('2', '2', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 INSERT INTO `staff_skills` VALUES ('7', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
 INSERT INTO `staff_skills` VALUES ('8', '6', '3', '4', '5', '0', '0', '1', '6', '0', '', '0', '0');
+
+-- ----------------------------
+-- Table structure for staff_skill_label
+-- ----------------------------
+DROP TABLE IF EXISTS `staff_skill_label`;
+CREATE TABLE `staff_skill_label` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
+  `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工技能id',
+  `label_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工标签id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='技能-标签 多对多关联表';
+
+-- ----------------------------
+-- Records of staff_skill_label
+-- ----------------------------
+INSERT INTO `staff_skill_label` VALUES ('1', '1', '1', '1');
+INSERT INTO `staff_skill_label` VALUES ('2', '1', '1', '2');
+INSERT INTO `staff_skill_label` VALUES ('3', '2', '2', '18');
+INSERT INTO `staff_skill_label` VALUES ('4', '2', '2', '19');
+INSERT INTO `staff_skill_label` VALUES ('5', '6', '7', '19');
+INSERT INTO `staff_skill_label` VALUES ('6', '6', '7', '20');
+INSERT INTO `staff_skill_label` VALUES ('7', '6', '8', '19');
+INSERT INTO `staff_skill_label` VALUES ('8', '6', '8', '20');
+
+-- ----------------------------
+-- Table structure for staff_skill_paper
+-- ----------------------------
+DROP TABLE IF EXISTS `staff_skill_paper`;
+CREATE TABLE `staff_skill_paper` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
+  `skill_id` int(11) NOT NULL DEFAULT '0' COMMENT '技能表id',
+  `paper_id` int(11) NOT NULL DEFAULT '0' COMMENT '证明id',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='技能-执照 多对多关联表';
+
+-- ----------------------------
+-- Records of staff_skill_paper
+-- ----------------------------
+INSERT INTO `staff_skill_paper` VALUES ('1', '1', '1', '1');
+INSERT INTO `staff_skill_paper` VALUES ('2', '1', '1', '2');
 
 -- ----------------------------
 -- Table structure for users

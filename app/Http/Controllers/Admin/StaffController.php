@@ -187,7 +187,9 @@ class StaffController extends Controller
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
 
-        $list = $staffService->getStaffSkillList($params);
+        $pageNumber = (int)trim($request->input('pageNumber', 15));
+
+        $list = $staffService->getStaffSkillList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }

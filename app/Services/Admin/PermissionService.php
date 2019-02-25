@@ -17,7 +17,7 @@ class PermissionService
      * @param integer $pageNumber
      * @return array
      */
-    public function getManagerList($params, $pageNumber = 20)
+    public function getManagerList($params, $pageNumber = 15)
     {
         $list = Managers::select(['id','account','name'])
                         ->where(function ($query) use ($params){
@@ -238,7 +238,7 @@ class PermissionService
      * @param integer $pageNumber
      * @return void
      */
-    public function getPermissionList($paginate = true, $pageNumber = 20)
+    public function getPermissionList($paginate = true, $pageNumber = 15)
     {
         if ($paginate) {
             $data = Permissions::where('status',0)->paginate($pageNumber);
@@ -375,13 +375,14 @@ class PermissionService
      * @param int $id
      * @return boolean
      */
-    public function deletePermission($id)
+    public function deletePermission($deleteIds)
     {
-        DB::transaction(function () use ($id){
+        
+        DB::transaction(function () use ($deleteIds){
             // 逻辑删除权限表
-            DB::table('permissions')->where('id', $id)->update(['status'=>1]);
+            DB::table('permissions')->whereIn('id', $deleteIds)->update(['status'=>1]);
             // 物理删除权限角色关系表
-            PermissionRole::where('permission_id', $id)->delete();
+            PermissionRole::whereIn('permission_id', $deleteIds)->delete();
         });
         return true;
     }

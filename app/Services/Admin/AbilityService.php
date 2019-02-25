@@ -33,4 +33,92 @@ class AbilityService
             ->toArray();
         return $list;
     }
+
+    public function getAbilityById($id)
+    {
+        $ability = Abilities::select(['id','name','parent_id','version'])
+            ->where(['status'=>0,'id'=>$id])->first();
+        if (empty($ability)) {
+            send_msg_json(ERROR_RETURN, "该能力标签不存在");
+        }
+        return $ability;
+    }
+
+    public function getAbilityForTree()
+    {
+        $data = Abilities::select(['id','name','parent_id'])
+                    ->where('status', 0)
+                    ->get()
+                    ->keyBy('id')
+                    ->toArray();
+        return $data;
+    }
+
+    public function visitTree($items, $ids = 0, $names = '')
+    {
+        // static $selection = array();
+        static $selection = array(["id"=>0, "ids"=>"0", "names"=>"基础"]);
+        $temp = array();
+        foreach ($items as $key => $value) {
+            if ($ids == 0) {
+                $temp['id'] = $value['id'];
+                $temp['ids'] = (string)$value['id'];
+                $temp['names'] = $value['name'];
+            } else {
+                $temp['id'] = $value['id'];
+                $temp['ids'] = $ids.'-'.$value['id'];
+                $temp['names'] = $names.'>'.$value['name'];
+            }
+            array_push($selection, $temp);
+            if (isset($value['children'])) {
+                if ($ids == 0) {
+                    $this->visitTree($items[$key]['children'], $value['id'], $value['name']);
+                } else {
+                    $this->visitTree($items[$key]['children'], $ids.'-'.$value['id'], $names.'>'.$value['name']);
+                }
+            }
+        }
+        
+        return $selection;
+    }
+
+    public function saveAbility($params)
+    {
+        $returnMsg = '';
+        if (empty($params['id'])) {
+            $ability = new Abilities;
+            $returnMsg = '添加成功';
+        } else {
+            $ability = Abilities::where('status', 0)->find($params['id']);
+            if (empty($ability)) {
+                send_msg_json(ERROR_RETURN, "该能力标签不存在");
+            }
+            if ($ability->version != $params['version']) {
+                send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+            }
+            // 版本号+1
+            $ability->version = $params['version']+1;
+            // 返回信息
+            $returnMsg = '编辑成功';
+        }
+        // 服务分类id
+        $ability->parent_id = $params['parent_id'];
+        // 服务分类名
+        $ability->name = $params['name'];
+        // 保存
+        $ability->save();
+
+        return array(
+            'returnMsg'=>$returnMsg,
+            'abilityId'=>$ability->id
+        );
+    }
+
+    public function deleteAbility($deleteIds)
+    {
+        // 逻辑删除权限表
+        DB::table('abilities')->whereIn('id', $deleteIds)->update(['status'=>1, 'version'=>$version+1]);
+
+        return true;
+    }
 }

@@ -270,4 +270,47 @@ if (!function_exists('getTree')) {
         return $tree;
     }
 }
+
+if (!function_exists('filterTreeById')) {
+    /**
+     * 从基础树中根据节点id，筛选树
+     *
+     * @param array $items
+     * @return array
+     */
+    function filterTreeById($tree, $id)
+    {
+        static $deleteTree = array();
+        
+        foreach ($tree as $value) {
+            if ($value['id'] == $id) {
+                $deleteTree = $value;
+            } else if (isset($value['children'])) {
+                filterTreeById($value['children'], $id);
+            }
+        }
+        return $deleteTree;
+    }
+}
+
+if (!function_exists('getFilterIds')) {
+    /**
+     * 根据筛选出的树，获取筛选id的集合
+     *
+     * @param array $items
+     * @return array
+     */
+    function getFilterIds($tree)
+    {
+        static $deleteIds = array();
+
+        array_push($deleteIds, $tree['id']);
+        if (isset($tree['children'])) {
+            foreach ($tree['children'] as $value) {
+                $this->getFilterIds($value);
+            }
+        }
+        return $deleteIds;
+    }
+}
     

@@ -286,25 +286,13 @@ class ServiceService
      * @param [type] $version
      * @return void
      */
-    public function changeCategoryType($id, $type, $version)
+    public function changeCategoryType($changeIds, $type, $version)
     {
-        $category = ServiceCategories::where('status', 0)->find($id);
-        if (empty($category)) {
-            send_msg_json(ERROR_RETURN, "该服务分类不存在");
-        }
-        if ($category->version != $version) {
-            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-        }
-        $category->type = $type;
-        $category->version = $version+1;
-
-        DB::transaction(function () use ($category, $type, $id){
-            // 保存状态表
-            $category->save();
-            // 启用/禁用所有子节点服务
-            DB::table('service_categories')->where(['parent_id'=>$id, 'status'=>0])->update(['type'=>$type]);
+        DB::transaction(function () use ($type, $changeIds, $version){
+            // 启用/禁用所有节点分类
+            DB::table('service_categories')->where('status', 0)->whereIn('id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
             // 修改服务服务项目表
-            DB::table('service_items')->where(['service_category_id'=>$id, 'status'=>0])->update(['type'=>$type]);
+            DB::table('service_items')->where('status', 0)->whereIn('service_category_id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
         });
         // 返回信息
         $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
