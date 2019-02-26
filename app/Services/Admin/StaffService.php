@@ -49,9 +49,9 @@ class StaffService
      * @param array $params
      * @return array
      */
-    public function getStaffList($params, $pageNumber = 15)
+    public function getStaffList($params, $format = 'paginate', $pageNumber = 15)
     {
-        $list = Staff::select($this->staffList)
+        $modelObj = Staff::select($this->staffList)
             ->where(function ($query) use ($params){
                 // 逻辑删除判断
                 $query->where('status', 0);
@@ -60,19 +60,39 @@ class StaffService
                     $query->where('name','like','%'.$params['name'].'%');
                 }
                 // 根据服务类型筛选
-                if ($params['service_category_id']) {
+                if (!empty($params['service_category_id'])) {
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?) AND `status` = 0', [$params['service_category_id']]);
                 }
                 // 根据特长标签搜索
-                if ($params['ability_ids']) {
+                if (!empty($params['ability_ids'])) {
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0', [implode(",",$params['ability_ids'])]);
                 }
-                if ($params['ability_ids']) {
-                    # code...
+                // 根据服务地区搜索
+                if (!empty($params['region_ids'])) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_service_regions` WHERE `region_id` IN (?) AND `status` = 0', [implode(",",$params['region_ids'])]);
                 }
             })
-            ->paginate($pageNumber)
-            ->toArray();
+            ->orderBy('id', 'ASC');
+        if ($format == 'paginate') {
+            // 普通分页
+            $list = $modelObj->paginate($pageNumber)->toArray();
+        } else {
+            // 设置最后一个id
+            $lastId = isset($params['lastId']) ? $params['lastId'] : 0;
+            // 获取数据
+            $list['data'] = $modelObj->where('id','>', $lastId)->limit($pageNumber)->get()->toArray();
+            // 如果不为空
+            if (!empty($list['data'])) {
+                // 设置新的最后id
+                $lastId = end($list['data'])['id'];
+            }
+            // 查询是否还有数据
+            $count = $modelObj->where('id','>', $lastId)->count();
+            // 拼凑数据
+            $list['lastId'] = $lastId;
+            $list['isLast'] = $count > 0 ? true : false;
+        }
+            
         return $list;
     }
 

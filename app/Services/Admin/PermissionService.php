@@ -41,10 +41,15 @@ class PermissionService
      * @param integer $pageNumber
      * @return void
      */
-    public function getRoleList($paginate = true, $pageNumber = 15)
+    public function getRoleList($params, $paginate = true, $pageNumber = 15)
     {
         if ($paginate) {
-            $data = Roles::where('status', 0)->paginate($pageNumber);
+            $data = Roles::where(function ($query) use ($params){
+                $query->where('status', 0);
+                if ($params['name']) {
+                    $query->where('name','like','%'.$params['name'].'%');
+                }
+            })->paginate($pageNumber);
         } else {
             $data = Roles::where('status', 0)->get();
         }
@@ -238,15 +243,14 @@ class PermissionService
      * @param integer $pageNumber
      * @return void
      */
-    public function getPermissionList($paginate = true, $pageNumber = 15)
+    public function getPermissionList($params, $pageNumber = 15)
     {
-        if ($paginate) {
-            $data = Permissions::where('status',0)->paginate($pageNumber);
-        } else {
-            $data = Permissions::where('status',0)->select(['id', 'router', 'title'])->get();
-        }
-
-        return $data->toArray();
+        return $data = Permissions::where(function ($query) use ($params){
+            $query->where('status', 0);
+            if ($params['title']) {
+                $query->where('title','like','%'.$params['title'].'%');
+            }
+        })->paginate($pageNumber);
     }
 
     /**

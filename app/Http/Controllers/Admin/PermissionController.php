@@ -17,7 +17,7 @@ class PermissionController extends Controller
     {
         $permissionService = new PermissionService;
 
-        $params['name'] = trim($request->input('name',''));
+        $params['name'] = trim($request->input('name', ''));
 
         $pageNumber = (int)trim($request->input('pageNumber', 15));
         
@@ -48,7 +48,7 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "超级管理员不可修改");
         }
         // 获取不带分页的所有角色信息
-        $roleList = $permissionService->getRoleList(false);
+        $roleList = $permissionService->getRoleList($params = [], false);
         // 根据管理员id获取已经绑定的角色id
         $roleIds = $permissionService->getRoleIdsByManagerId($id);
 
@@ -199,9 +199,11 @@ class PermissionController extends Controller
     {
         $permissionService = new PermissionService;
 
+        $params['name'] = trim($request->input('name', ''));
+
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
-        $list = $permissionService->getRoleList(true, $pageNumber);
+        $list = $permissionService->getRoleList($params, true, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -378,8 +380,10 @@ class PermissionController extends Controller
         $permissionService = new PermissionService;
         
         $pageNumber = (int)trim($request->input('pageNumber', 15));
+
+        $params['title'] = trim($request->input('title', ''));
         
-        $list = $permissionService->getPermissionList(true, $pageNumber);
+        $list = $permissionService->getPermissionList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }

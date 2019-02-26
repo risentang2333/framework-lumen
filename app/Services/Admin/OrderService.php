@@ -4,7 +4,7 @@ namespace App\Services\Admin;
 
 use App\Entities\Orders;
 use App\Entities\Users;
-
+use App\Entities\OrderStaff;
 use Illuminate\Support\Facades\DB;
 
 class OrderService 
@@ -80,7 +80,7 @@ class OrderService
      * @param array $params
      * @return array
      */
-    public function saveDemandOrder($params)
+    public function saveDemandOrder($params, $accessToken)
     {
         // 执行成功提示
         $returnMsg = '';
@@ -93,6 +93,7 @@ class OrderService
                 ));
             }
             $order = new Orders;
+            $order->type = 1;
             $order->created_at = time();
             $returnMsg = '添加成功';
         // 编辑订单
@@ -101,7 +102,8 @@ class OrderService
                 $this->saveUser(array(
                     'id' => $params['user_id'],
                     'phone' => $params['phone'],
-                    'name' => $params['name']
+                    'name' => $params['name'],
+                    'accessToken' => $accessToken
                 ));
             }
             $order = Orders::where('status', 0)->find($params['id']);
@@ -114,7 +116,8 @@ class OrderService
             $order->version = $params['version']+1;
             $returnMsg = '编辑成功';
         }
-
+        $order->manager_id = $params['manager_id'];
+        $order->manager_name = $params['manager_name'];
         $order->service_item_id = $params['service_item_id'];
         $order->service_item_name = $params['service_item_name'];
         $order->user_id = $params['user_id'];
@@ -165,7 +168,26 @@ class OrderService
         $user->name = $params['name'];
 
         $user->save();
+        write_log($accessToken, "新增用户，手机号：".$params['phone']);
 
         return $user->id;
+    }
+
+    public function matchStaff($params)
+    {
+        $orderStaff = new OrderStaff;
+        $orderStaff->order_id = $params['order_id'];
+        $orderStaff->staff_id = $params['staff_id'];
+        $orderStaff->staff_name = $params['staff_name'];
+
+        $orderStaff->save();
+
+        return true;
+    }
+    
+
+    public function writeOrderLog($params)
+    {
+
     }
 }

@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-25 22:12:17
+Date: 2019-02-26 17:06:54
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -213,7 +213,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '3a070b246d2dd12b89ecd743002dabbf', 'ab0df9b27854f7a6f3159ef32548c397', '1551167637', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'a429ff20e103d53553c9a496c353ae01', '8e8f9981f5f4b92f4b7bb07af5ed6e47', '1551249971', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '8af9be608f8cdc8461ad7b7b78a366ac', 'f4fed610df804a10d8557dc479f39496', '1550979241', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
@@ -226,8 +226,10 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(20) NOT NULL DEFAULT '',
+  `manager_id` int(11) NOT NULL DEFAULT '0' COMMENT '填写人id',
+  `manager_name` varchar(20) NOT NULL DEFAULT '' COMMENT '填写人姓名',
   `user_id` int(11) NOT NULL DEFAULT '0',
-  `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `user_name` varchar(20) NOT NULL DEFAULT '' COMMENT '用户姓名',
   `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `service_item_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务内容id',
   `service_item_name` varchar(200) NOT NULL DEFAULT '' COMMENT '服务项目名',
@@ -237,6 +239,7 @@ CREATE TABLE `orders` (
   `source` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单来源 0：全部，1：线下，2：线上，3：全部',
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
   `created_at` int(11) NOT NULL DEFAULT '0',
+  `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单类型 0：全部 ，1：待匹配，2：已匹配，3：已签约，4：已取消，5：订单结束',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `code` (`code`) USING BTREE COMMENT '订单号唯一性约束'
@@ -245,10 +248,10 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '123', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
-INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '', '0', '', '', '0', '0', '2', '', '0', '0');
-INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '', '0', '', '', '0', '0', '3', '', '0', '0');
-INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0');
+INSERT INTO `orders` VALUES ('1', '123', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0', '0');
+INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '0', '', '', '0', '', '', '0', '0', '2', '', '0', '0', '0');
+INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '0', '', '', '0', '', '', '0', '0', '3', '', '0', '0', '0');
+INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '0', '0', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -289,6 +292,7 @@ CREATE TABLE `order_staff` (
   `order_id` int(11) NOT NULL DEFAULT '0',
   `staff_id` int(11) NOT NULL DEFAULT '0',
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单类型 0：全部 ，1：未签约，2：已签约',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 

@@ -22,11 +22,19 @@ class StaffController extends Controller
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 能力标签id集合
-        $params['ability_ids'] = $request->input('ability_ids', '');
+        $params['ability_ids'] = $request->input('ability_ids', array());
+        // 服务地址id集合
+        $params['region_ids'] = $request->input('region_ids', array());
+        // 懒加载分页用
+        if ($request->input('lastId')) {
+            $params['lastId'] = (int)trim($request->input('lastId', 0));
+        }
+        // 返回格式，lazyLoad懒加载，paginate列表分页
+        $format = trim($request->input('format', 'paginate'));
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
-        $list = $staffService->getStaffList($params, $pageNumber);
+        $list = $staffService->getStaffList($params, $format, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -147,7 +155,7 @@ class StaffController extends Controller
             $logMsg = "编辑员工信息，操作id为：".$return['staffId'];
         }
         // 写入日志
-        // write_log($accessToken, $logMsg);
+        write_log($accessToken, $logMsg);
 
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }

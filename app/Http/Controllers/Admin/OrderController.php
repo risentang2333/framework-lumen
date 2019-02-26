@@ -54,6 +54,10 @@ class OrderController extends Controller
         $accessToken = trim($request->header('accessToken',''));
 
         $params['id'] = (int)trim($request->input('id', 0));
+
+        $params['manager_id'] = (int)trim($request->input('manager_id', 0));
+
+        $params['manager_name'] = trim($request->input('manager_name', ''));
         
         $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
 
@@ -96,9 +100,8 @@ class OrderController extends Controller
         if (empty($params['sourse'])) {
             send_msg_json(ERROR_RETURN, "请选择订单渠道");
         }
-
         // 保存需求订单
-        $return = $orderService->saveDemandOrder($params);
+        $return = $orderService->saveDemandOrder($params, $accessToken);
         // 编写操作日志
         if (empty($params['id'])) {
             $logMsg = "添加需求订单，操作id为：".$return['orderId'];
@@ -106,10 +109,11 @@ class OrderController extends Controller
             $logMsg = "编辑需求订单，操作id为：".$return['orderId'];
         }
         // 写入日志
-        // write_log($accessToken, $logMsg);
+        write_log($accessToken, $logMsg);
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
+    
     public function matchStaff(Request $request)
     {
         $orderService = new OrderService;
@@ -135,7 +139,6 @@ class OrderController extends Controller
         }
 
         $orderService->matchStaff($params);
-        
         // 写入日志
         write_log($accessToken, "匹配服务人员，订单id：".$params['order_id']."服务人员id：".$params['staff_id']);
         
