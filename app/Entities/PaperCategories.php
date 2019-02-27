@@ -4,14 +4,14 @@ namespace App\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaperType extends Model
+class PaperCategories extends Model
 {
     /**
      * 与模型关联的数据表
      *
      * @var string
      */
-    protected $table = 'paper_type';
+    protected $table = 'paper_categories';
 
     /**
      * 该模型是否被自动维护时间戳

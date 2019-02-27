@@ -216,6 +216,10 @@ class ServiceService
                 if ($params['name']) {
                     $query->where('name','like','%'.$params['name'].'%');
                 }
+                // 启用/禁用
+                if ($params['type']) {
+                    $query->where('type', $params['type']);
+                }
             })
             ->paginate($pageNumber)
             ->toArray();

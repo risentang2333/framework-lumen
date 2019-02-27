@@ -102,8 +102,21 @@ Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
     Route::get('/getAbility', 'AbilityController@getAbility');
     // 编辑能力标签
     Route::get('/editAbility', 'AbilityController@editAbility');
+    // 启用/停用服务
+    Route::post('/changeAbilityType', 'AbilityController@changeAbilityType');
     // 删除能力标签
-    Route::get('/deleteAbility', 'ServiceController@deleteAbility');
+    Route::get('/deleteAbility', 'AbilityController@deleteAbility');
+});
+// 证件模块
+Route::group(['prefix' => 'paper', 'middleware' => ['admin']], function () {
+    // 获取能力标签列表
+    Route::get('/getCategoryList', 'PaperController@getCategoryList');
+    // 获取能力标签
+    Route::get('/getCategory', 'PaperController@getCategory');
+    // 编辑能力标签
+    Route::get('/editCategory', 'PaperController@editCategory');
+    // 启用/停用服务
+    Route::post('/changeCategoryType', 'PaperController@changeCategoryType');
 });
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {

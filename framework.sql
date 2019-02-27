@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-02-26 17:06:54
+Date: 2019-02-27 17:14:14
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -23,6 +23,7 @@ CREATE TABLE `abilities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL DEFAULT '',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '启用状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
@@ -31,20 +32,20 @@ CREATE TABLE `abilities` (
 -- ----------------------------
 -- Records of abilities
 -- ----------------------------
-INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', '0', '0');
-INSERT INTO `abilities` VALUES ('2', '干净立正', '1', '0', '0');
-INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', '0', '0');
-INSERT INTO `abilities` VALUES ('4', '有文化', '1', '0', '0');
-INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', '0', '0');
-INSERT INTO `abilities` VALUES ('6', '会做饭', '5', '0', '0');
-INSERT INTO `abilities` VALUES ('7', '会打扫', '5', '0', '0');
-INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', '0', '0');
-INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', '0', '0');
-INSERT INTO `abilities` VALUES ('10', '专业护工', '9', '0', '0');
-INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', '0', '0');
-INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', '0', '0');
-INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', '0', '0');
-INSERT INTO `abilities` VALUES ('14', '会早教', '9', '0', '0');
+INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', 'disable', '0', '1');
+INSERT INTO `abilities` VALUES ('2', '干净立正', '1', 'disable', '0', '1');
+INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', 'disable', '0', '1');
+INSERT INTO `abilities` VALUES ('4', '有文化', '1', 'disable', '0', '1');
+INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('6', '会做饭', '5', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('7', '会打扫', '5', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('10', '专业护工', '9', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('14', '会早教', '9', 'enable', '0', '0');
 
 -- ----------------------------
 -- Table structure for areas
@@ -213,7 +214,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'a429ff20e103d53553c9a496c353ae01', '8e8f9981f5f4b92f4b7bb07af5ed6e47', '1551249971', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '43de7192bb6e07af724a1a94f35b2e47', '156a3b6e08c3c9d6808cd7d57fdd5359', '1551333252', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '8af9be608f8cdc8461ad7b7b78a366ac', 'f4fed610df804a10d8557dc479f39496', '1550979241', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
@@ -292,7 +293,7 @@ CREATE TABLE `order_staff` (
   `order_id` int(11) NOT NULL DEFAULT '0',
   `staff_id` int(11) NOT NULL DEFAULT '0',
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
-  `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单类型 0：全部 ，1：未签约，2：已签约',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '签约状态',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 
@@ -301,22 +302,23 @@ CREATE TABLE `order_staff` (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for paper_type
+-- Table structure for paper_categories
 -- ----------------------------
-DROP TABLE IF EXISTS `paper_type`;
-CREATE TABLE `paper_type` (
+DROP TABLE IF EXISTS `paper_categories`;
+CREATE TABLE `paper_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
-  `type` varchar(10) NOT NULL DEFAULT '' COMMENT '类型码',
+  `code` varchar(10) NOT NULL DEFAULT '' COMMENT '类型码',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
 
 -- ----------------------------
--- Records of paper_type
+-- Records of paper_categories
 -- ----------------------------
-INSERT INTO `paper_type` VALUES ('1', '身份证', 'identify', '0');
-INSERT INTO `paper_type` VALUES ('2', '健康证', 'healthy', '0');
+INSERT INTO `paper_categories` VALUES ('1', '身份证', 'identify', 'enable', '0');
+INSERT INTO `paper_categories` VALUES ('2', '健康证', 'healthy', 'enable', '0');
 
 -- ----------------------------
 -- Table structure for permissions
@@ -559,10 +561,12 @@ DROP TABLE IF EXISTS `staff_papers`;
 CREATE TABLE `staff_papers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `type` varchar(10) NOT NULL DEFAULT '' COMMENT '证件类型',
+  `code` varchar(10) NOT NULL DEFAULT '' COMMENT '证件类型',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
   `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
@@ -570,8 +574,8 @@ CREATE TABLE `staff_papers` (
 -- ----------------------------
 -- Records of staff_papers
 -- ----------------------------
-INSERT INTO `staff_papers` VALUES ('1', '1', 'identity', 'abcdefghi/index', '1', '1548814246', '0');
-INSERT INTO `staff_papers` VALUES ('2', '1', 'healthy', 'abcdfefsef/index', '2', '1548814246', '0');
+INSERT INTO `staff_papers` VALUES ('1', '1', 'identity', '身份证', 'abcdefghi/index', '1', '1548814246', 'enable', '0');
+INSERT INTO `staff_papers` VALUES ('2', '1', 'healthy', '健康证', 'abcdfefsef/index', '2', '1548814246', 'enable', '0');
 
 -- ----------------------------
 -- Table structure for staff_service_regions
@@ -582,14 +586,15 @@ CREATE TABLE `staff_service_regions` (
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
   `region_id` int(11) NOT NULL DEFAULT '0' COMMENT '地区id',
   `code` varchar(10) NOT NULL DEFAULT '' COMMENT '行政区划代码',
-  `region_name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务地区',
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务地区',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
 
 -- ----------------------------
 -- Records of staff_service_regions
 -- ----------------------------
+INSERT INTO `staff_service_regions` VALUES ('1', '1', '4', '210102', '和平区', '0');
 
 -- ----------------------------
 -- Table structure for staff_skills

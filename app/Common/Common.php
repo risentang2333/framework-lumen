@@ -307,7 +307,7 @@ if (!function_exists('getFilterIds')) {
         array_push($deleteIds, $tree['id']);
         if (isset($tree['children'])) {
             foreach ($tree['children'] as $value) {
-                $this->getFilterIds($value);
+                getFilterIds($value);
             }
         }
         return $deleteIds;

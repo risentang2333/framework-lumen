@@ -5,7 +5,7 @@ namespace App\Services\Admin;
 use App\Entities\ServiceCategories;
 use App\Entities\Abilities;
 use App\Entities\Areas;
-use App\Entities\PaperType;
+use App\Entities\PaperCategories;
 use Illuminate\Support\Facades\DB;
 
 class CommonService 
@@ -55,6 +55,6 @@ class CommonService
      */
     public function getPaperSelection()
     {
-        return PaperType::where('status', 0)->get()->toArray();
+        return PaperCategories::where('status', 0)->get()->toArray();
     }
 }

@@ -28,6 +28,10 @@ class AbilityService
                 if ($params['name']) {
                     $query->where('name','like','%'.$params['name'].'%');
                 }
+                // 启用/禁用
+                if ($params['type']) {
+                    $query->where('type', $params['type']);
+                }
             })
             ->paginate($pageNumber)
             ->toArray();
@@ -36,7 +40,7 @@ class AbilityService
 
     public function getAbilityById($id)
     {
-        $ability = Abilities::select(['id','name','parent_id','version'])
+        $ability = Abilities::select(['id','name','parent_id','type','version'])
             ->where(['status'=>0,'id'=>$id])->first();
         if (empty($ability)) {
             send_msg_json(ERROR_RETURN, "该能力标签不存在");
@@ -105,6 +109,8 @@ class AbilityService
         $ability->parent_id = $params['parent_id'];
         // 服务分类名
         $ability->name = $params['name'];
+
+        $ability->type = $params['type'];
         // 保存
         $ability->save();
 
@@ -112,6 +118,16 @@ class AbilityService
             'returnMsg'=>$returnMsg,
             'abilityId'=>$ability->id
         );
+    }
+
+    public function changeAbilityType($changeIds, $type, $version)
+    {
+        // 启用/禁用所有节点分类
+        DB::table('abilities')->where('status', 0)->whereIn('id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
+        // 返回信息
+        $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
+
+        return $returnMsg;
     }
 
     public function deleteAbility($deleteIds)

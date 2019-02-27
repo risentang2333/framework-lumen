@@ -161,7 +161,9 @@ class ServiceController extends Controller
     {
         $serviceService = new ServiceService;
         // 服务项目名
-        $params['name'] = $request->input('name', '');
+        $params['name'] = trim($request->input('name', ''));
+        // 启用/禁用
+        $params['type'] = trim($request->input('type', ''));
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
