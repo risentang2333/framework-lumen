@@ -7,9 +7,9 @@ use Illuminate\Support\Facades\DB;
 
 class PaperService 
 {    
-    public function getCategoryList($params, $pageNumber = 15)
+    public function getPaperList($params, $pageNumber = 15)
     {
-        $list = PaperCategories::select(['id','name','code','type'])
+        $list = PaperCategories::select(['id','name','type','version'])
             ->where(function ($query) use ($params){
                 // 逻辑删除判断
                 $query->where('status', 0);
@@ -27,9 +27,9 @@ class PaperService
         return $list;
     }
 
-    public function getCategoryById($id)
+    public function getPaperById($id)
     {
-        $paperCategory = PaperCategories::select(['id','name','code','type','version'])
+        $paperCategory = PaperCategories::select(['id','name','type','version'])
             ->where(['status'=>0,'id'=>$id])->first();
         if (empty($paperCategory)) {
             send_msg_json(ERROR_RETURN, "该证件类型不存在");
@@ -37,7 +37,7 @@ class PaperService
         return $paperCategory;
     }
 
-    public function saveCategory($params)
+    public function savePaper($params)
     {
         $returnMsg = '';
         if (empty($params['id'])) {
@@ -56,8 +56,6 @@ class PaperService
             // 返回信息
             $returnMsg = '编辑成功';
         }
-        // 证件类型码
-        $paperCategory->code = $params['code'];
         // 证件类型名
         $paperCategory->name = $params['name'];
         // 启用/禁用
@@ -71,7 +69,7 @@ class PaperService
         );
     }
 
-    public function changeCategoryType($id, $type, $version)
+    public function changePaperType($id, $type, $version)
     {
         $paperCategory = PaperCategories::where('status', 0)->find($id);
         if ($paperCategory->version != $version) {

@@ -8,7 +8,7 @@ use App\Services\Admin\PaperService;
 
 class PaperController extends Controller
 {
-    public function getCategoryList(Request $request)
+    public function getPaperList(Request $request)
     {
         $paperService = new PaperService;
         // 证件类型名
@@ -18,31 +18,29 @@ class PaperController extends Controller
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
-        $list = $paperService->getCategoryList($params, $pageNumber);
+        $list = $paperService->getPaperList($params, $pageNumber);
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
 
-    public function getCategory(Request $request)
+    public function getPaper(Request $request)
     {
         $paperService = new PaperService;
         // 分类id
         $id = (int)trim($request->input('id', 0));
         // 根据id获取服务分类
-        $paperCategory = $paperService->getCategoryById($id)->toArray();
+        $paperCategory = $paperService->getPaperById($id)->toArray();
 
         return send_msg_json(SUCCESS_RETURN, "success", $paperCategory);
     }
 
-    public function editCategory(Request $request)
+    public function editPaper(Request $request)
     {
         $paperService = new PaperService;
         // 访问令牌
         $accessToken = trim($request->header('accessToken',''));
 
         $params['id'] = (int)trim($request->input('id', 0));
-
-        $params['code'] = trim($request->input('code', ''));
 
         $params['name'] = trim($request->input('name', ''));
 
@@ -53,14 +51,11 @@ class PaperController extends Controller
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写证件类型名");
         }
-        if ($params['code'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写证件类型码");
-        }
         if (!in_array($params['type'], array('enable','disable'))) {
             send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
         // 保存服务项目
-        $return = $paperService->saveCategory($params);
+        $return = $paperService->savePaper($params);
         // 编写操作日志
         if (empty($params['id'])) {
             $logMsg = "添加证件类型，操作id为：".$return['paperId'];
@@ -72,7 +67,7 @@ class PaperController extends Controller
         return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
     }
 
-    public function changeCategoryType(Request $request)
+    public function changePaperType(Request $request)
     {
         $paperService = new PaperService;
         // 访问令牌
@@ -90,7 +85,7 @@ class PaperController extends Controller
             send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
         // 判断状态格式
-        $returnMsg = $paperService->changeCategoryType($id, $type, $version);
+        $returnMsg = $paperService->changePaperType($id, $type, $version);
         if ($type == 'enable') {
             $logMsg = "启用证件，操作id为：".$id;
         } else if ($type == 'disable') {

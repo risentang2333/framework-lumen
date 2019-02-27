@@ -15,7 +15,9 @@ class AbilityService
     private $itemList = [
         'id',
         'name',
+        'type',
         'parent_id',
+        'version'
     ];
     
     public function getAbilityList($params, $pageNumber = 15)

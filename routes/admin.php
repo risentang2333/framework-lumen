@@ -59,7 +59,7 @@ Route::group(['prefix' => 'permission', 'middleware' => ['admin']], function () 
 // 服务人员模块，没加中间件
 Route::group(['prefix' => 'staff', 'middleware' => ['admin']], function () {
     // 获取服务人员列表
-    Route::get('/getStaffList', 'StaffController@getStaffList');
+    Route::post('/getStaffList', 'StaffController@getStaffList');
     // 获取服务人员信息
     Route::get('/getStaff', 'StaffController@getStaff');
     // 编辑服务人员信息
@@ -101,7 +101,7 @@ Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
     // 获取能力标签
     Route::get('/getAbility', 'AbilityController@getAbility');
     // 编辑能力标签
-    Route::get('/editAbility', 'AbilityController@editAbility');
+    Route::post('/editAbility', 'AbilityController@editAbility');
     // 启用/停用服务
     Route::post('/changeAbilityType', 'AbilityController@changeAbilityType');
     // 删除能力标签
@@ -110,13 +110,13 @@ Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
 // 证件模块
 Route::group(['prefix' => 'paper', 'middleware' => ['admin']], function () {
     // 获取能力标签列表
-    Route::get('/getCategoryList', 'PaperController@getCategoryList');
+    Route::get('/getPaperList', 'PaperController@getPaperList');
     // 获取能力标签
-    Route::get('/getCategory', 'PaperController@getCategory');
+    Route::get('/getPaper', 'PaperController@getPaper');
     // 编辑能力标签
-    Route::get('/editCategory', 'PaperController@editCategory');
+    Route::post('/editPaper', 'PaperController@editPaper');
     // 启用/停用服务
-    Route::post('/changeCategoryType', 'PaperController@changeCategoryType');
+    Route::post('/changePaperType', 'PaperController@changePaperType');
 });
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {

@@ -25,6 +25,8 @@ class StaffController extends Controller
         $params['ability_ids'] = $request->input('ability_ids', array());
         // 服务地址id集合
         $params['region_ids'] = $request->input('region_ids', array());
+        // 根据证件类型查询
+        $params['paper_ids'] = $request->input('paper_ids', array());
         // 懒加载分页用
         if ($request->input('lastId')) {
             $params['lastId'] = (int)trim($request->input('lastId', 0));
@@ -108,13 +110,13 @@ class StaffController extends Controller
         // 操作版本号
         $params['version'] = (int)trim($request->input('version', 0));
         // 服务地区
-        $params['service_region'] = $request->input('service_region', array());
+        $params['region'] = $request->input('region', array());
         // 证书(数组)
-        $params['papers'] = $request->input('papers', array());
+        $params['paper'] = $request->input('paper', array());
         // 能力标签(数组)
-        $params['labels'] = $request->input('labels', array());
+        $params['label'] = $request->input('label', array());
         // 技能标签(数组)
-        $params['skills'] = $request->input('skills', array());
+        $params['skill'] = $request->input('skill', array());
 
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");

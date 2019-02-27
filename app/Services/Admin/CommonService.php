@@ -18,7 +18,7 @@ class CommonService
     public function getLabelForTree()
     {
         return Abilities::select(['id','name','parent_id'])
-                    ->where('status', 0)
+                    ->where(['status'=>0, 'type'=>'enable'])
                     ->get()
                     ->keyBy('id')
                     ->toArray();
@@ -55,6 +55,6 @@ class CommonService
      */
     public function getPaperSelection()
     {
-        return PaperCategories::where('status', 0)->get()->toArray();
+        return PaperCategories::where(['status'=>0, 'type'=>'enable'])->get()->toArray();
     }
 }
