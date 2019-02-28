@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50560
 File Encoding         : 65001
 
-Date: 2019-02-27 23:45:37
+Date: 2019-02-28 11:25:32
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -603,10 +603,10 @@ INSERT INTO `staff_papers` VALUES ('1', '1', '1', '身份证', 'abcdefghi/index'
 INSERT INTO `staff_papers` VALUES ('2', '1', '2', '健康证', 'abcdfefsef/index', '2', '1548814246', 'enable', '0');
 
 -- ----------------------------
--- Table structure for staff_service_regions
+-- Table structure for staff_regions
 -- ----------------------------
-DROP TABLE IF EXISTS `staff_service_regions`;
-CREATE TABLE `staff_service_regions` (
+DROP TABLE IF EXISTS `staff_regions`;
+CREATE TABLE `staff_regions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
   `region_id` int(11) NOT NULL DEFAULT '0' COMMENT '地区id',
@@ -617,11 +617,11 @@ CREATE TABLE `staff_service_regions` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
 
 -- ----------------------------
--- Records of staff_service_regions
+-- Records of staff_regions
 -- ----------------------------
-INSERT INTO `staff_service_regions` VALUES ('1', '1', '4', '210102', '和平区', '1');
-INSERT INTO `staff_service_regions` VALUES ('2', '1', '32', '210303', '铁西区', '0');
-INSERT INTO `staff_service_regions` VALUES ('3', '7', '5', '210103', '沈河区', '0');
+INSERT INTO `staff_regions` VALUES ('1', '1', '4', '210102', '和平区', '1');
+INSERT INTO `staff_regions` VALUES ('2', '1', '32', '210303', '铁西区', '0');
+INSERT INTO `staff_regions` VALUES ('3', '7', '5', '210103', '沈河区', '0');
 
 -- ----------------------------
 -- Table structure for staff_skills

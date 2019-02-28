@@ -123,9 +123,9 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 获取订单列表
     Route::get('/getOrderList', 'OrderController@getOrderList');
     // 获取需求订单
-    Route::get('/getDemandOrder', 'OrderController@getDemandOrder');
+    Route::get('/getOrder', 'OrderController@getOrder');
     // 编辑需求订单
-    Route::post('/editDemandOrder', 'OrderController@editDemandOrder');
+    Route::post('/editOrder', 'OrderController@editOrder');
 });
 
 // 通用下拉框数据

@@ -33,7 +33,7 @@ class OrderController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
 
-    public function getDemandOrder(Request $request)
+    public function getOrder(Request $request)
     {
         $orderService = new OrderService;
         // 订单id
