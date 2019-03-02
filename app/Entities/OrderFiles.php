@@ -4,14 +4,14 @@ namespace App\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OrderLogs extends Model
+class OrderFiles extends Model
 {
     /**
      * 与模型关联的数据表
      *
      * @var string
      */
-    protected $table = 'order_logs';
+    protected $table = 'order_files';
 
     /**
      * 该模型是否被自动维护时间戳

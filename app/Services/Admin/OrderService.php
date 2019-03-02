@@ -4,8 +4,11 @@ namespace App\Services\Admin;
 
 use App\Entities\Orders;
 use App\Entities\Users;
+use App\Entities\Staff;
 use App\Entities\OrderStaff;
-use App\Entities\OrderLogs;
+use App\Entities\OrderFiles;
+use App\Entities\OrderMaintainLogs;
+use App\Entities\OrderSignLogs;
 use Illuminate\Support\Facades\DB;
 
 class OrderService 
@@ -21,8 +24,8 @@ class OrderService
         'phone',
         'source',
         'created_at',
-        'service_item_id',
-        'service_item_name'
+        'service_category_id',
+        'name'
     ];
 
     /**
@@ -47,8 +50,8 @@ class OrderService
                     $query->where('phone','like','%'.$params['phone'].'%');
                 }
                 // 如果有技能id搜索项
-                if ($params['service_item_id']) {
-                    $query->where('service_item_id',$params['service_item_id']);
+                if ($params['service_category_id']) {
+                    $query->where('service_category_id',$params['service_category_id']);
                 }
                 // 如果有姓名搜索项
                 if ($params['source']) {
@@ -68,21 +71,47 @@ class OrderService
      */
     public function getOrderById($id)
     {
-        $order = Orders::select(['id','user_id','user_name','phone','service_item_id','service_item_name','service_address','service_start_time','service_end_time','sourse','remark'])->where(['id'=>$id,'status'=>0])->first();
+        $order = Orders::where(['id'=>$id,'status'=>0])->first();
+        
         if (empty($order)) {
             send_msg_json(ERROR_RETURN, "该订单不存在");
         }
         return $order;
     }
 
+    public function getOrderStaffById($id)
+    {
+        return $orderStaff = OrderStaff::where(['order_id'=>$id, 'status'=>0])->get()->toArray();
+    }
+
+    public function getOrderFileByid($id)
+    {
+        return $orderFile = OrderFiles::where(['order_id'=>$id, 'status'=>0])->get()->toArray();
+    }
+
+    public function getOrderLogById($id, $type)
+    {
+        $orderLog = [];
+        if ($type == 'maintain') {
+            $orderLog = OrderMaintainLogs::where(['order_id'=>$id])->get()->toArray();
+        } else if ($type == 'sign') {
+            $orderLog = OrderSignLogs::where(['order_id'=>$id])->get()->toArray();
+        }
+
+        return $orderLog;
+    }
+
     public function createOrder($params, $accessToken)
     {
         // 新增订单
-        if (empty($this->getUserByPhone($params['phone']))) {
+        $user = $this->getUserByPhone($params['phone']);
+        if (empty($user)) {
             $params['user_id'] = $this->saveUser(array(
                 'phone' => $params['phone'],
-                'name' => $params['name']
-            ));
+                'name' => $params['user_name']
+            ), $accessToken);
+        } else {
+            $params['user_id'] = $user->id;
         }
         $order = new Orders;
         $order->created_at = time();
@@ -91,19 +120,19 @@ class OrderService
         $order->user_id = $params['user_id'];
         $order->user_name = $params['user_name'];
         $order->phone = $params['phone'];
-        $order->service_item_id = $params['service_item_id'];
-        $order->service_item_name = $params['service_item_name'];
+        $order->service_category_id = $params['service_category_id'];
+        $order->name = $params['name'];
         $order->service_start_time = $params['service_start_time'];
         $order->service_end_time = $params['service_end_time'];
         $order->service_address = $params['service_address'];
-        $order->sourse = $params['sourse'];
+        $order->source = $params['source'];
         $order->remark = $params['remark'];
         // 待匹配
         $order->type = 1;
         DB::transaction(function () use ($order) {
             $order->save();
 
-            $code = date("YmdHis").sprintf("%04d", rand(0,9999)).sprintf("%07d", $order->id);
+            $code = date("Ymd").sprintf("%04d", rand(0,9999)).sprintf("%07d", $order->id);
             $order->code = $code;
             $order->save();
         });
@@ -111,76 +140,29 @@ class OrderService
         return $order->id;
     }
 
-    /**
-     * 创建或编辑需求订单
-     *
-     * @param array $params
-     * @return array
-     */
-    public function saveOrder($params, $accessToken)
+    public function editOrder($params, $accessToken)
     {
-        // 执行成功提示
-        $returnMsg = '';
-        // 新增订单
-        if (empty($params['id'])) {
-            if (empty($this->getUserByPhone($params['phone']))) {
-                $params['user_id'] = $this->saveUser(array(
-                    'phone' => $params['phone'],
-                    'name' => $params['name']
-                ));
-            }
-            $order = new Orders;
-            $order->type = 1;
-            $order->created_at = time();
-            $returnMsg = '添加成功';
-        // 编辑订单
-        } else {
-            if (!empty($this->getUserByPhone($params['phone'])) && !empty($params['user_id'])) {
-                $this->saveUser(array(
-                    'id' => $params['user_id'],
-                    'phone' => $params['phone'],
-                    'name' => $params['name'],
-                    'accessToken' => $accessToken
-                ));
-            }
-            $order = Orders::where('status', 0)->find($params['id']);
-            if (empty($order)) {
-                send_msg_json(ERROR_RETURN, "该订单不存在");
-            }
-            if ($order->version != $params['version']) {
-                send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-            }
-            $order->version = $params['version']+1;
-            $returnMsg = '编辑成功';
+        $order = Orders::where('status', 0)->find($params['id']);
+        if (empty($order)) {
+            send_msg_json(ERROR_RETURN, "该订单不存在");
         }
-        $order->manager_id = $params['manager_id'];
-        $order->manager_name = $params['manager_name'];
-        $order->service_item_id = $params['service_item_id'];
-        $order->service_item_name = $params['service_item_name'];
-        $order->user_id = $params['user_id'];
+        if ($order->version != $params['version']) {
+            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        $order->version = $params['version']+1;
+
+        $order->service_category_id = $params['service_category_id'];
+        $order->name = $params['name'];
         $order->user_name = $params['user_name'];
         $order->phone = $params['phone'];
         $order->service_address = $params['service_address'];
-        $order->service_start_time = $params['service_start_time'];
-        $order->service_end_time = $params['service_end_time'];
-        $order->sourse = $params['sourse'];
+        $order->service_start_time = $params['service_start_time']/1000;
+        $order->service_end_time = $params['service_end_time']/1000;
+        $order->source = $params['source'];
         $order->remark = $params['remark'];
 
         $order->save();
-        
-        return array(
-            'returnMsg'=>$returnMsg,
-            'staffId'=>$order->id
-        );
-    }
 
-    private function saveOrderStaff($orderId, $staff)
-    {
-        if (!empty($staff)) {
-            array_walk($staff, function (&$item) use ($orderId) {
-                OrderStaff::updateOrCreate(['id'=>$item['id']],['order_id'=>$orderId, 'staff_id'=>$item['id'], 'staff_name'=>$item['name']]);
-            });
-        }
         return true;
     }
 
@@ -203,21 +185,39 @@ class OrderService
      * @param array $params
      * @return int
      */
-    private function saveUser($params)
+    private function saveUser($params, $accessToken)
     {
-        if (array_key_exists('id', $params)) {
-            $user = Users::where('status', 0)->find($params['id']);
-        } else {
-            $user = new Users;
-        }
+        $user = new Users;
 
         $user->phone = $params['phone'];
         $user->name = $params['name'];
 
         $user->save();
-        write_log($accessToken, "新增用户，手机号：".$params['phone']);
+        if (!array_key_exists('id', $params)) {
+            write_log($accessToken, "新增用户，手机号：".$params['phone']);
+        }
 
         return $user->id;
+    }
+
+    public function createOrderStaff($params)
+    {
+        DB::transaction(function () use ($params) {
+            OrderStaff::updateOrCreate(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'status'=>0],['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name']]);
+        
+            Staff::where(['id'=>$params['staff_id'], 'status'=>0])->update(['type'=>'normal']);
+
+            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>2]);
+        });
+        
+        return true;
+    }
+
+    public function deleteOrderStaff($id)
+    {
+        OrderStaff::where('id', $id)->update(['status'=>1]);
+
+        return true;
     }
 
     public function sign($params)
@@ -236,34 +236,70 @@ class OrderService
         $order->pay_wage = $params['pay_wage'];
         $order->wage_count = $params['wage_count'];
         $order->wage_price = $params['wage_price'];
+        $order->type = 3;
         $order->version = $params['version']+1;
 
-        DB::transaction(function () use ($order, $params) {
-
+        $staffIds = OrderStaff::select(['staff_id'])->where(['order_id'=>1, 'status'=>0])->pluck('staff_id')->toArray();
+        
+        DB::transaction(function () use ($order, $params, $staffIds) {
+            // 保存订单
             $order->save();
+            // 修改订单服务人员
+            OrderStaff::where(['order_id'=>$params['id'], 'staff_id'=>$params['staff_id'], 'status'=>0])->update(['type'=>'sign']);
+            // 修改员服务人员表变为正常
+            Staff::whereIn('id', $staffIds)->where('status',0)->update(['type'=>'normal']);
 
-            OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id']])->update(['type'=>'sign']);
+            Staff::where(['id'=>$params['staff_id'],'status'=>0])->update(['type'=>'sign']);
+            
+            $this->saveOrderFile();
         });
 
+        return true;
+    }
+
+    private function saveOrderFile()
+    {
         return true;
     }
 
     public function refuse($params){
 
-        DB::transaction(function () {
+        OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'],'status'=>0])->update(['type'=>'refuse']);
 
-            OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id']])->update(['type'=>'refuse']);
+        $this->writeSignLog(array(
+            'order_id'=>$params['order_id'],
+            'staff_id'=>$params['staff_id'],
+            'staff_name'=>$params['staff_name'],
+            'message'=>$params['message']
+        ));
 
-            $this->writeOrderLog($params['order_id'], $message, 'refuse');
-        });
+        return true;
+    }
+
+    public function writeSignLog($params)
+    {
+        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message'], 'type'=>'maintain']);
 
         return true;
     }
     
-
-    public function writeOrderLog($orderId, $message, $type = 'maintain')
+    public function writeMaintainLog($orderId, $message)
     {
-        OrderLogs::insert(['order_id'=>$orderId, 'message'=>$message, 'type'=>$type]);
+        OrderLogs::insert(['order_id'=>$orderId, 'staff_id'=>0, 'message'=>$message]);
+
+        return true;
+    }
+
+    public function cancelOrderById($id)
+    {
+        Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>4]);
+
+        return true;
+    }
+
+    public function completeOrderById($id)
+    {
+        Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>5]);
 
         return true;
     }

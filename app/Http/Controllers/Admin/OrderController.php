@@ -18,7 +18,7 @@ class OrderController extends Controller
     {
         $orderService = new OrderService;
         // 服务分类id
-        $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
+        $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 订单来源
         $params['source'] = (int)trim($request->input('source', 0));
         // 订单号
@@ -42,9 +42,17 @@ class OrderController extends Controller
             send_msg_json(ERROR_RETURN, "请传入订单id");
         }
 
-        $order = $orderService->getOrderById($id)->toArray();
+        $data['order'] = $orderService->getOrderById($id)->toArray();
 
-        return send_msg_json(SUCCESS_RETURN, "success", $order);
+        $data['order_staff'] = $orderService->getOrderStaffById($id);
+
+        $data['order_files'] = $orderService->getOrderFileByid($id);
+
+        $data['order_maintain_logs'] = $orderService->getOrderLogById($id, 'maintain');
+        
+        $data['order_sign_logs'] = $orderService->getOrderLogById($id, 'sign');
+
+        return send_msg_json(SUCCESS_RETURN, "success", $data);
     }
 
     public function createOrder(Request $request)
@@ -52,8 +60,6 @@ class OrderController extends Controller
         $orderService = new OrderService;
 
         $accessToken = trim($request->header('accessToken',''));
-
-        $params['id'] = (int)trim($request->input('id', 0));
 
         $params['manager_id'] = (int)trim($request->input('manager_id', 0));
 
@@ -63,9 +69,9 @@ class OrderController extends Controller
 
         $params['phone'] = trim($request->input('phone', ''));
 
-        $params['service_item_id'] = (int)trim($request->input('service_item_id', 0));
+        $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
 
-        $params['service_item_name'] = trim($request->input('service_item_name', ''));
+        $params['name'] = trim($request->input('name', ''));
 
         $params['service_address'] = trim($request->input('service_address', ''));
 
@@ -73,14 +79,14 @@ class OrderController extends Controller
         
         $params['service_end_time'] = (int)trim($request->input('service_end_time', 0));
 
-        $params['sourse'] = (int)trim($request->input('sourse', 0));
+        $params['source'] = (int)trim($request->input('source', 0));
 
         $params['remark'] = trim($request->input('remark', ''));
 
-        if (empty($params['service_item_id'])) {
+        if (empty($params['service_category_id'])) {
             send_msg_json(ERROR_RETURN, "请选择服务项目");
         }
-        if ($params['service_item_name'] == '') {
+        if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请传入服务项目名");
         }
         if ($params['user_name'] == '') {
@@ -95,15 +101,13 @@ class OrderController extends Controller
         if (empty($params['service_start_time']) || empty($params['service_end_time'])) {
             send_msg_json(ERROR_RETURN, "请选择服务时间");
         }
-        if (empty($params['sourse'])) {
+        if (empty($params['source'])) {
             send_msg_json(ERROR_RETURN, "请选择订单渠道");
         }
         // 保存需求订单
         $orderId = $orderService->createOrder($params, $accessToken);
-        // 编写操作日志
-        $logMsg = "添加订单，订单id为：".$orderId;
         // 写入日志
-        write_log($accessToken, $logMsg);
+        write_log($accessToken, "添加订单，订单id为：".$orderId);
         return send_msg_json(SUCCESS_RETURN, "添加成功");
     }
 
@@ -119,8 +123,6 @@ class OrderController extends Controller
 
         $params['service_item_name'] = trim($request->input('service_item_name', ''));
 
-        $params['user_id'] = (int)trim($request->input('user_id', 0));
-
         $params['user_name'] = trim($request->input('user_name', ''));
 
         $params['phone'] = trim($request->input('phone', ''));
@@ -131,7 +133,7 @@ class OrderController extends Controller
         
         $params['service_end_time'] = (int)trim($request->input('service_end_time', 0));
 
-        $params['sourse'] = trim($request->input('sourse', 0));
+        $params['source'] = trim($request->input('source', 0));
 
         $params['remark'] = trim($request->input('remark', ''));
 
@@ -155,20 +157,44 @@ class OrderController extends Controller
         if (empty($params['service_start_time']) || empty($params['service_end_time'])) {
             send_msg_json(ERROR_RETURN, "请选择服务时间");
         }
-        if (empty($params['sourse'])) {
+        if (empty($params['source'])) {
             send_msg_json(ERROR_RETURN, "请选择订单渠道");
         }
         // 保存需求订单
-        $return = $orderService->saveOrder($params, $accessToken);
-        // 编写操作日志
-        if (empty($params['id'])) {
-            $logMsg = "添加需求订单，操作id为：".$return['orderId'];
-        } else {
-            $logMsg = "编辑需求订单，操作id为：".$return['orderId'];
-        }
+        $orderService->saveOrder($params, $accessToken);
         // 写入日志
-        write_log($accessToken, $logMsg);
-        return send_msg_json(SUCCESS_RETURN, $return['returnMsg']);
+        write_log($accessToken, "编辑订单，操作id为：".$params['id']);
+
+        return send_msg_json(SUCCESS_RETURN, "编辑成功");
+    }
+
+    public function createOrderStaff(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+        // 订单id
+        $params['order_id'] = (int)trim($request->input('order_id', 0));
+
+        $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+        
+        $params['staff_name'] = (int)trim($request->input('staff_name', 0));
+    
+        $orderService->createOrderStaff($params);
+
+        return send_msg_json(SUCCESS_RETURN, "添加成功");
+    }
+
+    public function deleteOrderStaff(Request $request)
+    {
+        $id = (int)trim($request->input('id', 0));
+        if (empty($params['id'])) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+
+        $orderService->deleteOrderStaff($id);
+
+        return send_msg_json(SUCCESS_RETURN, "删除成功");
     }
 
     public function sign(Request $request)
@@ -222,6 +248,8 @@ class OrderController extends Controller
         $params['id'] = (int)trim($request->input('id', 0));
         // 服务人员id
         $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+        // 服务人员姓名
+        $params['staff_name'] = trim($request->input('staff_name', ''));
         // 拒签日志
         $params['refuse_log'] = trim($request->input('refuse_log', ''));
         if (empty($params['id'])) {
@@ -235,5 +263,59 @@ class OrderController extends Controller
         write_log($accessToken, "订单面试拒签，订单id：".$params['order_id']."服务人员id：".$params['order_id']);
         
         return send_msg_json(SUCCESS_RETURN, "拒签成功");
+    }
+
+    public function writeSignLog(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+        // 订单id
+        $params['id'] = (int)trim($request->input('id', 0));
+
+        $params['message'] = trim($request->input('message', ''));
+        $params['staff_id'] = 0;
+
+        $params['staff_name'] = '无';
+        if (empty($params['id'])) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+        if ($params['log'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入日志");
+        }
+        
+        $orderService->writeSignLog($params);
+
+        return send_msg_json(SUCCESS_RETURN, "添加成功");
+    }
+
+    public function cancelOrder(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+        // 订单id
+        $id = (int)trim($request->input('id', 0));
+
+        $orderService->cancelOrderById($id);
+
+        write_log($accessToken, "取消订单，操作id：".$id);
+
+        return send_msg_json(SUCCESS_RETURN, "取消成功");
+    }
+
+    public function completeOrder(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+        // 订单id
+        $id = (int)trim($request->input('id', 0));
+
+        $orderService->completeOrderById($id);
+
+        write_log($accessToken, "完成订单，操作id：".$id);
+        
+        return send_msg_json(SUCCESS_RETURN, "操作成功");
     }
 }

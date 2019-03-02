@@ -14,12 +14,7 @@
 Route::post('/login', 'LoginController@login');
 // 刷新token
 Route::post('/changeToken', 'LoginController@changeToken');
-// 获取日志模块
-Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
-    // 获取日志列表
-    Route::get('/getLogList', 'LogController@getLogList');
-});
-// 包含中间件，添加permission路由
+// 权限模块
 Route::group(['prefix' => 'permission', 'middleware' => ['admin']], function () {
     // 获取菜单
     Route::get('/getMenu', 'PermissionController@getMenu');
@@ -56,7 +51,7 @@ Route::group(['prefix' => 'permission', 'middleware' => ['admin']], function () 
     // 逻辑删除权限
     Route::post('/deletePermission', 'PermissionController@deletePermission');
 });
-// 服务人员模块，没加中间件
+// 服务人员模块
 Route::group(['prefix' => 'staff', 'middleware' => ['admin']], function () {
     // 获取服务人员列表
     Route::post('/getStaffList', 'StaffController@getStaffList');
@@ -122,12 +117,27 @@ Route::group(['prefix' => 'paper', 'middleware' => ['admin']], function () {
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 获取订单列表
     Route::get('/getOrderList', 'OrderController@getOrderList');
-    // 获取需求订单
+    // 获取订单
     Route::get('/getOrder', 'OrderController@getOrder');
-    // 编辑需求订单
+    // 创建订单
+    Route::post('/createOrder', 'OrderController@createOrder');
+    // 编辑订单
     Route::post('/editOrder', 'OrderController@editOrder');
+    // 添加候选人
+    Route::post('/saveOrderStaff', 'OrderController@saveOrderStaff');
+    // 删除候选人
+    Route::post('/deleteOrderStaff', 'OrderController@deleteOrderStaff');
+    // 签约
+    Route::post('/sign', 'OrderController@sign');
+    // 拒签
+    Route::post('/refuse', 'OrderController@refuse');
+    // 写签约日志
+    Route::post('/writeSignLog', 'OrderController@writeSignLog');
+    // 取消订单
+    Route::post('/cancelOrder', 'OrderController@cancelOrder');
+    // 完成订单
+    Route::post('/completeOrder', 'OrderController@completeOrder');
 });
-
 // 通用下拉框数据
 Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     // 获取地区树
@@ -138,4 +148,9 @@ Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     Route::get('/getLabelTree', 'CommonController@getLabelTree');
     // 获取证书种类下拉数据
     Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
+});
+// 获取日志模块
+Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
+    // 获取日志列表
+    Route::get('/getLogList', 'LogController@getLogList');
 });

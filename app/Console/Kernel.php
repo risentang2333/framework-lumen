@@ -13,7 +13,9 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        Commands\WorkermanCommand::class
+        Commands\WorkermanCommand::class,
+        Commands\BackupDatabase::class,
+        Commands\HelloWorld::class
     ];
 
     /**
@@ -24,6 +26,6 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //
+        $schedule->command('HelloWorld')->everyThirtyMinutes();
     }
 }
