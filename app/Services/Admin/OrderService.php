@@ -202,11 +202,15 @@ class OrderService
 
     public function createOrderStaff($params)
     {
+        $orderStaff = OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'status'=>0])->first();
+        if (!empty($orderStaff)) {
+            send_msg_json(ERROR_RETURN, "该服务人员已匹配");
+        }
+        // dd($params);
         DB::transaction(function () use ($params) {
-            OrderStaff::updateOrCreate(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'status'=>0],['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name']]);
-        
-            Staff::where(['id'=>$params['staff_id'], 'status'=>0])->update(['type'=>'normal']);
-
+            // 添加订单服务人员
+            OrderStaff::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name']]);
+            // 修改订单为已匹配状态
             Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>2]);
         });
         
@@ -263,22 +267,24 @@ class OrderService
     }
 
     public function refuse($params){
-
-        OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'],'status'=>0])->update(['type'=>'refuse']);
-
-        $this->writeSignLog(array(
-            'order_id'=>$params['order_id'],
-            'staff_id'=>$params['staff_id'],
-            'staff_name'=>$params['staff_name'],
-            'message'=>$params['message']
-        ));
+        DB::transaction(function () use ($params) {
+            if (!empty($params['staff_id'])) {
+                OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'],'status'=>0])->update(['type'=>'refuse']);
+            }
+            $this->writeSignLog(array(
+                'order_id'=>$params['order_id'],
+                'staff_id'=>$params['staff_id'],
+                'staff_name'=>$params['staff_name'],
+                'message'=>$params['message']
+            ));
+        });
 
         return true;
     }
 
     public function writeSignLog($params)
     {
-        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message'], 'type'=>'maintain']);
+        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message']]);
 
         return true;
     }

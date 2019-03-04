@@ -178,7 +178,17 @@ class OrderController extends Controller
 
         $params['staff_id'] = (int)trim($request->input('staff_id', 0));
         
-        $params['staff_name'] = (int)trim($request->input('staff_name', 0));
+        $params['staff_name'] = trim($request->input('staff_name', ''));
+
+        if (empty($params['order_id'])) {
+            send_msg_json(ERROR_RETURN, "请选择订单id");
+        }
+        if (empty($params['staff_id'])) {
+            send_msg_json(ERROR_RETURN, "请选择服务人员id");
+        }
+        if ($params['staff_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
+        }
     
         $orderService->createOrderStaff($params);
 
@@ -187,9 +197,11 @@ class OrderController extends Controller
 
     public function deleteOrderStaff(Request $request)
     {
+        $orderService = new OrderService;
+
         $id = (int)trim($request->input('id', 0));
-        if (empty($params['id'])) {
-            send_msg_json(ERROR_RETURN, "请传入订单id");
+        if (empty($id)) {
+            send_msg_json(ERROR_RETURN, "请传入匹配人员id");
         }
 
         $orderService->deleteOrderStaff($id);
@@ -211,15 +223,15 @@ class OrderController extends Controller
         // 服务次数
         $params['service_count'] = (int)trim($request->input('service_count', 0));
         // 单价
-        $params['unit_price'] = trim($request->input('unit_price', '0.00'));
+        $params['unit_price'] = sprintf("%.2f", trim($request->input('unit_price', 0)));
         // 总价
-        $params['total_price'] = trim($request->input('total_price', '0.00'));
+        $params['total_price'] = sprintf("%.2f", trim($request->input('total_price', 0)));
         // 是否代发工资
         $params['pay_wage'] = (int)trim($request->input('pay_wage', 0));
         // 代发工资次数
         $params['wage_count'] = (int)trim($request->input('wage_count', 0));
         // 代发工资金额
-        $params['wage_price'] = trim($request->input('wage_price', '0.00'));
+        $params['wage_price'] = sprintf("%.2f", trim($request->input('wage_price', 0)));
 
         $params['version'] = (int)trim($request->input('version', 0));
 
@@ -234,7 +246,7 @@ class OrderController extends Controller
         }
         $orderService->sign($params);
 
-        write_log($accessToken, "订单签约成功，操作id：".$params['order_id']);
+        write_log($accessToken, "订单签约成功，操作id：".$params['id']);
 
         return send_msg_json(SUCCESS_RETURN, "签约成功");
     }
@@ -245,18 +257,15 @@ class OrderController extends Controller
 
         $accessToken = trim($request->header('accessToken',''));
         // 订单id
-        $params['id'] = (int)trim($request->input('id', 0));
+        $params['order_id'] = (int)trim($request->input('order_id', 0));
         // 服务人员id
         $params['staff_id'] = (int)trim($request->input('staff_id', 0));
         // 服务人员姓名
         $params['staff_name'] = trim($request->input('staff_name', ''));
         // 拒签日志
-        $params['refuse_log'] = trim($request->input('refuse_log', ''));
-        if (empty($params['id'])) {
+        $params['message'] = trim($request->input('message', ''));
+        if (empty($params['order_id'])) {
             send_msg_json(ERROR_RETURN, "请传入订单id");
-        }
-        if (empty($params['staff_id'])) {
-            send_msg_json(ERROR_RETURN, "请传入服务人员id");
         }
         $orderService->refuse($params);
 
@@ -274,13 +283,15 @@ class OrderController extends Controller
         $params['id'] = (int)trim($request->input('id', 0));
 
         $params['message'] = trim($request->input('message', ''));
+
         $params['staff_id'] = 0;
 
         $params['staff_name'] = '无';
+        
         if (empty($params['id'])) {
             send_msg_json(ERROR_RETURN, "请传入订单id");
         }
-        if ($params['log'] == '') {
+        if ($params['message'] == '') {
             send_msg_json(ERROR_RETURN, "请传入日志");
         }
         

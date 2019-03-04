@@ -124,7 +124,7 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 编辑订单
     Route::post('/editOrder', 'OrderController@editOrder');
     // 添加候选人
-    Route::post('/saveOrderStaff', 'OrderController@saveOrderStaff');
+    Route::post('/createOrderStaff', 'OrderController@createOrderStaff');
     // 删除候选人
     Route::post('/deleteOrderStaff', 'OrderController@deleteOrderStaff');
     // 签约

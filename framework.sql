@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-03-02 19:21:54
+Date: 2019-03-04 16:19:30
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -239,7 +239,7 @@ CREATE TABLE `orders` (
   `service_end_time` int(11) NOT NULL DEFAULT '0',
   `source` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单来源 0：全部，1：线下，2：线上，3：渠道',
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
-  `unit` enum('','time','day','week','year') NOT NULL DEFAULT '' COMMENT '服务周期单位',
+  `unit` enum('','time','hour','day','month') NOT NULL DEFAULT '' COMMENT '服务周期单位',
   `service_count` int(11) NOT NULL DEFAULT '0' COMMENT '服务次数',
   `unit_price` float(11,2) NOT NULL DEFAULT '0.00' COMMENT '单价',
   `total_price` float(11,2) NOT NULL DEFAULT '0.00' COMMENT '总价',
@@ -249,6 +249,7 @@ CREATE TABLE `orders` (
   `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单类型 0：全部 ，1：待匹配，2：已匹配，3：已签约，4：已取消，5：订单结束',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `created_at` int(11) NOT NULL DEFAULT '0',
+  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `code` (`code`) USING BTREE COMMENT '订单号唯一性约束'
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
@@ -256,12 +257,12 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '123', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0');
-INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '0', '', '', '0', '', '', '0', '0', '2', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0');
-INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '0', '', '', '0', '', '', '0', '0', '3', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0');
-INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0');
-INSERT INTO `orders` VALUES ('7', '2019030205840000007', '1', '测试', '1', '唐朝', '13998836590', '1', '测试', '啊放到沙发的发生', '1551519256', '1551519261', '1', '对发生的发', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519511');
-INSERT INTO `orders` VALUES ('8', '2019030279240000008', '1', '超级管理员', '6', 'oooo', 'oooo', '10', '开换汽车锁', '辽宁省大连市西岗区ssssss', '2147483647', '2147483647', '1', 'sssss', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519532');
+INSERT INTO `orders` VALUES ('1', '123', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', 'time', '0', '0.00', '0.00', '0', '0', '0.00', '3', '0', '0', '3');
+INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '0', '', '', '0', '', '', '0', '0', '2', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
+INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '0', '', '', '0', '', '', '0', '0', '3', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
+INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
+INSERT INTO `orders` VALUES ('7', '2019030205840000007', '1', '测试', '1', '唐朝', '13998836590', '1', '测试', '啊放到沙发的发生', '1551519256', '1551519261', '1', '对发生的发', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519511', '0');
+INSERT INTO `orders` VALUES ('8', '2019030279240000008', '1', '超级管理员', '6', 'oooo', 'oooo', '10', '开换汽车锁', '辽宁省大连市西岗区ssssss', '2147483647', '2147483647', '1', 'sssss', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519532', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -308,12 +309,16 @@ CREATE TABLE `order_sign_logs` (
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `message` varchar(200) NOT NULL DEFAULT '',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
 
 -- ----------------------------
 -- Records of order_sign_logs
 -- ----------------------------
 INSERT INTO `order_sign_logs` VALUES ('1', '1', '1', '测试', '');
+INSERT INTO `order_sign_logs` VALUES ('2', '1', '0', '', '2');
+INSERT INTO `order_sign_logs` VALUES ('3', '1', '0', '', '2');
+INSERT INTO `order_sign_logs` VALUES ('4', '1', '1', '测试', '2');
+INSERT INTO `order_sign_logs` VALUES ('5', '1', '1', '测试', '2');
 
 -- ----------------------------
 -- Table structure for order_staff
@@ -327,13 +332,12 @@ CREATE TABLE `order_staff` (
   `type` enum('','unsign','sign','refuse') NOT NULL DEFAULT 'unsign' COMMENT '签约状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 
 -- ----------------------------
 -- Records of order_staff
 -- ----------------------------
-INSERT INTO `order_staff` VALUES ('1', '1', '1', '路人甲', 'unsign', '0');
-INSERT INTO `order_staff` VALUES ('2', '1', '2', '', 'unsign', '0');
+INSERT INTO `order_staff` VALUES ('3', '1', '1', '测试', 'refuse', '0');
 
 -- ----------------------------
 -- Table structure for paper_categories
@@ -574,7 +578,7 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '宋', '1', '210111111111111111', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '1548814246', '19', 'normal');
+INSERT INTO `staff` VALUES ('1', '宋', '1', '210111111111111111', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '1548814246', '19', 'sign');
 INSERT INTO `staff` VALUES ('2', '路人乙', '1', '210105199911114444', '汉', '13999999999', 'abdefef', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '1548831896', '13', 'normal');
 INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '', '13888888888', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548832537', '5', 'normal');
 INSERT INTO `staff` VALUES ('7', '路人丁', '1', '', '', '13888888887', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548834271', '17', 'normal');
