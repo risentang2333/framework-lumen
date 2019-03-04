@@ -25,6 +25,8 @@ class OrderController extends Controller
         $params['code'] = trim($request->input('code', ''));
         // 手机号
         $params['phone'] = trim($request->input('phone', ''));
+
+        $params['type'] = (int)trim($request->input('type', 0));
         // 一页几条，默认15条
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
@@ -280,7 +282,7 @@ class OrderController extends Controller
 
         $accessToken = trim($request->header('accessToken',''));
         // 订单id
-        $params['id'] = (int)trim($request->input('id', 0));
+        $params['order_id'] = (int)trim($request->input('order_id', 0));
 
         $params['message'] = trim($request->input('message', ''));
 
@@ -288,7 +290,7 @@ class OrderController extends Controller
 
         $params['staff_name'] = '无';
         
-        if (empty($params['id'])) {
+        if (empty($params['order_id'])) {
             send_msg_json(ERROR_RETURN, "请传入订单id");
         }
         if ($params['message'] == '') {
@@ -300,17 +302,43 @@ class OrderController extends Controller
         return send_msg_json(SUCCESS_RETURN, "添加成功");
     }
 
+    public function writeMaintainLog(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+        // 订单id
+        $order_id = (int)trim($request->input('order_id', 0));
+
+        $message = trim($request->input('message', ''));
+
+        if (empty($order_id)) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+        if ($message == '') {
+            send_msg_json(ERROR_RETURN, "请传入日志");
+        }
+        
+        $orderService->writeMaintainLog($order_id, $message);
+
+        return send_msg_json(SUCCESS_RETURN, "添加成功");
+    }
+
     public function cancelOrder(Request $request)
     {
         $orderService = new OrderService;
 
         $accessToken = trim($request->header('accessToken',''));
         // 订单id
-        $id = (int)trim($request->input('id', 0));
+        $order_id = (int)trim($request->input('order_id', 0));
 
-        $orderService->cancelOrderById($id);
+        $message = trim($request->input('message', ''));
+        if (empty($order_id)) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+        $orderService->cancelOrderById($order_id, $message);
 
-        write_log($accessToken, "取消订单，操作id：".$id);
+        write_log($accessToken, "取消订单，操作id：".$order_id);
 
         return send_msg_json(SUCCESS_RETURN, "取消成功");
     }
@@ -321,11 +349,16 @@ class OrderController extends Controller
 
         $accessToken = trim($request->header('accessToken',''));
         // 订单id
-        $id = (int)trim($request->input('id', 0));
+        $order_id = (int)trim($request->input('order_id', 0));
 
-        $orderService->completeOrderById($id);
+        $message = trim($request->input('message', ''));
+        if (empty($order_id)) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
 
-        write_log($accessToken, "完成订单，操作id：".$id);
+        $orderService->completeOrderById($order_id, $message);
+
+        write_log($accessToken, "完成订单，操作id：".$order_id);
         
         return send_msg_json(SUCCESS_RETURN, "操作成功");
     }

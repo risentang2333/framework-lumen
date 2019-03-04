@@ -133,6 +133,8 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     Route::post('/refuse', 'OrderController@refuse');
     // 写签约日志
     Route::post('/writeSignLog', 'OrderController@writeSignLog');
+
+    Route::post('/writeMaintainLog', 'OrderController@writeMaintainLog');
     // 取消订单
     Route::post('/cancelOrder', 'OrderController@cancelOrder');
     // 完成订单

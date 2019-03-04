@@ -24,6 +24,7 @@ class OrderService
         'phone',
         'source',
         'created_at',
+        'type',
         'service_category_id',
         'name'
     ];
@@ -57,6 +58,10 @@ class OrderService
                 if ($params['source']) {
                     $query->where('source', $params['source']);
                 }
+                // 如果有订单类型
+                if ($params['type']) {
+                    $query->where('type', $params['type']);
+                }
             })
             ->paginate($pageNumber)
             ->toArray();
@@ -81,7 +86,7 @@ class OrderService
 
     public function getOrderStaffById($id)
     {
-        return $orderStaff = OrderStaff::where(['order_id'=>$id, 'status'=>0])->get()->toArray();
+        return $orderStaff = OrderStaff::where(['order_id'=>$id, 'status'=>0])->where('type','!=','refuse')->get()->toArray();
     }
 
     public function getOrderFileByid($id)
@@ -122,8 +127,8 @@ class OrderService
         $order->phone = $params['phone'];
         $order->service_category_id = $params['service_category_id'];
         $order->name = $params['name'];
-        $order->service_start_time = $params['service_start_time'];
-        $order->service_end_time = $params['service_end_time'];
+        $order->service_start_time = $params['service_start_time']/1000;
+        $order->service_end_time = $params['service_end_time']/1000;
         $order->service_address = $params['service_address'];
         $order->source = $params['source'];
         $order->remark = $params['remark'];
@@ -291,21 +296,30 @@ class OrderService
     
     public function writeMaintainLog($orderId, $message)
     {
-        OrderLogs::insert(['order_id'=>$orderId, 'staff_id'=>0, 'message'=>$message]);
+        OrderMaintainLogs::insert(['order_id'=>$orderId, 'message'=>$message]);
 
         return true;
     }
 
-    public function cancelOrderById($id)
+    public function cancelOrderById($id, $message)
     {
-        Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>4]);
+        DB::transaction(function () use ($id, $message){
+            Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>4]);
+
+            $this->writeMaintainLog($id, $message);
+        });
 
         return true;
     }
 
-    public function completeOrderById($id)
+    public function completeOrderById($id, $message)
     {
-        Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>5]);
+        DB::transaction(function () use ($id, $message){
+            
+            Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>5]);
+            
+            $this->writeMaintainLog($id, $message);
+        });
 
         return true;
     }

@@ -23,8 +23,6 @@ class StaffService
         "staff.address",
         "staff_skills.service_category_id",
         "staff_skills.name",
-        "staff_skills.level",
-        "staff_skills.workable",
         "staff_skills.review",
         "staff_skills.version",
     ];
@@ -347,7 +345,7 @@ class StaffService
             if (empty($formId)) {
                 if (!empty($skill)) {
                     array_walk($skill, function (&$item) use ($staffId){
-                        DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'level'=>$item['level'],'workable'=>$item['workable'],'review'=>0]);
+                        DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'review'=>0]);
                     });
                 }
             } else {
