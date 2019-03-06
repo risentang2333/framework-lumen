@@ -253,6 +253,10 @@ class PermissionController extends Controller
             send_msg_json(ERROR_RETURN, "请传入角色名");
         }
         if (!empty($id)) {
+            if ($permissionService->checkRepeatName($id, $name)) {
+                send_msg_json(ERROR_RETURN, "角色名重复");
+            }
+            
             $role = $permissionService->getRoleByRoleId($id);
             if (empty($role)) {
                 send_msg_json(ERROR_RETURN, "该角色不存在");

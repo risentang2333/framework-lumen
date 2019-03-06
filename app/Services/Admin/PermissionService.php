@@ -194,6 +194,12 @@ class PermissionService
         return $role;
     }
 
+    public function checkRepeatName($id, $name)
+    {
+        $count = Roles::where(['status'=>0, 'name'=>$name])->where('id', '!=', $id)->count();
+        
+        return $count > 0 ? true : false;
+    }
     /**
      * 编辑角色
      *
