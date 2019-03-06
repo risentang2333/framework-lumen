@@ -289,14 +289,20 @@ class OrderService
 
     public function writeSignLog($params)
     {
-        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message']]);
+        // 创建日志时间
+        $created_at = time();
+        
+        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message'], 'created_at'=>$created_at]);
 
         return true;
     }
     
     public function writeMaintainLog($orderId, $message)
     {
-        OrderMaintainLogs::insert(['order_id'=>$orderId, 'message'=>$message]);
+        // 创建日志时间
+        $created_at = time();
+
+        OrderMaintainLogs::insert(['order_id'=>$orderId, 'message'=>$message, 'created_at'=>$created_at]);
 
         return true;
     }

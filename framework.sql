@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-03-04 16:19:30
+Date: 2019-03-06 14:00:57
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -32,14 +32,14 @@ CREATE TABLE `abilities` (
 -- ----------------------------
 -- Records of abilities
 -- ----------------------------
-INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', 'disable', '0', '3');
-INSERT INTO `abilities` VALUES ('2', '干净立正', '1', 'disable', '0', '1');
-INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', 'disable', '0', '1');
-INSERT INTO `abilities` VALUES ('4', '有文化', '1', 'disable', '0', '1');
-INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('6', '会做饭', '5', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('7', '会打扫', '5', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', 'enable', '0', '0');
+INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', 'disable', '0', '16');
+INSERT INTO `abilities` VALUES ('2', '干净立正', '1', 'disable', '0', '16');
+INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', 'disable', '0', '16');
+INSERT INTO `abilities` VALUES ('4', '有文化', '1', 'disable', '0', '16');
+INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', 'disable', '0', '2');
+INSERT INTO `abilities` VALUES ('6', '会做饭', '5', 'disable', '0', '2');
+INSERT INTO `abilities` VALUES ('7', '会打扫', '5', 'disable', '0', '2');
+INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', 'disable', '0', '2');
 INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', 'enable', '0', '0');
 INSERT INTO `abilities` VALUES ('10', '专业护工', '9', 'enable', '0', '0');
 INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', 'enable', '0', '0');
@@ -214,7 +214,7 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '71a6521138ce057e40baab2114bedbd7', 'ab9b3c2b22d2c7e7766da357d9ca2fe0', '1551607693', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'a21c34a0839fc1b7ae1638af165eaac4', '53ebbabf5f23246a2e8af74703946e0d', '1551927843', '0', '0');
 INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '6723f7f4b5f54be07cff0d68f25ce4ef', '90c13d211b01e0102f9c431ad9231f61', '1551599200', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
@@ -257,10 +257,10 @@ CREATE TABLE `orders` (
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '123', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', 'time', '0', '0.00', '0.00', '0', '0', '0.00', '3', '0', '0', '3');
-INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '0', '', '', '0', '', '', '0', '0', '2', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
-INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '0', '', '', '0', '', '', '0', '0', '3', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
-INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '0', '', '', '0', '', '', '0', '0', '1', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
+INSERT INTO `orders` VALUES ('1', '123', '0', '', '0', '', '', '5', '测试5', '', '0', '0', '1', '', 'time', '0', '0.00', '0.00', '0', '0', '0.00', '5', '0', '0', '3');
+INSERT INTO `orders` VALUES ('2', '121234234', '0', '', '0', '', '', '4', '测试4', '', '0', '0', '2', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
+INSERT INTO `orders` VALUES ('3', '12312345', '0', '', '0', '', '', '3', '测试3', '', '0', '0', '3', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '2', '0', '0', '0');
+INSERT INTO `orders` VALUES ('4', '1231236', '0', '', '0', '', '', '2', '测试2', '', '0', '0', '1', '', '', '0', '0.00', '0.00', '1', '1', '0.00', '0', '0', '0', '0');
 INSERT INTO `orders` VALUES ('7', '2019030205840000007', '1', '测试', '1', '唐朝', '13998836590', '1', '测试', '啊放到沙发的发生', '1551519256', '1551519261', '1', '对发生的发', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519511', '0');
 INSERT INTO `orders` VALUES ('8', '2019030279240000008', '1', '超级管理员', '6', 'oooo', 'oooo', '10', '开换汽车锁', '辽宁省大连市西岗区ssssss', '2147483647', '2147483647', '1', 'sssss', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '0', '1551519532', '0');
 
@@ -290,13 +290,15 @@ CREATE TABLE `order_maintain_logs` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL DEFAULT '0',
   `message` varchar(200) NOT NULL DEFAULT '',
+  `created_at` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
 
 -- ----------------------------
 -- Records of order_maintain_logs
 -- ----------------------------
-INSERT INTO `order_maintain_logs` VALUES ('1', '1', '测试测试测试');
+INSERT INTO `order_maintain_logs` VALUES ('1', '1', '测试测试测试', '0');
+INSERT INTO `order_maintain_logs` VALUES ('2', '1', '完成', '0');
 
 -- ----------------------------
 -- Table structure for order_sign_logs
@@ -308,17 +310,18 @@ CREATE TABLE `order_sign_logs` (
   `staff_id` int(11) NOT NULL DEFAULT '0',
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `message` varchar(200) NOT NULL DEFAULT '',
+  `created_at` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
 
 -- ----------------------------
 -- Records of order_sign_logs
 -- ----------------------------
-INSERT INTO `order_sign_logs` VALUES ('1', '1', '1', '测试', '');
-INSERT INTO `order_sign_logs` VALUES ('2', '1', '0', '', '2');
-INSERT INTO `order_sign_logs` VALUES ('3', '1', '0', '', '2');
-INSERT INTO `order_sign_logs` VALUES ('4', '1', '1', '测试', '2');
-INSERT INTO `order_sign_logs` VALUES ('5', '1', '1', '测试', '2');
+INSERT INTO `order_sign_logs` VALUES ('1', '1', '1', '测试', '', '0');
+INSERT INTO `order_sign_logs` VALUES ('2', '1', '0', '', '2', '0');
+INSERT INTO `order_sign_logs` VALUES ('3', '1', '0', '', '2', '0');
+INSERT INTO `order_sign_logs` VALUES ('4', '1', '1', '测试', '2', '0');
+INSERT INTO `order_sign_logs` VALUES ('5', '1', '1', '测试', '2', '0');
 
 -- ----------------------------
 -- Table structure for order_staff
@@ -332,12 +335,15 @@ CREATE TABLE `order_staff` (
   `type` enum('','unsign','sign','refuse') NOT NULL DEFAULT 'unsign' COMMENT '签约状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 
 -- ----------------------------
 -- Records of order_staff
 -- ----------------------------
 INSERT INTO `order_staff` VALUES ('3', '1', '1', '测试', 'refuse', '0');
+INSERT INTO `order_staff` VALUES ('4', '3', '1', '宋', 'unsign', '0');
+INSERT INTO `order_staff` VALUES ('5', '3', '2', '路人乙', 'unsign', '1');
+INSERT INTO `order_staff` VALUES ('6', '3', '6', '路人丙', 'unsign', '0');
 
 -- ----------------------------
 -- Table structure for paper_categories
@@ -356,7 +362,7 @@ CREATE TABLE `paper_categories` (
 -- ----------------------------
 -- Records of paper_categories
 -- ----------------------------
-INSERT INTO `paper_categories` VALUES ('1', '身份证', 'identify', 'enable', '0', '3');
+INSERT INTO `paper_categories` VALUES ('1', '身份证', 'identify', 'disable', '0', '5');
 INSERT INTO `paper_categories` VALUES ('2', '健康证', 'healthy', 'enable', '0', '0');
 
 -- ----------------------------
@@ -507,14 +513,14 @@ CREATE TABLE `service_categories` (
 -- ----------------------------
 -- Records of service_categories
 -- ----------------------------
-INSERT INTO `service_categories` VALUES ('1', '家电维修1', '0', 'enable', '0', '3');
-INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1', 'enable', '0', '0');
-INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1', 'enable', '0', '0');
+INSERT INTO `service_categories` VALUES ('1', '家电维修1', '0', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('2', '空调清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('3', '冰箱清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('4', '洗衣机清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('5', '热水器清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('6', '燃气灶清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('7', '饮水机清洗', '1', 'disable', '0', '12');
+INSERT INTO `service_categories` VALUES ('8', '微波炉清洗', '1', 'disable', '0', '12');
 INSERT INTO `service_categories` VALUES ('9', '房屋维修', '0', 'enable', '0', '0');
 INSERT INTO `service_categories` VALUES ('10', '开换汽车锁', '9', 'enable', '0', '0');
 INSERT INTO `service_categories` VALUES ('11', '开保险柜', '9', 'enable', '0', '0');
@@ -544,7 +550,7 @@ CREATE TABLE `service_items` (
 -- ----------------------------
 -- Records of service_items
 -- ----------------------------
-INSERT INTO `service_items` VALUES ('1', '2', '哈哈', 'disable', '0', '1550545655', '3');
+INSERT INTO `service_items` VALUES ('1', '2', '哈哈', 'disable', '0', '1550545655', '12');
 
 -- ----------------------------
 -- Table structure for staff
@@ -578,7 +584,7 @@ CREATE TABLE `staff` (
 -- ----------------------------
 -- Records of staff
 -- ----------------------------
-INSERT INTO `staff` VALUES ('1', '宋', '1', '210111111111111111', '', '13333333333', '', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '1548814246', '19', 'sign');
+INSERT INTO `staff` VALUES ('1', '宋', '1', '210111111111111111', '汉', '13333333333', '13333333333', '', '', '', '0', '', '18', '辽宁省沈阳市沈河区', '0', '1111111111111', '0', '1548814246', '22', 'sign');
 INSERT INTO `staff` VALUES ('2', '路人乙', '1', '210105199911114444', '汉', '13999999999', 'abdefef', '', '', '', '0', '', '18', '辽宁省沈阳市大东区', '0', '12312432511453425', '0', '1548831896', '13', 'normal');
 INSERT INTO `staff` VALUES ('6', '路人丙', '1', '', '', '13888888888', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548832537', '5', 'normal');
 INSERT INTO `staff` VALUES ('7', '路人丁', '1', '', '', '13888888887', '', '', '', '', '0', '', '18', '辽宁省沈阳市浑南新区', '0', '12312432511453425', '0', '1548834271', '17', 'normal');
