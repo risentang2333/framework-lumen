@@ -31,10 +31,16 @@ class ServiceService
         'version'
     ];
 
-    public function getCategoryForTree()
+    public function getCategoryForTree($selectAll = true)
     {
         $data = ServiceCategories::select(['id','name','parent_id'])
-                    ->where('status', 0)
+                    ->where(function ($query) use ($selectAll){
+                        // 未删除
+                        $query->where('status', 0);
+                        if (!$selectAll) {
+                            $query->where('type','enable');
+                        }
+                    })
                     ->get()
                     ->keyBy('id')
                     ->toArray();
@@ -273,8 +279,21 @@ class ServiceService
         $category->name = $params['name'];
         // 启用/禁用
         $category->type = $params['type'];
-        // 保存
-        $category->save();
+
+        DB::transaction(function () use ($category, $params) {
+            // 保存
+            $category->save();
+            // 获取所有分类
+            $categories = $this->getCategoryForTree();
+            // 生成树
+            $tree = getTree($categories, false);
+            // 需要改变状态的树
+            $changeTree = filterTreeById($tree, $category->id);
+            // 需要改变状态的id集合
+            $changeIds = getFilterIds($changeTree);
+            // 判断状态格式
+            $returnMsg = $this->changeCategoryType($changeIds, $params['type'], $category->version);
+        });
 
         return array(
             'returnMsg'=>$returnMsg,

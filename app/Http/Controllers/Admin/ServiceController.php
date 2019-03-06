@@ -192,7 +192,7 @@ class ServiceController extends Controller
             $category = $serviceService->getCategoryById($id)->toArray();
         }
         // 所有服务分类
-        $categories = $serviceService->getCategoryForTree();
+        $categories = $serviceService->getCategoryForTree(true);
         // 生成树结构
         $tree = getTree($categories, false);
         // 生成下拉菜单数据

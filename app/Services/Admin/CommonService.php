@@ -15,10 +15,16 @@ class CommonService
      *
      * @return array
      */
-    public function getLabelForTree()
+    public function getLabelForTree($type = '')
     {
         return Abilities::select(['id','name','parent_id'])
-                    ->where(['status'=>0, 'type'=>'enable'])
+                    ->where(function ($query) use ($type) {
+                        $query->where('status', 0);
+                        // 只查询已经启用的
+                        if ($type == 'enable') {
+                            $query->where('type', 'enable');
+                        }
+                    })
                     ->get()
                     ->keyBy('id')
                     ->toArray();
@@ -29,10 +35,16 @@ class CommonService
      *
      * @return void
      */
-    public function getCategoryForTree()
+    public function getCategoryForTree($type = '')
     {
         return ServiceCategories::select(['id','name','parent_id'])
-                    ->where(['type'=>'enable', 'status'=>0])
+                    ->where(function ($query) use ($type) {
+                        $query->where('status', 0);
+                        // 只查询已经启用的
+                        if ($type == 'enable') {
+                            $query->where('type', 'enable');
+                        }
+                    })
                     ->get()
                     ->keyBy('id')
                     ->toArray();
@@ -53,8 +65,16 @@ class CommonService
      *
      * @return array
      */
-    public function getPaperSelection()
+    public function getPaperSelection($type = '')
     {
-        return PaperCategories::where(['status'=>0, 'type'=>'enable'])->get()->toArray();
+        return PaperCategories::where(function ($query) use ($type){
+            $query->where('status',0);
+
+            if ($type == 'enable') {
+                $query->where('type', 'enable');
+            }
+        })
+        ->get()
+        ->toArray();
     }
 }

@@ -113,8 +113,21 @@ class AbilityService
         $ability->name = $params['name'];
 
         $ability->type = $params['type'];
-        // 保存
-        $ability->save();
+
+        DB::transaction(function () use ($ability, $params) {
+            // 保存
+            $ability->save();
+            // 获取所有分类
+            $abilities = $this->getAbilityForTree();
+            // 生成树
+            $tree = getTree($abilities, false);
+            // 需要改变状态的树
+            $changeTree = filterTreeById($tree, $ability->id);
+            // 需要改变状态的id集合
+            $changeIds = getFilterIds($changeTree);
+            // 判断状态格式
+            $this->changeAbilityType($changeIds, $params['type'], $ability->version);
+        });
 
         return array(
             'returnMsg'=>$returnMsg,

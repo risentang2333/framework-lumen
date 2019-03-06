@@ -29,11 +29,13 @@ class CommonController extends Controller
      *
      * @return string
      */
-    public function getServiceTree()
+    public function getServiceTree(Request $request)
     {
         $commonService = new CommonService;
+        // 获取类型
+        $type = trim($request->input('type', ''));
 
-        $service = $commonService->getCategoryForTree();
+        $service = $commonService->getCategoryForTree($type);
 
         $tree = getTree($service);
 
@@ -45,22 +47,26 @@ class CommonController extends Controller
      *
      * @return string
      */
-    public function getLabelTree()
+    public function getLabelTree(Request $request)
     {
         $commonService = new CommonService;
+        // 获取类型
+        $type = trim($request->input('type', ''));
 
-        $label = $commonService->getLabelForTree();
+        $label = $commonService->getLabelForTree($type);
 
         $tree = getTree($label);
 
         return send_msg_json(SUCCESS_RETURN, "success", $tree);
     }
 
-    public function getPaperSelection()
+    public function getPaperSelection(Request $request)
     {
         $commonService = new CommonService;
+        // 获取类型
+        $type = trim($request->input('type', ''));
         
-        $selection = $commonService->getPaperSelection();
+        $selection = $commonService->getPaperSelection($type);
 
         return send_msg_json(SUCCESS_RETURN, "success", $selection);
     }
