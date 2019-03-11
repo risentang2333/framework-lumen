@@ -150,6 +150,8 @@ Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     Route::get('/getLabelTree', 'CommonController@getLabelTree');
     // 获取证书种类下拉数据
     Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
+
+    Route::post('/uploadImage', 'CommonController@uploadImage');
 });
 // 获取日志模块
 Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
