@@ -313,4 +313,127 @@ if (!function_exists('getFilterIds')) {
         return $deleteIds;
     }
 }
+
+if (! function_exists('public_path')) {
+    /**
+     * Get the path to the public folder.
+     *
+     * @param  string  $path
+     * @return string
+     */
+    function public_path($path = '')
+    {
+        return app()->basePath() .DIRECTORY_SEPARATOR. 'public' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : DIRECTORY_SEPARATOR);
+    }
+}
+
+if (! function_exists('file_upload')) {
+    /**
+     * 文件上传处理
+     *
+     * @param uploadedFile $file
+     * @param int $width
+     * @param int $height
+     * @return string string
+     */
+    function file_upload($file, int $width = 0, int $height = 0)
+    {
+        //验证上传文件是否有效
+        if (!$file || !$file->isValid()) {
+            send_msg_json(ERROR_RETURN, "上传的文件无效");
+        }
+        //获取文件后缀
+        $ext = $file->getClientOriginalExtension();
+        //临时绝对路径  
+        $tmpPath = $file->getRealPath();
+        //移动文件
+        $path = move_upload_file($tmpPath, '' , $ext);
+        //裁剪图片
+        if ($width && $height) {
+            $img = \Image::make(public_path() . '/resource' . '/' . $path)->resize($width, $height)
+                ->save(public_path() . '/resource' . '/' . $path);
+        }
+        //返回上传文件路径
+        return $path;
+    }
+}
+
+if (! function_exists('move_upload_file')) {
+    /**
+     * 移动上传文件处理
+     *
+     * @param string $filePath
+     * @param string $type
+     * @param string $module
+     * @return string string
+     */
+    function move_upload_file(string $filePath, string $module = '', string $type = '')
+    {
+        //判断文件是否存在
+        if(!file_exists($filePath)) {
+            //获取临时文件绝对路径
+            $filePath = public_path() . '/resource' . '/'. $filePath;
+            if (!file_exists($filePath)) {
+                return $filePath;
+            }
+        }
+        //判断业务目录
+        switch ($module) {
+            case 'Goods' :
+                //商品图片文件生成目录
+                $dir = env('GOODS_IMAGE_PATH', 'goods/');
+                break;
+            default:
+                //默认临时目录
+                $dir = 'temp/';
+        }
+        //处理生成目录
+        if ($module) {
+            //获取文件信息数组
+            $pathInfo = pathinfo($filePath);
+            //目录绝对路径
+            $fullDirPath = public_path() . '/resource' . '/'. $dir;
+            //初始目录不存在构建
+            if(!is_dir($fullDirPath)) {
+                $dir .= '1/';
+            } else {
+                //存在获取目录下目录数组
+                $dirArray = scandir($fullDirPath);
+                //最后一个目录名称
+                $dirName = $dirArray[count($dirArray) - 1];
+                //最后一个目录路径
+                $dirPath = $fullDirPath . $dirName . '/';
+                //获取最后一个目录下文件数
+                $fileArray = scandir($dirPath);
+                //如果文件数量大于配置数量创建新文件夹
+                $dir .= count($fileArray) - 2 >= env('IMAGE_LIMIT', 100) ? ($dirName + 1) . '/' : $dirName . '/';
+            }
+            //移动到的文件绝对路径
+            $path = $dir . $pathInfo['filename'] . '.' . $pathInfo['extension'];
+        } else {
+            //存储在临时目录
+            $path = $dir .  md5(time() . uniqid()) . '.' . $type;
+        }
+        //目录绝对路径
+        $fullPath = public_path() . '/resource' . '/' . $dir;
+        //文件绝对路径
+        $fullFilePath = public_path() . '/resource' . '/' . $path;
+        //存储文件目录
+        if (!is_dir($fullPath)) {
+            @mkdir($fullPath, 0777, true);
+        }
+        //移动文件到resource temp
+        Illuminate\Support\Facades\File::move($filePath, $fullFilePath);
+        //赋予权限
+        @chmod($fullFilePath, 0777);
+        //非临时文件时图片缩放处理并删除文件
+        if ($module) {
+            if ($type == 'image') {
+                image_shrink($fullFilePath);
+            }
+        }
+        //返回移动文件路径
+        return $path;
+    }
+}
     

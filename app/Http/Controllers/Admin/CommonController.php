@@ -75,6 +75,6 @@ class CommonController extends Controller
     {
         $request = $request->all();
         $file = $request['file'];
-        return $file;
+        return send_msg_json(SUCCESS_RETURN, "success", file_upload($file));
     }
 }
