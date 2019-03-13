@@ -32,12 +32,14 @@ class BackupDatabase extends Command
     {
         try {
             $this->process->mustRun();
-            // $content = '数据库备份成功.';
-            // $toMail  = 'magicheart@163.com';
-            // Mail::raw($content, function ($message) use ($toMail) {
-            //     $message->subject('【备份】数据库 - ' .date('Y-m-d H:i:s'));
-            //     $message->to($toMail);
-            // });
+            $content = '数据库备份成功.';
+            $toMail  = 'magicheart@163.com';
+            Mail::raw($content, function ($message) use ($toMail) {
+                $message->subject('【备份】数据库 - ' .date('Y-m-d H:i:s'));
+                $attachment = storage_path('database/'.date('Y-m-d').'.sql');
+                $message->attach($attachment,['as'=>date('Y-m-d').'.sql']);
+                $message->to($toMail);
+            });
 
             $this->info('The backup has been proceed successfully.');
         } catch (ProcessFailedException $exception) {
