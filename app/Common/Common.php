@@ -342,6 +342,7 @@ if (! function_exists('file_upload')) {
         if (!$file || !$file->isValid()) {
             send_msg_json(ERROR_RETURN, "上传的文件无效");
         }
+        $name = $file->getClientOriginalName();
         //获取文件后缀
         $ext = $file->getClientOriginalExtension();
         //临时绝对路径  
@@ -350,11 +351,12 @@ if (! function_exists('file_upload')) {
         $path = move_upload_file($tmpPath, '' , $ext);
         //裁剪图片
         if ($width && $height) {
-            $img = \Image::make(public_path() . '/resource' . '/' . $path)->resize($width, $height)
-                ->save(public_path() . '/resource' . '/' . $path);
+            Illuminate\Support\Facades\Image::make(public_path() . '/resource' . '/' . $path)
+                                            ->resize($width, $height)
+                                            ->save(public_path() . '/resource' . '/' . $path);
         }
         //返回上传文件路径
-        return $path;
+        return array('name'=>$name, 'path'=>$path);
     }
 }
 
@@ -426,14 +428,107 @@ if (! function_exists('move_upload_file')) {
         Illuminate\Support\Facades\File::move($filePath, $fullFilePath);
         //赋予权限
         @chmod($fullFilePath, 0777);
-        //非临时文件时图片缩放处理并删除文件
-        if ($module) {
-            if ($type == 'image') {
-                image_shrink($fullFilePath);
-            }
-        }
         //返回移动文件路径
         return $path;
+    }
+}
+
+if (! function_exists('image_shrink')) {
+    /**
+     * 图片缩放处理
+     *
+     * @param string $filePath
+     * @param boolean $refresh
+     * @return array array
+     */
+    function image_shrink(string $filePath, $refresh = false): array
+    {
+        //图片缩放处理后的路径数组
+        $imageShrink = [];
+        //判断文件是否存在
+        if(!file_exists($filePath)) {
+            return [$filePath];
+        }
+        //图片处理逻辑
+        $imageShrink['normal'] = base_path().'/'.$filePath;
+        //获取图片处理配置信息
+        $imageConfig = config('config.image');
+        //获取文件信息数组
+        $pathInfo = pathinfo($filePath);
+        //遍历处理需要缩放的图片类型
+        foreach($imageConfig['type'] as $key => $type) {
+            //构建相应缩放类型图片的全路径
+            $newFilePath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_'.$type.'.'.$pathInfo['extension'];
+            //判断相应缩放类型图片是否存在
+            if(!file_exists($newFilePath) || $refresh){
+                //相应缩放类型图片不存在创建图片
+                $img = \Image::make($filePath)->resize($imageConfig['pixel'][$type]['width'], $imageConfig['pixel'][$type]['height'])
+                    ->save($newFilePath)->destroy();
+            }
+            //图片全路径放入数组
+            $imageShrink[$type] = base_path().'/'.$newFilePath;
+        }
+        //返回图片缩放处理后的路径数组
+        return $imageShrink;
+    }
+}
+
+if (! function_exists('download_image')) {
+    /**
+     * 下载远程图片到本地
+     *
+     * @param string $url
+     * @param string $path
+     * @param string $fileName
+     * @return string JSON
+     */
+    function download_image(string $url, string $path, string $fileName): string
+    {
+        //Http请求配置
+        $opts=array(
+            'http'=>array(
+                'method'=>'HEAD',
+                'timeout'=> 10
+            )
+        );
+        //请求远程图片
+        @file_get_contents($url,false,stream_context_create($opts));
+        //判断远程图片是否存在
+        if ($http_response_header[0] != 'HTTP/1.1 200 OK') {
+            //不存在返回默认图片全路径
+            return file_exists(config('config.image.default')) ? config('config.image.default') : send_code_json(DEFAUTL_IMAGE_IS_NOT_EXIST);
+        }
+        //文件全路径
+        $imagePath = $path . $fileName;
+        //是否下载图片标识
+        $imageFlg = true;
+        //判断是否下载保存图片
+        if(file_exists($imagePath)) {
+            //获取图片对象
+            $img = \Image::make($imagePath);
+            //图片存在，判断是否与远程图片相同
+            if(((int)explode(' ', $http_response_header[4])[1] == $img->filesize()) && (explode(' ', $http_response_header[3])[1] == $img->mime())) {
+                //不需要下载图片
+                $imageFlg = false;
+            }
+        }
+        //判断下载图片标识
+        if($imageFlg) {
+            //判断文件夹路径，不存在创建
+            if(!is_dir($path)) {
+                @mkdir($path, 0777, true);
+            }
+            //下载图片
+            $content = file_get_contents($url);
+            //保存图片 
+            file_put_contents($imagePath, $content);
+            //下载的文件赋权限
+            @chmod($imagePath, 0777);
+            //刷新图片
+            image_shrink($imagePath, true);
+        }
+        //返回文件全路径
+        return $imagePath;
     }
 }
     
