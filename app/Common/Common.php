@@ -316,7 +316,7 @@ if (!function_exists('getFilterIds')) {
 
 if (! function_exists('public_path')) {
     /**
-     * Get the path to the public folder.
+     * 获取 public 文件夹地址
      *
      * @param  string  $path
      * @return string
@@ -342,21 +342,21 @@ if (! function_exists('file_upload')) {
         if (!$file || !$file->isValid()) {
             send_msg_json(ERROR_RETURN, "上传的文件无效");
         }
+        // 获取文件名
         $name = $file->getClientOriginalName();
-        //获取文件后缀
+        // 获取文件后缀
         $ext = $file->getClientOriginalExtension();
-        //临时绝对路径  
+        // 临时绝对路径  
         $tmpPath = $file->getRealPath();
-        //移动文件
+        // 移动文件
         $path = move_upload_file($tmpPath, '' , $ext);
-        //裁剪图片
+        // 裁剪图片
         if ($width && $height) {
-            Illuminate\Support\Facades\Image::make(public_path() . '/resource' . '/' . $path)
-                                            ->resize($width, $height)
-                                            ->save(public_path() . '/resource' . '/' . $path);
+            $img = Illuminate\Support\Facades\Image::make(config('config.disks.resource.root') . '/' . $path)->resize($width, $height)
+                ->save(config('config.disks.resource.root') . '/' . $path);
         }
-        //返回上传文件路径
-        return array('name'=>$name, 'path'=>$path);
+        // 返回上传文件路径
+        return array('name'=>$name, 'path'=>config('config.disks.resource.url') .'/'. $path);
     }
 }
 
@@ -374,7 +374,7 @@ if (! function_exists('move_upload_file')) {
         //判断文件是否存在
         if(!file_exists($filePath)) {
             //获取临时文件绝对路径
-            $filePath = public_path() . '/resource' . '/'. $filePath;
+            $filePath = config('config.disks.resource.root') . '/'. $filePath;
             if (!file_exists($filePath)) {
                 return $filePath;
             }
@@ -394,7 +394,7 @@ if (! function_exists('move_upload_file')) {
             //获取文件信息数组
             $pathInfo = pathinfo($filePath);
             //目录绝对路径
-            $fullDirPath = public_path() . '/resource' . '/'. $dir;
+            $fullDirPath = config('config.disks.resource.root') . '/'. $dir;
             //初始目录不存在构建
             if(!is_dir($fullDirPath)) {
                 $dir .= '1/';
@@ -408,7 +408,7 @@ if (! function_exists('move_upload_file')) {
                 //获取最后一个目录下文件数
                 $fileArray = scandir($dirPath);
                 //如果文件数量大于配置数量创建新文件夹
-                $dir .= count($fileArray) - 2 >= env('IMAGE_LIMIT', 100) ? ($dirName + 1) . '/' : $dirName . '/';
+                $dir .= count($fileArray) - 2 >= 100 ? ($dirName + 1) . '/' : $dirName . '/';
             }
             //移动到的文件绝对路径
             $path = $dir . $pathInfo['filename'] . '.' . $pathInfo['extension'];
@@ -417,9 +417,9 @@ if (! function_exists('move_upload_file')) {
             $path = $dir .  md5(time() . uniqid()) . '.' . $type;
         }
         //目录绝对路径
-        $fullPath = public_path() . '/resource' . '/' . $dir;
+        $fullPath = config('config.disks.resource.root') . '/' . $dir;
         //文件绝对路径
-        $fullFilePath = public_path() . '/resource' . '/' . $path;
+        $fullFilePath = config('config.disks.resource.root') . '/' . $path;
         //存储文件目录
         if (!is_dir($fullPath)) {
             @mkdir($fullPath, 0777, true);
@@ -428,48 +428,14 @@ if (! function_exists('move_upload_file')) {
         Illuminate\Support\Facades\File::move($filePath, $fullFilePath);
         //赋予权限
         @chmod($fullFilePath, 0777);
+        //非临时文件时图片缩放处理并删除文件
+        if ($module) {
+            if ($type == 'image') {
+                image_shrink($fullFilePath);
+            }
+        }
         //返回移动文件路径
         return $path;
-    }
-}
-
-if (! function_exists('image_shrink')) {
-    /**
-     * 图片缩放处理
-     *
-     * @param string $filePath
-     * @param boolean $refresh
-     * @return array array
-     */
-    function image_shrink(string $filePath, $refresh = false): array
-    {
-        //图片缩放处理后的路径数组
-        $imageShrink = [];
-        //判断文件是否存在
-        if(!file_exists($filePath)) {
-            return [$filePath];
-        }
-        //图片处理逻辑
-        $imageShrink['normal'] = base_path().'/'.$filePath;
-        //获取图片处理配置信息
-        $imageConfig = config('config.image');
-        //获取文件信息数组
-        $pathInfo = pathinfo($filePath);
-        //遍历处理需要缩放的图片类型
-        foreach($imageConfig['type'] as $key => $type) {
-            //构建相应缩放类型图片的全路径
-            $newFilePath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_'.$type.'.'.$pathInfo['extension'];
-            //判断相应缩放类型图片是否存在
-            if(!file_exists($newFilePath) || $refresh){
-                //相应缩放类型图片不存在创建图片
-                $img = \Image::make($filePath)->resize($imageConfig['pixel'][$type]['width'], $imageConfig['pixel'][$type]['height'])
-                    ->save($newFilePath)->destroy();
-            }
-            //图片全路径放入数组
-            $imageShrink[$type] = base_path().'/'.$newFilePath;
-        }
-        //返回图片缩放处理后的路径数组
-        return $imageShrink;
     }
 }
 
@@ -505,7 +471,7 @@ if (! function_exists('download_image')) {
         //判断是否下载保存图片
         if(file_exists($imagePath)) {
             //获取图片对象
-            $img = \Image::make($imagePath);
+            $img = Illuminate\Support\Facades\Image::make($imagePath);
             //图片存在，判断是否与远程图片相同
             if(((int)explode(' ', $http_response_header[4])[1] == $img->filesize()) && (explode(' ', $http_response_header[3])[1] == $img->mime())) {
                 //不需要下载图片
@@ -531,4 +497,46 @@ if (! function_exists('download_image')) {
         return $imagePath;
     }
 }
+
+if (! function_exists('image_shrink')) {
+    /**
+     * 图片缩放处理
+     *
+     * @param string $filePath
+     * @param boolean $refresh
+     * @return array array
+     */
+    function image_shrink(string $filePath, $refresh = false): array
+    {
+        //图片缩放处理后的路径数组
+        $imageShrink = [];
+        //判断文件是否存在
+        if(!file_exists($filePath)) {
+            return [$filePath];
+        }
+        //图片处理逻辑
+        $imageShrink['normal'] = base_path().'/'.$filePath;
+        //获取图片处理配置信息
+        $imageConfig = config('config.image');
+        //获取文件信息数组
+        $pathInfo = pathinfo($filePath);
+        //遍历处理需要缩放的图片类型
+        foreach($imageConfig['type'] as $key => $type) {
+            //构建相应缩放类型图片的全路径
+            $newFilePath = $pathInfo['dirname'].'/'.$pathInfo['filename'].'_'.$type.'.'.$pathInfo['extension'];
+            //判断相应缩放类型图片是否存在
+            if(!file_exists($newFilePath) || $refresh){
+                //相应缩放类型图片不存在创建图片
+                $img = Illuminate\Support\Facades\Image::make($filePath)->resize($imageConfig['pixel'][$type]['width'], $imageConfig['pixel'][$type]['height'])
+                    ->save($newFilePath)->destroy();
+            }
+            //图片全路径放入数组
+            $imageShrink[$type] = base_path().'/'.$newFilePath;
+        }
+        //返回图片缩放处理后的路径数组
+        return $imageShrink;
+    }
+}
+
+
     

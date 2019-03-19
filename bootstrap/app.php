@@ -25,6 +25,8 @@ $app = new Laravel\Lumen\Application(
 $app->withFacades();
 
 $app->withEloquent();
+// 常规配置
+$app->configure('config');
 // 添加错误码
 $app->configure('code');
 // 邮件配置
@@ -66,12 +68,7 @@ $app->singleton(
 |
 */
 
-// $app->middleware([
-//    App\Http\Middleware\ExampleMiddleware::class
-// ]);
-
 $app->routeMiddleware([
-    // 'auth' => App\Http\Middleware\Authenticate::class,
     'user' => App\Http\Middleware\User::class,
     'admin' => App\Http\Middleware\Admin::class,
     'staff' => App\Http\Middleware\Staff::class,
