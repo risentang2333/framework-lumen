@@ -59,6 +59,25 @@ class StaffController extends Controller
         $staff = $staffService->getStaffById($id)->toArray();
         // 证书
         $paper = $staffService->getPaperByStaffId($id)->toArray();
+        $new_paper = array();
+        // 构造新的数据格式
+        foreach ($paper as $v) {
+            $temp = new \stdClass();
+            $images = array();
+            $temp->paper_category_id = $v[0]['paper_category_id'];
+            $temp->paper_category_name = $v[0]['paper_category_name'];
+            // 拼写images
+            foreach ($v as $vv) {
+                $image_temp = new \stdClass();
+                $image_temp->id = $vv['id'];
+                $image_temp->name = $vv['name'];
+                $image_temp->url = $vv['url'];
+                array_push($images, $image_temp);
+            }
+            $temp->images = $images;
+
+            array_push($new_paper, $temp);
+        }
         // 能力
         $label = $staffService->getLabelByStaffId($id)->toArray();
         // 技能标签材料证明集合
@@ -66,7 +85,7 @@ class StaffController extends Controller
         // 服务地区
         $region = $staffService->getRegionByStaffId($id)->toArray();
 
-        $staff['paper'] = $paper;
+        $staff['paper'] = $new_paper;
         $staff['label'] = $label;
         $staff['skill'] = $skill;
         $staff['region'] = $region;

@@ -124,7 +124,7 @@ class StaffService
     public function getPaperByStaffId($id)
     {
         // 证书
-        return StaffPapers::where(['staff_id'=>$id, 'status'=>0])->get();
+        return StaffPapers::select(['id','paper_category_id','paper_category_name','name','url'])->where(['staff_id'=>$id, 'status'=>0])->get()->groupBy('paper_category_id');
     }
 
     /**
@@ -327,8 +327,43 @@ class StaffService
      * @param int $staffId
      * @return boolean
      */
-    private function saveStaffPaper($paper, $staffId)
+    private function saveStaffPaper($paper, $formId, $staffId)
     {
+        if (empty($formId)) {
+            if (!empty($paper)) {
+                array_walk($paper, function (&$item) use ($staffId){
+                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'paper_category_name'=>$item['paper_category_name'],'name'=>$item['name'],'url'=>$item['url']]);
+                });
+            }
+        } else {
+            $skillIds = array_column($paper, 'id');
+            // 原关系id集合
+            $original_skillIds = DB::table('staff_papers')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($skillIds, $original_skillIds);
+            // 需要删除的标签id
+            $delete_skillIds = array_diff($original_skillIds, $array_intersect);
+            if (!empty($delete_skillIds)) {
+                // 逻辑删除员工标签表
+                DB::table('staff_papers')->whereIn('id', $delete_skillIds)->update(['status'=>1]);
+            }
+            if (!empty($paper)) {
+                // 创建和添加
+                array_walk($paper, function (&$item) use ($staffId, $array_intersect){
+                    if (!isset($item['id'])) {
+                        $item['id'] = 0;
+                    }
+                    // 添加
+                    if (!in_array($item['id'], $array_intersect)) {
+                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
+                    // 更新
+                    } else {
+                        Db::table('staff_papers')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
+                    }
+                });
+            }
+            
+        }
         return true;
     }
 
