@@ -214,8 +214,9 @@ class StaffService
         // 保存并获取操作id
         $staffId = DB::transaction(function () use ($staff, $params){
             $staff->save();
-
-            move_upload_file($params['icon'], 'icon');
+            if ($params['icon'] != '') {
+                move_upload_file($params['icon'], 'icon');
+            }
             // staff表操作id
             $staffId = $staff->id;
             // 编辑员工服务地区

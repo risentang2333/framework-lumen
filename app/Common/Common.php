@@ -323,7 +323,7 @@ if (! function_exists('public_path')) {
      */
     function public_path($path = '')
     {
-        return app()->basePath() .DIRECTORY_SEPARATOR. 'public' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : DIRECTORY_SEPARATOR);
+        return app()->basePath() .DIRECTORY_SEPARATOR. 'public' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $path);
     }
 }
 
@@ -371,6 +371,9 @@ if (! function_exists('move_upload_file')) {
      */
     function move_upload_file(string $filePath, string $module = '', string $type = '')
     {
+        if ($filePath == '') {
+            return true;
+        }
         //判断文件是否存在
         if(!file_exists($filePath)) {
             //获取临时文件绝对路径
