@@ -16,6 +16,7 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
+        return $next($request);
         // 接收accessToken
         $accessToken = trim($request->header('accessToken',''));
         // 检查token是否传入

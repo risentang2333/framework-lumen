@@ -108,6 +108,8 @@ class StaffController extends Controller
         $params['id'] = (int)trim($request->input('id', 0));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
+        // 服务人员头像
+        $params['icon'] = trim($request->input('icon', ''));
         // 身份证号
         $params['identify'] = trim($request->input('identify', ''));
         // 服务人员性别

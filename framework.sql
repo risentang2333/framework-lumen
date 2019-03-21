@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-03-20 21:19:06
+Date: 2019-03-21 17:12:17
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -214,8 +214,8 @@ CREATE TABLE `managers` (
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', '71a6521138ce057e40baab2114bedbd7', 'ab9b3c2b22d2c7e7766da357d9ca2fe0', '1551607693', '0', '0');
-INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '6723f7f4b5f54be07cff0d68f25ce4ef', '90c13d211b01e0102f9c431ad9231f61', '1551599200', '0', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'a88ba696953707fc4a30bbeb8c367e10', '7125ba7fe498040084838ca53e33eb19', '1553237067', '0', '0');
+INSERT INTO `managers` VALUES ('2', 'admin2', 'f973988be6cba09855f84c34d10e8a62', '管理员', '00c7f6c2cf87eb48574ceef6d583e305', 'ffdf33d4bc82a36f0e1b4c3b632f77b2', '1553236903', '0', '0');
 INSERT INTO `managers` VALUES ('3', 'sale1', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员', '8cf3f5fe8fbf488a2249850aa57a2ac9', '308ea94774b33a27373769b50cc3022d', '1550762302', '1', '0');
 INSERT INTO `managers` VALUES ('4', 'sale2', 'e89ece7cf3b127d81487c7133d0d911f', '销售管理员2', 'daeb0c7ad446cd0c7002ff00adac8b25', 'e2282b79e292c84ce2facb38ef727fe4', '0', '1', '0');
 INSERT INTO `managers` VALUES ('5', 'hrAdmin1', '9039ee4c58399a548a1b10cd1d924a54', '人力资源1', '5b2096696f91ef308fc917a21a46b0e3', '626c27064da86cbfbc3ab85a80543298', '1550762127', '1', '0');
@@ -272,15 +272,14 @@ CREATE TABLE `order_files` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '订单id',
   `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
-  `uri` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
+  `url` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
 
 -- ----------------------------
 -- Records of order_files
 -- ----------------------------
-INSERT INTO `order_files` VALUES ('1', '1', '测试', 'adfssadfaf', '0');
+INSERT INTO `order_files` VALUES ('1', '1', '测试', 'adfssadfaf');
 
 -- ----------------------------
 -- Table structure for order_maintain_logs
@@ -351,13 +350,16 @@ CREATE TABLE `paper_categories` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
 
 -- ----------------------------
 -- Records of paper_categories
 -- ----------------------------
 INSERT INTO `paper_categories` VALUES ('1', '身份证', 'identify', 'enable', '0', '3');
 INSERT INTO `paper_categories` VALUES ('2', '健康证', 'healthy', 'enable', '0', '0');
+INSERT INTO `paper_categories` VALUES ('3', '会计证', '', 'enable', '0', '0');
+INSERT INTO `paper_categories` VALUES ('4', '导游证', '', 'enable', '0', '0');
+INSERT INTO `paper_categories` VALUES ('5', '教师资格证', '', 'enable', '0', '0');
 
 -- ----------------------------
 -- Table structure for permissions
@@ -634,17 +636,15 @@ CREATE TABLE `staff_papers` (
   `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
-  `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
-  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
 
 -- ----------------------------
 -- Records of staff_papers
 -- ----------------------------
-INSERT INTO `staff_papers` VALUES ('1', '1', '1', '身份证', '', 'abcdefghi/index', '1', '1548814246', 'enable', '0');
-INSERT INTO `staff_papers` VALUES ('2', '1', '2', '健康证', '', 'abcdfefsef/index', '2', '1548814246', 'enable', '0');
+INSERT INTO `staff_papers` VALUES ('1', '2', '1', '身份证', '', 'abcdefghi/index', '1');
+INSERT INTO `staff_papers` VALUES ('2', '2', '2', '健康证', '', 'abcdfefsef/index', '2');
+INSERT INTO `staff_papers` VALUES ('3', '1', '1', '身份证', '', '', '0');
 
 -- ----------------------------
 -- Table structure for staff_regions

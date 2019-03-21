@@ -91,7 +91,7 @@ class OrderService
 
     public function getOrderFileByid($id)
     {
-        return $orderFile = OrderFiles::where(['order_id'=>$id, 'status'=>0])->get()->toArray();
+        return $orderFile = OrderFiles::where('order_id', $id)->get()->toArray();
     }
 
     public function getOrderLogById($id, $type)
@@ -260,14 +260,21 @@ class OrderService
 
             Staff::where(['id'=>$params['staff_id'],'status'=>0])->update(['type'=>'sign']);
             
-            $this->saveOrderFile();
+            $this->saveOrderFile($params['paper'], $params['id']);
         });
 
         return true;
     }
 
-    private function saveOrderFile()
+    private function saveOrderFile($paper, $order_id)
     {
+        if (!empty($paper)) {
+            array_walk($paper, function (&$item) use ($order_id){
+                DB::table('order_files')->insert(['order_id'=>$order_id,'name'=>$item['name'],'url'=>$url]);
+                // 移动图片
+                move_upload_file($item['url'], 'order');
+            });
+        }
         return true;
     }
 

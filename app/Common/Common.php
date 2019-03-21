@@ -379,15 +379,11 @@ if (! function_exists('move_upload_file')) {
                 return $filePath;
             }
         }
-        //判断业务目录
-        switch ($module) {
-            case 'Goods' :
-                //商品图片文件生成目录
-                $dir = env('GOODS_IMAGE_PATH', 'goods/');
-                break;
-            default:
-                //默认临时目录
-                $dir = 'temp/';
+        //选择业务目录
+        $dir = 'temp/';
+        // 如果module不是默认temp，则指定文件夹路径
+        if ($module != '') {
+            $dir = $module .'/';
         }
         //处理生成目录
         if ($module) {

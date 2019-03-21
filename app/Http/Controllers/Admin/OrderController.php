@@ -236,6 +236,8 @@ class OrderController extends Controller
         $params['wage_price'] = sprintf("%.2f", trim($request->input('wage_price', 0)));
 
         $params['version'] = (int)trim($request->input('version', 0));
+        // 合同图片
+        $params['paper'] = $request->input('paper', array());
 
         if (empty($params['id'])) {
             send_msg_json(ERROR_RETURN, "请传入订单id");

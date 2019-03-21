@@ -141,7 +141,7 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     Route::post('/completeOrder', 'OrderController@completeOrder');
 });
 // 通用下拉框数据
-Route::group(['prefix' => 'common'], function () {
+Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     // 获取地区树
     Route::get('/getAreaTree', 'CommonController@getAreaTree');
     // 获取服务树
