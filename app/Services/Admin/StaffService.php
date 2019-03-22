@@ -373,12 +373,11 @@ class StaffService
     private function savePaper($images, $formId, $staffId, $paper_category_id, $paper_category_name)
     {
         if (empty($formId)) {
-            dd(1);exit;
             if (!empty($images)) {
                 array_walk($images, function (&$item) use ($staffId, $paper_category_id, $paper_category_name){
-                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['url']]);
+                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['path']]);
                     // 移动图片
-                    move_upload_file($item['url'], 'paper');
+                    move_upload_file($item['path'], 'paper');
                 });
             }
         } else {
@@ -409,14 +408,13 @@ class StaffService
                     }
                     // 添加
                     if (!in_array($item['id'], $array_intersect)) {
-                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['url']]);
+                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['path']]);
                         // 移动图片到指定位置
-                        move_upload_file($item['url'], 'paper');
+                        move_upload_file($item['path'], 'paper');
                     }
                 });
             }
         }
-        dd('1111');
 
         return true;
     }

@@ -371,6 +371,7 @@ if (! function_exists('move_upload_file')) {
      */
     function move_upload_file(string $filePath, string $module = '', string $type = '')
     {
+        dd($filePath);
         if ($filePath == '') {
             return true;
         }
