@@ -371,7 +371,6 @@ if (! function_exists('move_upload_file')) {
      */
     function move_upload_file(string $filePath, string $module = '', string $type = '')
     {
-        dd($filePath);
         if ($filePath == '') {
             return true;
         }
@@ -429,11 +428,11 @@ if (! function_exists('move_upload_file')) {
         //赋予权限
         @chmod($fullFilePath, 0777);
         //非临时文件时图片缩放处理并删除文件
-        if ($module) {
-            if ($type == 'image') {
-                image_shrink($fullFilePath);
-            }
-        }
+        // if ($module) {
+        //     if ($type == 'image') {
+        //         image_shrink($fullFilePath);
+        //     }
+        // }
         //返回移动文件路径
         return $path;
     }

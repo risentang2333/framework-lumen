@@ -203,7 +203,6 @@ class StaffService
         }
         $staff->name = $params['name'];
         $staff->sex = $params['sex'];
-        $staff->icon = $params['icon'];
         $staff->identify = $params['identify'];
         $staff->nation = $params['nation'];
         $staff->wechat = $params['wechat'];
@@ -213,10 +212,12 @@ class StaffService
         $staff->address = $params['address'];
         // 保存并获取操作id
         $staffId = DB::transaction(function () use ($staff, $params){
-            $staff->save();
+            // 先移动图片，在更新数据库
             if ($params['icon'] != '') {
-                move_upload_file($params['icon'], 'icon');
+                $url = move_upload_file($params['icon'], 'icon');
+                $staff->icon = $url;
             }
+            $staff->save();
             // staff表操作id
             $staffId = $staff->id;
             // 编辑员工服务地区
@@ -375,9 +376,10 @@ class StaffService
         if (empty($formId)) {
             if (!empty($images)) {
                 array_walk($images, function (&$item) use ($staffId, $paper_category_id, $paper_category_name){
-                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['path']]);
                     // 移动图片
-                    move_upload_file($item['path'], 'paper');
+                    $url = move_upload_file($item['path'], 'paper');
+                    // 更新数据库
+                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $url]);
                 });
             }
         } else {
@@ -408,9 +410,10 @@ class StaffService
                     }
                     // 添加
                     if (!in_array($item['id'], $array_intersect)) {
-                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['path']]);
                         // 移动图片到指定位置
-                        move_upload_file($item['path'], 'paper');
+                        $url = move_upload_file($item['path'], 'paper');
+
+                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $url]);
                     }
                 });
             }
