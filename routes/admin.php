@@ -121,8 +121,6 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     Route::get('/getOrder', 'OrderController@getOrder');
     // 创建订单
     Route::post('/createOrder', 'OrderController@createOrder');
-    // 编辑订单
-    Route::post('/editOrder', 'OrderController@editOrder');
     // 添加候选人
     Route::post('/createOrderStaff', 'OrderController@createOrderStaff');
     // 删除候选人
@@ -133,7 +131,7 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     Route::post('/refuse', 'OrderController@refuse');
     // 写签约日志
     Route::post('/writeSignLog', 'OrderController@writeSignLog');
-
+    // 写维护日志
     Route::post('/writeMaintainLog', 'OrderController@writeMaintainLog');
     // 取消订单
     Route::post('/cancelOrder', 'OrderController@cancelOrder');

@@ -356,7 +356,7 @@ if (! function_exists('file_upload')) {
                 ->save(config('config.disks.resource.root') . '/' . $path);
         }
         // 返回上传文件路径
-        return array('name'=>$name, 'path'=>config('config.disks.resource.url') .'/'. $path);
+        return array('name'=>$name, 'path'=>$path);
     }
 }
 

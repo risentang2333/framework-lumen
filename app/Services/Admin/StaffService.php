@@ -243,7 +243,7 @@ class StaffService
         if (empty($formId)) {
             if (!empty($region)) {
                 array_walk($region, function (&$item) use ($staffId){
-                    DB::table('staff_regions')->insert(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'code'=>$item['code'],'name'=>$item['name']]);
+                    DB::table('staff_regions')->insert(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'name'=>$item['name']]);
                 });
             }
         // 如果为编辑表单
@@ -269,7 +269,7 @@ class StaffService
                         DB::table('staff_regions')->insert(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'code'=>$item['code'],'name'=>$item['name']]);
                     // 更新
                     } else {
-                        DB::table('staff_regions')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'code'=>$item['code'],'name'=>$item['name']]);
+                        DB::table('staff_regions')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -335,7 +335,7 @@ class StaffService
     {
         if (empty($formId)) {
             if (!empty($paper)) {
-                array_walk($paper, function (&$item) use ($staffId){
+                array_walk($paper, function (&$item) use ($staffId, $formId){
                    $this->savePaper($item['images'], $formId, $staffId, $item['paper_category_id'], $item['paper_category_name']);
                 });
             }
@@ -359,17 +359,13 @@ class StaffService
                     }
                 });
             }
-            // 添加操作
-            if (!empty($paper)) {
-                // 创建和添加
-                array_walk($paper, function (&$item) use ($staffId, $array_intersect){
-                    if (!isset($item['paper_category_id'])) {
-                        $item['paper_category_id'] = 0;
-                    }
-                    // 添加
-                    $this->savePaper($item['images'], $formId, $staffId, $item['paper_category_id'], $item['paper_category_name']);
-                });
-            }
+            array_walk($paper, function (&$item) use ($staffId, $formId, $array_intersect){
+                if (!isset($item['paper_category_id'])) {
+                    $item['paper_category_id'] = 0;
+                }
+                // 执行一遍保存图片
+                $this->savePaper($item['images'], $formId, $staffId, $item['paper_category_id'], $item['paper_category_name']);
+            });
         }
         return true;
     }
@@ -377,6 +373,7 @@ class StaffService
     private function savePaper($images, $formId, $staffId, $paper_category_id, $paper_category_name)
     {
         if (empty($formId)) {
+            dd(1);exit;
             if (!empty($images)) {
                 array_walk($images, function (&$item) use ($staffId, $paper_category_id, $paper_category_name){
                     DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$paper_category_id,'paper_category_name'=>$paper_category_name,'name'=>$item['name'],'url'=> $item['url']]);
@@ -387,7 +384,7 @@ class StaffService
         } else {
             $imageIds = array_column($images, 'id');
             // 原关系id集合
-            $original_imageIds = DB::table('staff_skills')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            $original_imageIds = DB::table('staff_papers')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
             $array_intersect = array_intersect($imageIds, $original_imageIds);
             // 需要删除的标签id
@@ -419,6 +416,7 @@ class StaffService
                 });
             }
         }
+        dd('1111');
 
         return true;
     }

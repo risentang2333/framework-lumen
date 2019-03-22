@@ -9,6 +9,7 @@ use App\Entities\OrderStaff;
 use App\Entities\OrderFiles;
 use App\Entities\OrderMaintainLogs;
 use App\Entities\OrderSignLogs;
+use App\Entities\Managers;
 use Illuminate\Support\Facades\DB;
 
 class OrderService 
@@ -96,7 +97,7 @@ class OrderService
 
     public function getOrderLogById($id, $type)
     {
-        $orderLog = [];
+        $orderLog = array();
         if ($type == 'maintain') {
             $orderLog = OrderMaintainLogs::where(['order_id'=>$id])->get()->toArray();
         } else if ($type == 'sign') {
@@ -118,10 +119,13 @@ class OrderService
         } else {
             $params['user_id'] = $user->id;
         }
+        // 通过accessToken获取管理员信息
+        $manager = $this->getManagerByToken($accessToken);
+
         $order = new Orders;
         $order->created_at = time();
-        $order->manager_id = $params['manager_id'];
-        $order->manager_name = $params['manager_name'];
+        $order->create_manager_id = $manager['manager_id'];
+        $order->create_manager_name = $manager['manager_name'];
         $order->user_id = $params['user_id'];
         $order->user_name = $params['user_name'];
         $order->phone = $params['phone'];
@@ -132,43 +136,17 @@ class OrderService
         $order->service_address = $params['service_address'];
         $order->source = $params['source'];
         $order->remark = $params['remark'];
-        // 待匹配
+        // 待匹配状态
         $order->type = 1;
         DB::transaction(function () use ($order) {
             $order->save();
-
+            // 根据订单id设置订单号
             $code = date("Ymd").sprintf("%04d", rand(0,9999)).sprintf("%07d", $order->id);
             $order->code = $code;
             $order->save();
         });
         
         return $order->id;
-    }
-
-    public function editOrder($params, $accessToken)
-    {
-        $order = Orders::where('status', 0)->find($params['id']);
-        if (empty($order)) {
-            send_msg_json(ERROR_RETURN, "该订单不存在");
-        }
-        if ($order->version != $params['version']) {
-            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-        }
-        $order->version = $params['version']+1;
-
-        $order->service_category_id = $params['service_category_id'];
-        $order->name = $params['name'];
-        $order->user_name = $params['user_name'];
-        $order->phone = $params['phone'];
-        $order->service_address = $params['service_address'];
-        $order->service_start_time = $params['service_start_time']/1000;
-        $order->service_end_time = $params['service_end_time']/1000;
-        $order->source = $params['source'];
-        $order->remark = $params['remark'];
-
-        $order->save();
-
-        return true;
     }
 
     /**
@@ -207,11 +185,10 @@ class OrderService
 
     public function createOrderStaff($params)
     {
-        $orderStaff = OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'status'=>0])->first();
+        $orderStaff = OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'type'=> 'unsign', 'status'=>0])->first();
         if (!empty($orderStaff)) {
             send_msg_json(ERROR_RETURN, "该服务人员已匹配");
         }
-        // dd($params);
         DB::transaction(function () use ($params) {
             // 添加订单服务人员
             OrderStaff::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name']]);
@@ -222,14 +199,33 @@ class OrderService
         return true;
     }
 
-    public function deleteOrderStaff($id)
+    /**
+     * 删除匹配人员
+     *
+     * @param array $params
+     * @return string
+     */
+    public function deleteOrderStaff($params)
     {
-        OrderStaff::where('id', $id)->update(['status'=>1]);
-
+        DB::transaction(function () use ($params){
+            // 删除订单匹配人员
+            OrderStaff::where('id', $params['staff_id'])->update(['status'=>1]);
+            // 计算改订单有几个匹配人员,如果为0，则把订单改为待匹配
+            if (empty(OrderStaff::where(['order_id'=>$params['order_id'], 'status'=>0]))) {
+                Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>1]);
+            }
+        });
+        
         return true;
     }
 
-    public function sign($params)
+    /**
+     * 签约
+     *
+     * @param [type] $params
+     * @return void
+     */
+    public function sign($params, $accessToken)
     {
         $order = Orders::where('status', 0)->find($params['id']);
         if (empty($order)) {
@@ -238,6 +234,12 @@ class OrderService
         if ($order->version != $params['version']) {
             send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
         }
+        // 通过accessToken获取管理员信息
+        $manager = $this->getManagerByToken($accessToken);
+        // 签约人id
+        $order->sign_manager_id = $manager['manager_id'];
+        // 签约姓名
+        $order->sign_manager_name = $manager['manager_name'];
         $order->unit = $params['unit'];
         $order->service_count = $params['service_count'];
         $order->unit_price = $params['unit_price'];
@@ -248,24 +250,29 @@ class OrderService
         $order->type = 3;
         $order->version = $params['version']+1;
 
-        $staffIds = OrderStaff::select(['staff_id'])->where(['order_id'=>1, 'status'=>0])->pluck('staff_id')->toArray();
-        
-        DB::transaction(function () use ($order, $params, $staffIds) {
+        DB::transaction(function () use ($order, $params) {
             // 保存订单
             $order->save();
             // 修改订单服务人员
             OrderStaff::where(['order_id'=>$params['id'], 'staff_id'=>$params['staff_id'], 'status'=>0])->update(['type'=>'sign']);
             // 修改员服务人员表变为正常
-            Staff::whereIn('id', $staffIds)->where('status',0)->update(['type'=>'normal']);
-
+            Staff::whereRaw('`id` in (SELECT `staff_id` FROM `order_staff` WHERE `order_id` = (?)) AND `status` = 0', [$params['id']])->update(['type'=>'normal']);
+            // 把服务人员表中该id的服务人员改为:已签约
             Staff::where(['id'=>$params['staff_id'],'status'=>0])->update(['type'=>'sign']);
-            
+            // 订单合同文件上传
             $this->saveOrderFile($params['paper'], $params['id']);
         });
 
         return true;
     }
 
+    /**
+     * 订单合同文件上传
+     *
+     * @param [type] $paper
+     * @param [type] $order_id
+     * @return booleon
+     */
     private function saveOrderFile($paper, $order_id)
     {
         if (!empty($paper)) {
@@ -278,62 +285,96 @@ class OrderService
         return true;
     }
 
-    public function refuse($params){
-        DB::transaction(function () use ($params) {
-            if (!empty($params['staff_id'])) {
-                OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'],'status'=>0])->update(['type'=>'refuse']);
+    /**
+     * 拒签
+     *
+     * @param [type] $params
+     * @return void
+     */
+    public function refuse($params, $accessToken){
+
+        DB::transaction(function () use ($params, $accessToken) {
+            OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'],'status'=>0])->update(['type'=>'refuse']);
+            // 写入签约日志
+            if ($params['message'] != '') {
+                $this->writeSignLog(array(
+                    'order_id'=>$params['order_id'],
+                    'message'=>$params['message']
+                ), $accessToken);
             }
-            $this->writeSignLog(array(
-                'order_id'=>$params['order_id'],
-                'staff_id'=>$params['staff_id'],
-                'staff_name'=>$params['staff_name'],
-                'message'=>$params['message']
-            ));
         });
 
         return true;
     }
 
-    public function writeSignLog($params)
+    public function writeSignLog($params, $accessToken)
     {
         // 创建日志时间
         $created_at = time();
+
+        $manager = $this->getManagerByToken($accessToken);
         
-        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'message'=>$params['message'], 'created_at'=>$created_at]);
+        OrderSignLogs::insert(['order_id'=>$params['order_id'], 'manager_id'=>$manager['manager_id'], 'manager_name'=>$manager['manager_name'], 'message'=>$params['message'], 'created_at'=>$created_at]);
 
         return true;
     }
     
-    public function writeMaintainLog($orderId, $message)
+    public function writeMaintainLog($params, $accessToken)
     {
         // 创建日志时间
         $created_at = time();
 
-        OrderMaintainLogs::insert(['order_id'=>$orderId, 'message'=>$message, 'created_at'=>$created_at]);
+        $manager = $this->getManagerByToken($accessToken);
+
+        OrderMaintainLogs::insert(['order_id'=>$params['order_id'], 'manager_id'=>$manager['manager_id'], 'manager_name'=>$manager['manager_name'], 'message'=>$params['message'], 'created_at'=>$created_at]);
 
         return true;
     }
 
-    public function cancelOrderById($id, $message)
+    public function cancelOrderById($params, $accessToken)
     {
-        DB::transaction(function () use ($id, $message){
-            Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>4]);
+        DB::transaction(function () use ($params, $accessToken){
 
-            $this->writeMaintainLog($id, $message);
+            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>4]);
+
+            $this->writeMaintainLog(array(
+                'order_id'=>$params['order_id'],
+                'message'=>$params['message']
+            ), $accessToken);
         });
 
         return true;
     }
 
-    public function completeOrderById($id, $message)
+    public function completeOrderById($params, $accessToken)
     {
-        DB::transaction(function () use ($id, $message){
+        DB::transaction(function () use ($params, $accessToken){
             
-            Orders::where(['id'=>$id, 'status'=>0])->update(['type'=>5]);
+            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>5]);
             
-            $this->writeMaintainLog($id, $message);
+            $this->writeMaintainLog(array(
+                'order_id'=>$params['order_id'],
+                'message'=>$params['message']
+            ), $accessToken);
         });
 
         return true;
+    }
+
+    /**
+     * 通过accessToken获取管理员信息
+     *
+     * @param [type] $accessToken
+     * @return array
+     */
+    private function getManagerByToken($accessToken)
+    {
+        $manager = Managers::select('id as manager_id', 'name as manager_name')->where('access_token', $accessToken)->first();
+
+        if (empty($manager)) {
+            send_msg_json(ERROR_RETURN, "该管理员不存在");
+        }
+
+        return $manager->toArray();
     }
 }
