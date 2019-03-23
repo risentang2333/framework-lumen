@@ -71,6 +71,15 @@ class CommonController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $selection);
     }
 
+    public function getManagerSelection()
+    {
+        $commonService = new CommonService;
+
+        $selection = $commonService->getManagerSelection();
+
+        return send_msg_json(SUCCESS_RETURN, "success", $selection);
+    }
+
     public function uploadImage(Request $request)
     {
         $request = $request->all();

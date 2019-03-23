@@ -6,6 +6,7 @@ use App\Entities\ServiceCategories;
 use App\Entities\Abilities;
 use App\Entities\Areas;
 use App\Entities\PaperCategories;
+use App\Entities\Managers;
 use Illuminate\Support\Facades\DB;
 
 class CommonService 
@@ -76,5 +77,15 @@ class CommonService
         })
         ->get()
         ->toArray();
+    }
+
+    /**
+     * 获取管理员下拉数据
+     *
+     * @return array
+     */
+    public function getManagerSelection()
+    {
+        return Managers::select(['id as manager_id','name as manager_name'])->where('status',0)->get()->toArray();
     }
 }

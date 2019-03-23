@@ -129,14 +129,14 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     Route::post('/sign', 'OrderController@sign');
     // 拒签
     Route::post('/refuse', 'OrderController@refuse');
-    // 写签约日志
-    Route::post('/writeSignLog', 'OrderController@writeSignLog');
-    // 写维护日志
-    Route::post('/writeMaintainLog', 'OrderController@writeMaintainLog');
+    // 写普通日志
+    Route::post('/writeOrderLog', 'OrderController@writeOrderLog');
     // 取消订单
     Route::post('/cancelOrder', 'OrderController@cancelOrder');
     // 完成订单
     Route::post('/completeOrder', 'OrderController@completeOrder');
+    // 分配订单
+    Route::post('/assignOrder', 'OrderController@assignOrder');
 });
 // 通用下拉框数据
 Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
@@ -148,7 +148,9 @@ Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     Route::get('/getLabelTree', 'CommonController@getLabelTree');
     // 获取证书种类下拉数据
     Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
-
+    // 获取管理员下拉数据
+    Route::get('/getManagerSelection', 'CommonController@getManagerSelection');
+    // 上传图片
     Route::post('/uploadImage', 'CommonController@uploadImage');
 });
 // 获取日志模块

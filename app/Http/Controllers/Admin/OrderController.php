@@ -115,9 +115,7 @@ class OrderController extends Controller
 
         $data['order_files'] = $orderService->getOrderFileByid($order_id);
 
-        $data['order_maintain_logs'] = $orderService->getOrderLogById($order_id, 'maintain');
-        
-        $data['order_sign_logs'] = $orderService->getOrderLogById($order_id, 'sign');
+        $data['order_logs'] = $orderService->getOrderLogById($order_id);
 
         return send_msg_json(SUCCESS_RETURN, "success", $data);
     }
@@ -192,6 +190,8 @@ class OrderController extends Controller
         $params['order_staff_id'] = (int)trim($request->input('order_staff_id', 0));
         // 服务人员id
         $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+        // 服务人员姓名
+        $params['staff_name'] = trim($request->input('staff_name', ''));
         // 服务周期单位
         $params['unit'] = trim($request->input('unit', ''));
         // 服务次数
@@ -247,6 +247,8 @@ class OrderController extends Controller
         $params['order_staff_id'] = (int)trim($request->input('order_staff_id', 0));
         // 服务人员id
         $params['staff_id'] = (int)trim($request->input('staff_id', 0));
+        // 服务人员姓名
+        $params['staff_name'] = trim($request->input('staff_name', 0));
         // 拒签日志
         $params['message'] = trim($request->input('message', ''));
         if (empty($params['order_id'])) {
@@ -257,6 +259,9 @@ class OrderController extends Controller
         }
         if (empty($params['staff_id'])) {
             send_msg_json(ERROR_RETURN, "请传入服务人员id");
+        }
+        if ($params['staff_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入候选人员姓名");
         }
         $orderService->refuse($params, $accessToken);
 
@@ -271,35 +276,7 @@ class OrderController extends Controller
      * @param Request $request
      * @return string
      */
-    public function writeSignLog(Request $request)
-    {
-        $orderService = new OrderService;
-
-        $accessToken = trim($request->header('accessToken',''));
-        // 订单id
-        $params['order_id'] = (int)trim($request->input('order_id', 0));
-
-        $params['message'] = trim($request->input('message', ''));
-        
-        if (empty($params['order_id'])) {
-            send_msg_json(ERROR_RETURN, "请传入订单id");
-        }
-        if ($params['message'] == '') {
-            send_msg_json(ERROR_RETURN, "请传入日志");
-        }
-        
-        $orderService->writeSignLog($params, $accessToken);
-
-        return send_msg_json(SUCCESS_RETURN, "添加成功");
-    }
-
-    /**
-     * 写维护日志
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function writeMaintainLog(Request $request)
+    public function writeOrderLog(Request $request)
     {
         $orderService = new OrderService;
 
@@ -309,6 +286,8 @@ class OrderController extends Controller
 
         $params['message'] = trim($request->input('message', ''));
 
+        $params['type'] = 'normal';
+        
         if (empty($params['order_id'])) {
             send_msg_json(ERROR_RETURN, "请传入订单id");
         }
@@ -316,7 +295,7 @@ class OrderController extends Controller
             send_msg_json(ERROR_RETURN, "请传入日志");
         }
         
-        $orderService->writeMaintainLog($params, $accessToken);
+        $orderService->writeOrderLog($params, $accessToken);
 
         return send_msg_json(SUCCESS_RETURN, "添加成功");
     }
@@ -371,5 +350,39 @@ class OrderController extends Controller
         write_log($accessToken, "完成订单，操作id：".$params['order_id']);
         
         return send_msg_json(SUCCESS_RETURN, "操作成功");
+    }
+
+    /**
+     * 分配订单给指定管理员
+     *
+     * @param Request $request
+     * @return string
+     */
+    public function assignOrder(Request $request)
+    {
+        $orderService = new OrderService;
+
+        $accessToken = trim($request->header('accessToken',''));
+
+        $params['order_id'] = (int)trim($request->input('order_id', 0));
+
+        $params['manager_id'] = (int)trim($request->input('manager_id', 0));
+
+        $params['manager_name'] = trim($request->input('manager_name', 0));
+
+        $params['version'] = (int)trim($request->input('version', 0));
+
+        if (empty($params['order_id'])) {
+            send_msg_json(ERROR_RETURN, "请传入订单id");
+        }
+        if (empty($params['manager_id'])) {
+            send_msg_json(ERROR_RETURN, "请传入管理员id");
+        }
+        if ($params['manager_name'] == '') {
+            send_msg_json(ERROR_RETURN, "请传入管理员名");
+        }
+        $orderService->assignOrder($params, $accessToken);
+
+        return send_msg_json(SUCCESS_RETURN, "分配成功");
     }
 }
