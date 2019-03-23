@@ -71,7 +71,7 @@ class StaffController extends Controller
                 $image_temp = new \stdClass();
                 $image_temp->id = $vv['id'];
                 $image_temp->name = $vv['name'];
-                $image_temp->url = $vv['url'];
+                $image_temp->path = $vv['path'];
                 array_push($images, $image_temp);
             }
             $temp->images = $images;

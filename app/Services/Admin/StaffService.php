@@ -124,7 +124,7 @@ class StaffService
     public function getPaperByStaffId($id)
     {
         // 证书
-        return StaffPapers::select(['id','paper_category_id','paper_category_name','name','url'])->where('staff_id',$id)->get()->groupBy('paper_category_id');
+        return StaffPapers::select(['id','paper_category_id','paper_category_name','name','url as path'])->where('staff_id',$id)->get()->groupBy('paper_category_id');
     }
 
     /**
@@ -355,7 +355,7 @@ class StaffService
                 DB::table('staff_papers')->whereIn('paper_category_id', $delete_paperIds)->delete();
                 // 删除图片
                 array_walk($delete_url, function ($item) {
-                    if (file_exists(config('config.disks.resource.root') . '/' .$item)) {
+                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
                         unlink(config('config.disks.resource.root') . '/' .$item);
                     }
                 });
@@ -385,7 +385,7 @@ class StaffService
         } else {
             $imageIds = array_column($images, 'id');
             // 原关系id集合
-            $original_imageIds = DB::table('staff_papers')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            $original_imageIds = DB::table('staff_papers')->select('id')->where(['staff_id'=>$staffId, 'paper_category_id'=>$paper_category_id])->pluck('id')->toArray();
             // 原关系数组与新数组交集
             $array_intersect = array_intersect($imageIds, $original_imageIds);
             // 需要删除的标签id
@@ -397,7 +397,7 @@ class StaffService
                 DB::table('staff_papers')->whereIn('id', $delete_imageIds)->delete();
                 // 删除图片
                 array_walk($delete_url, function ($item) {
-                    if (file_exists(config('config.disks.resource.root') . '/' .$item)) {
+                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
                         unlink(config('config.disks.resource.root') . '/' .$item);
                     }
                 });
