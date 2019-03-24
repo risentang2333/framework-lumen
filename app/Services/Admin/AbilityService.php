@@ -152,4 +152,15 @@ class AbilityService
 
         return true;
     }
+
+    public function checkSameName($name)
+    {
+        $count = Abilities::where(['name'=>$name, 'status'=>0])->count();
+
+        if (empty($count)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

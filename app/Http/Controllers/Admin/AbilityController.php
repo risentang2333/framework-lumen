@@ -71,6 +71,9 @@ class AbilityController extends Controller
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务分类名");
         }
+        if ($abilityService->checkSameName($params['name'])) {
+            send_msg_json(ERROR_RETURN, "服务分类重复");
+        }
         if (!in_array($params['type'], array('enable','disable'))) {
             send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }

@@ -322,4 +322,15 @@ class ServiceService
 
         return $returnMsg;
     }
+
+    public function checkSameName($name)
+    {
+        $count = ServiceCategories::where(['name'=>$name, 'status'=>0])->count();
+
+        if (empty($count)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }

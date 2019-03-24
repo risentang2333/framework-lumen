@@ -17,6 +17,8 @@ class OrderController extends Controller
     public function getOrderList(Request $request)
     {
         $orderService = new OrderService;
+
+        $params['accessToken'] = trim($request->header('accessToken',''));
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 订单来源
@@ -46,7 +48,9 @@ class OrderController extends Controller
         $orderService = new OrderService;
 
         $accessToken = trim($request->header('accessToken',''));
-        
+        // 获取订单的目的
+        $params['purpose'] = trim($request->input('purpose', 'deal'));
+
         $params['user_name'] = trim($request->input('user_name', ''));
 
         $params['phone'] = trim($request->input('phone', ''));

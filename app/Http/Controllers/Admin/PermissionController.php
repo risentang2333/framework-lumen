@@ -451,8 +451,6 @@ class PermissionController extends Controller
         $params['title'] = trim($request->input('title', ''));
         // 权限描述，必传
         $params['description'] = trim($request->input('description', ''));
-        // 权限图标
-        // $params['icon'] = trim($request->input('icon', ''));
         // 排序顺序
         $params['sort_order'] = trim($request->input('sort_order', 0));
         // 父级id，通过下拉框选择
@@ -472,6 +470,9 @@ class PermissionController extends Controller
         }
         if ($params['router'] == '') {
             send_msg_json(ERROR_RETURN, "请传入路由");
+        }
+        if ($permissionService->checkSameRouter($params['router'])) {
+            send_msg_json(ERROR_RETURN, "路由重复");
         }
         if ($params['title'] == '') {
             send_msg_json(ERROR_RETURN, "请传入权限名");

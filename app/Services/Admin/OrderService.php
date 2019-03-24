@@ -40,10 +40,14 @@ class OrderService
      */
     public function getOrderList($params, $pageNumber = 15)
     {
+        $manager = Managers::select('id as manager_id', 'name as manager_name')->where('access_token', $params['accessToken'])->first();
+
         $list = Orders::select($this->orderList)
-            ->where(function ($query) use ($params){
+            ->where(function ($query) use ($params, $manager){
                 // 逻辑删除判断
-                $query->where('status', 0);
+                if ($params['purpose'] == 'deal') {
+                    $query->where(['hold_manager_id'=>$manager['manager_id'],'status'=>0]);
+                }
                 // 如果有姓名搜索项
                 if ($params['code']) {
                     $query->where('code','like','%'.$params['code'].'%');
@@ -121,6 +125,8 @@ class OrderService
         $order->created_at = time();
         $order->create_manager_id = $manager['manager_id'];
         $order->create_manager_name = $manager['manager_name'];
+        $order->hold_manager_id = $manager['manager_id'];
+        $order->hold_manager_name = $manager['manager_name'];
         $order->user_id = $params['user_id'];
         $order->user_name = $params['user_name'];
         $order->phone = $params['phone'];
@@ -242,7 +248,11 @@ class OrderService
         $order->wage_price = $params['wage_price'];
         $order->type = 3;
         $order->version = $params['version']+1;
-
+        // 如果时间修改了则修改时间
+        if (!(empty($params['service_start_time']) || empty($params['service_end_time']))) {
+            $order->service_start_time = $params['service_start_time']/1000;
+            $order->service_end_time = $params['service_end_time']/1000;
+        }
         DB::transaction(function () use ($order, $params,$manager, $accessToken) {
             // 保存订单
             $order->save();
@@ -257,7 +267,7 @@ class OrderService
             // 写日志
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
-                'message'=>'订单已签约，签约人id：'.$manager['manager_id'].'，签约人：'.$manager['manager_name'],
+                'message'=>'订单已签约，操作者：'.$manager['manager_id'].'|'.$manager['manager_name'],
                 'staff_id'=>$params['staff_id'],
                 'staff_name'=>$params['staff_name'],
                 'type'=>'sign'
@@ -336,7 +346,7 @@ class OrderService
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
                 'message'=>$params['message'],
-                'type'=>'maintain'
+                'type'=>'normal'
             ), $accessToken);
         });
 
@@ -352,7 +362,7 @@ class OrderService
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
                 'message'=>$params['message'],
-                'type'=>'maintain'
+                'type'=>'normal'
             ), $accessToken);
         });
 
@@ -405,7 +415,7 @@ class OrderService
             // 填写流转日志
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
-                'message'=>'管理员派单，原持有者id：'.$original_hold_manager_id.'姓名：'.$original_hold_manager_name.'=>现持有者id：'.$params['manager_id'].'姓名：'.$params['manager_name'],
+                'message'=>'管理员派单，原持有者：'.$original_hold_manager_id.'|'.$original_hold_manager_name.'=>现持有者：'.$params['manager_id'].'|'.$params['manager_name'],
                 'type'=>'assign'
             ), $accessToken);
         });

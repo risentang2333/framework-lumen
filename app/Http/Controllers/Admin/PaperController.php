@@ -51,6 +51,9 @@ class PaperController extends Controller
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写证件类型名");
         }
+        if ($paperService->checkSameName($params['name'])) {
+            send_msg_json(ERROR_RETURN, "分类名重复");
+        }
         if (!in_array($params['type'], array('enable','disable'))) {
             send_msg_json(ERROR_RETURN, "启用/禁用格式错误");
         }
