@@ -35,6 +35,7 @@ class StaffService
     private $staffList = [
         'id',
         'name',
+        'icon',
         'phone',
         'age',
         'address',

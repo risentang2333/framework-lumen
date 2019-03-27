@@ -460,9 +460,9 @@ class PermissionService
         return $manager;
     }
 
-    public function checkSameRouter($router)
+    public function checkSameRouter($router, $id)
     {
-        $count = Permissions::where(['router'=>$router, 'status'=>0])->count();
+        $count = Permissions::where(['router'=>$router, 'status'=>0])->where('id','!=',$id)->count();
 
         if (empty($count)) {
             return false;

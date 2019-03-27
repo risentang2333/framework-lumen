@@ -232,7 +232,7 @@ class ServiceController extends Controller
         if ($params['name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务分类名");
         }
-        if ($serviceService->checkSameName($params['name'])) {
+        if ($serviceService->checkSameName($params['name'], $params['id'])) {
             send_msg_json(ERROR_RETURN, "服务分类重复");
         }
         if (!in_array($params['type'], array('enable','disable'))) {

@@ -471,7 +471,7 @@ class PermissionController extends Controller
         if ($params['router'] == '') {
             send_msg_json(ERROR_RETURN, "请传入路由");
         }
-        if ($permissionService->checkSameRouter($params['router'])) {
+        if ($permissionService->checkSameRouter($params['router'], $params['id'])) {
             send_msg_json(ERROR_RETURN, "路由重复");
         }
         if ($params['title'] == '') {

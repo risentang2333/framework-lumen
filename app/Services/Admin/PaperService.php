@@ -83,9 +83,9 @@ class PaperService
         return $returnMsg;
     }
 
-    public function checkSameName($name)
+    public function checkSameName($name, $id)
     {
-        $count = PaperCategories::where(['name'=>$name, 'status'=>0])->count();
+        $count = PaperCategories::where(['name'=>$name, 'status'=>0])->where('id','!=',$id)->count();
 
         if (empty($count)) {
             return false;

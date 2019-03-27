@@ -21,6 +21,8 @@ class OrderController extends Controller
         $params['accessToken'] = trim($request->header('accessToken',''));
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
+        // 获取订单的目的
+        $params['purpose'] = trim($request->input('purpose', 'deal'));
         // 订单来源
         $params['source'] = (int)trim($request->input('source', 0));
         // 订单号
@@ -48,8 +50,6 @@ class OrderController extends Controller
         $orderService = new OrderService;
 
         $accessToken = trim($request->header('accessToken',''));
-        // 获取订单的目的
-        $params['purpose'] = trim($request->input('purpose', 'deal'));
 
         $params['user_name'] = trim($request->input('user_name', ''));
 

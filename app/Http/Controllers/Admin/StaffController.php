@@ -37,6 +37,13 @@ class StaffController extends Controller
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
         $list = $staffService->getStaffList($params, $format, $pageNumber);
+        if (!empty($list['data'])) {
+            array_walk($list['data'], function (&$item){
+                if ($item['icon'] != '') {
+                    $item['icon'] = config('config.disks.resource.url') .'/'.$item['icon'];
+                }
+            });
+        }
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }

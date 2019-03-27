@@ -323,9 +323,9 @@ class ServiceService
         return $returnMsg;
     }
 
-    public function checkSameName($name)
+    public function checkSameName($name, $id)
     {
-        $count = ServiceCategories::where(['name'=>$name, 'status'=>0])->count();
+        $count = ServiceCategories::where(['name'=>$name, 'status'=>0])->where('id','!=',$id)->count();
 
         if (empty($count)) {
             return false;
