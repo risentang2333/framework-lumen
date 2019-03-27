@@ -7,6 +7,7 @@ use App\Entities\Abilities;
 use App\Entities\Areas;
 use App\Entities\PaperCategories;
 use App\Entities\Managers;
+use App\Entities\Permissions;
 use Illuminate\Support\Facades\DB;
 
 class CommonService 
@@ -77,6 +78,16 @@ class CommonService
         })
         ->get()
         ->toArray();
+    }
+
+    /**
+     * 获取权限作为生成树结构前提
+     *
+     * @return array
+     */
+    public function getPermissionForTree()
+    {
+        return Permissions::select(['id','parent_id','title'])->where('status',0)->get()->keyBy('id')->toArray();
     }
 
     /**

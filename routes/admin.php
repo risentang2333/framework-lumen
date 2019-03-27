@@ -150,6 +150,8 @@ Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
     Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
     // 获取管理员下拉数据
     Route::get('/getManagerSelection', 'CommonController@getManagerSelection');
+    // 获取权限标签树
+    Route::get('/getPermissionTree', 'CommonController@getPermissionTree');
     // 上传图片
     Route::post('/uploadImage', 'CommonController@uploadImage');
 });

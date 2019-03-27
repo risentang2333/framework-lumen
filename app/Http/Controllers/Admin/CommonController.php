@@ -80,6 +80,17 @@ class CommonController extends Controller
         return send_msg_json(SUCCESS_RETURN, "success", $selection);
     }
 
+    public function getPermissionTree()
+    {
+        $commonService = new CommonService;
+
+        $label = $commonService->getPermissionForTree();
+
+        $tree = getTree($label);
+
+        return send_msg_json(SUCCESS_RETURN, "success", $tree);
+    }
+
     public function uploadImage(Request $request)
     {
         $request = $request->all();
