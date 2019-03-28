@@ -142,6 +142,8 @@ class OrderController extends Controller
         
         $params['staff_name'] = trim($request->input('staff_name', ''));
 
+        $params['staff_code'] = trim($request->input('staff_code', ''));
+
         if (empty($params['order_id'])) {
             send_msg_json(ERROR_RETURN, "请选择订单id");
         }
@@ -150,6 +152,9 @@ class OrderController extends Controller
         }
         if ($params['staff_name'] == '') {
             send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
+        }
+        if ($params['staff_code'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员编号");
         }
     
         $orderService->createOrderStaff($params);

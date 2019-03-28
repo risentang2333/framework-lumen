@@ -12,22 +12,6 @@ use Illuminate\Support\Facades\DB;
 class StaffService 
 {
     /**
-     * 员工技能列表查询字段
-     *
-     * @var array
-     */
-    private $staffSkillList = [
-        "staff_skills.id",
-        "staff_skills.staff_id",
-        "staff.name as staff_name",
-        "staff.address",
-        "staff_skills.service_category_id",
-        "staff_skills.name",
-        "staff_skills.review",
-        "staff_skills.version",
-    ];
-
-    /**
      * 员工列表查询字段
      *
      * @var array
@@ -35,10 +19,12 @@ class StaffService
     private $staffList = [
         'id',
         'name',
+        'code as staff_code',
         'icon',
         'phone',
         'age',
         'address',
+        'status',
         'version'
     ];
     
@@ -52,23 +38,28 @@ class StaffService
     {
         $modelObj = Staff::select($this->staffList)
             ->where(function ($query) use ($params){
-                // 逻辑删除判断
-                $query->where('status', 0);
+                // 如果服务人员列表是为了订单匹配，则不显示停用的人
+                if ($params['get_for'] == 'order') {
+                    $query->where('status', 0);
+                }
                 // 如果有姓名搜索项
                 if ($params['name']) {
                     $query->where('name','like','%'.$params['name'].'%');
                 }
+                if ($params['staff_code']) {
+                    $query->where('code','like','%'.$params['staff_code'].'%');
+                }
                 // 根据服务类型筛选
                 if (!empty($params['service_category_id'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ? AND `status` = 0)', [$params['service_category_id']]);
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?)', [$params['service_category_id']]);
                 }
                 // 根据特长标签搜索
                 if (!empty($params['ability_ids'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?) AND `status` = 0)', [implode(",",$params['ability_ids'])]);
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `ability_id` IN (?))', [implode(",",$params['ability_ids'])]);
                 }
                 // 根据服务地区搜索
                 if (!empty($params['region_ids'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_regions` WHERE `region_id` IN (?) AND `status` = 0)', [implode(",",$params['region_ids'])]);
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_regions` WHERE `region_id` IN (?))', [implode(",",$params['region_ids'])]);
                 }
                 // 根据证件类型查询
                 if (!empty($params['paper_ids'])) {
@@ -107,8 +98,9 @@ class StaffService
      */
     public function getStaffById($id)
     {
-        $staff = Staff::select(['id','name','sex','nation','wechat','education','phone','icon','identify','age','address','bank_card','version'])
-            ->where(['status'=>0,'id'=>$id])->first();
+        $staff = Staff::select(['id','icon','code as staff_code','name','sex','nation','wechat','education','phone','identify','age','address','bank_card','version','type','status'])
+                      ->where('id',$id)
+                      ->first();
         if (empty($staff)) {
             send_msg_json(ERROR_RETURN, "该服务人员不存在");
         }
@@ -136,7 +128,7 @@ class StaffService
      */
     public function getLabelByStaffId($id)
     {
-        return StaffLabels::where(['staff_id'=>$id, 'status'=>0])->get();
+        return StaffLabels::where('staff_id', $id)->get();
     }
 
     /**
@@ -147,7 +139,7 @@ class StaffService
      */
     public function getSkillByStaffId($id)
     {
-        return StaffSkills::where(['staff_id'=>$id, 'status'=>0])->get();
+        return StaffSkills::where('staff_id', $id)->get();
     }
 
     /**
@@ -158,7 +150,7 @@ class StaffService
      */
     public function getRegionByStaffId($id)
     {
-        return StaffRegions::where(['staff_id'=>$id, 'status'=>0])->get();
+        return StaffRegions::where('staff_id', $id)->get();
     }
 
     /**
@@ -170,7 +162,7 @@ class StaffService
     public function getStaffByPhone($phone)
     {
         $staff = Staff::select(['id','name','phone','icon','age','address','version'])
-            ->where(['status'=>0,'phone'=>$phone])->first();
+            ->where('phone', $phone)->first();
         
         return $staff;
     }
@@ -192,7 +184,7 @@ class StaffService
             $staff->created_at = time();
             $returnMsg = '添加成功';
         } else {
-            $staff = Staff::where('status', 0)->find($params['id']);
+            $staff = Staff::find($params['id']);
             if (empty($staff)) {
                 send_msg_json(ERROR_RETURN, "该服务人员不存在");
             }
@@ -219,6 +211,13 @@ class StaffService
                 $staff->icon = $url;
             }
             $staff->save();
+            // 如果为创建添加员工号
+            if (empty($params['id'])) {
+                // 根据订单id设置订单号
+                $code = sprintf("%05d", $staff->id);
+                $staff->code = $code;
+                $staff->save();
+            }
             // staff表操作id
             $staffId = $staff->id;
             // 编辑员工服务地区
@@ -252,14 +251,14 @@ class StaffService
         } else {
             $regionIds = array_column($region, 'id');
             // 原关系id集合
-            $original_regionIds = DB::table('staff_regions')->select('id')->where(['staff_id'=>$staffId, 'status'=>0])->pluck('id')->toArray();
+            $original_regionIds = DB::table('staff_regions')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
             $array_intersect = array_intersect($regionIds, $original_regionIds);
             // 需要删除的标签id
             $delete_regionIds = array_diff($original_regionIds, $array_intersect);
-            // 逻辑删除员工标签表
+            // 物理删除员工标签表
             if (!empty($delete_regionIds)) {
-                DB::table('staff_regions')->whereIn('id', $delete_regionIds)->update(['status'=>1]);
+                DB::table('staff_regions')->whereIn('id', $delete_regionIds)->delete();
             }
             if (!empty($region)) {
                 array_walk($region, function (&$item) use ($staffId, $array_intersect){
@@ -271,7 +270,7 @@ class StaffService
                         DB::table('staff_regions')->insert(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'name'=>$item['name']]);
                     // 更新
                     } else {
-                        DB::table('staff_regions')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'name'=>$item['name']]);
+                        DB::table('staff_regions')->where('id', $item['id'])->update(['staff_id'=>$staffId,'region_id'=>$item['region_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -298,14 +297,14 @@ class StaffService
         } else {
             $labelIds = array_column($label, 'id');
             // 原关系id集合
-            $original_labelIds = DB::table('staff_labels')->select('id')->where(['staff_id'=>$staffId, 'status'=>0])->pluck('id')->toArray();
+            $original_labelIds = DB::table('staff_labels')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
             $array_intersect = array_intersect($labelIds, $original_labelIds);
             // 需要删除的标签id
             $delete_labelIds = array_diff($original_labelIds, $array_intersect);
-            // 逻辑删除员工标签表
+            // 物理删除员工标签表
             if (!empty($delete_labelIds)) {
-                DB::table('staff_labels')->whereIn('id', $delete_labelIds)->update(['status'=>1]);
+                DB::table('staff_labels')->whereIn('id', $delete_labelIds)->delete();
             }
             if (!empty($label)) {
                 array_walk($label, function (&$item) use ($staffId, $array_intersect){
@@ -317,7 +316,7 @@ class StaffService
                         DB::table('staff_labels')->insert(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
                     // 更新
                     } else {
-                        DB::table('staff_labels')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
+                        DB::table('staff_labels')->where('id', $item['id'])->update(['staff_id'=>$staffId,'ability_id'=>$item['ability_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -442,14 +441,14 @@ class StaffService
         } else {
             $skillIds = array_column($skill, 'id');
             // 原关系id集合
-            $original_skillIds = DB::table('staff_skills')->select('id')->where(['staff_id'=>$staffId, 'status'=>0])->pluck('id')->toArray();
+            $original_skillIds = DB::table('staff_skills')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
             $array_intersect = array_intersect($skillIds, $original_skillIds);
             // 需要删除的标签id
             $delete_skillIds = array_diff($original_skillIds, $array_intersect);
             if (!empty($delete_skillIds)) {
                 // 逻辑删除员工标签表
-                DB::table('staff_skills')->whereIn('id', $delete_skillIds)->update(['status'=>1]);
+                DB::table('staff_skills')->whereIn('id', $delete_skillIds)->delete();
             }
             if (!empty($skill)) {
                 // 创建和添加
@@ -462,7 +461,7 @@ class StaffService
                         DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
                     // 更新
                     } else {
-                        Db::table('staff_skills')->where(['id'=>$item['id'], 'status'=>0])->update(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
+                        Db::table('staff_skills')->where('id', $item['id'])->update(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -478,106 +477,34 @@ class StaffService
      * @param int $version
      * @return void
      */
-    public function deleteStaff($id, $version)
+    public function changeStaffStatus($id, $version,$accessToken)
     {
-        $staff = Staff::where('status', 0)->find($id);
+        $staff = Staff::find($id);
         if (empty($staff)) {
             send_msg_json(ERROR_RETURN, "该员工不存在");
         }
         if ($staff->version != $version) {
             send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
         }
-        
-        $staff->status = 1;
-
-        DB::transaction(function () use ($staff, $id){
-            $staff->save();
-            DB::table('staff_regions')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
-            // 删除员工标签表
-            DB::table('staff_labels')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
-            // 删除员工证件表,没写完
-            DB::table('staff_papers')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
-            // 删除员工技能表
-            DB::table('staff_skills')->where(['staff_id'=>$id,'status'=>0])->update(['status'=>1]);
-            // 最后需要删除图片            
-            return true;
-        });
-        return true;
-    }
-
-    /**
-     * 获取技能列表
-     *
-     * @param array $params
-     * @param integer $pageNumber
-     * @return array
-     */
-    public function getStaffSkillList($params, $pageNumber = 15)
-    {
-        $list = StaffSkills::join('staff', function ($join) {
-            $join->on('staff.id', '=', 'staff_skills.staff_id');
-        })->select($this->staffSkillList)
-        ->where(function ($query) use ($params){
-            // 逻辑删除判断
-            $query->where('staff_skills.status', 0);
-            // 技能分类id
-            if ($params['service_category_id']) {
-                $query->where('service_category_id', $params['service_category_id']);
-            }
-        })
-        ->paginate($pageNumber)
-        ->toArray();
-
-        return $list;
-    }
-
-    /**
-     * 审核员工技能
-     *
-     * @param int $id
-     * @param int $review
-     * @param string $remark
-     * @param int $version
-     * @return int
-     */
-    public function reviewStaffSkill($id, $review, $remark, $version)
-    {
-        $staffSkill = StaffSkills::where('status', 0)->find($id);
-        if (empty($staffSkill)) {
-            send_msg_json(ERROR_RETURN, "该员工技能不存在");
+        $returnMsg = '';
+        $log = '';
+        // 如果启用则停用
+        if ($staff->status == 0) {
+            $staff->status = 1;
+            $returnMsg = '停用成功';
+            $log = '停用服务人员，操作id为：'.$id;
+        // 如果停用则启用
+        } elseif ($staff->status == 1) {
+            $staff->status = 0;
+            $returnMsg = '启用成功';
+            $log = '启用服务人员，操作id为：'.$id;
         }
-        if ($staffSkill->version != $version) {
-            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-        }
-        $staffSkill->review = $review;
-        $staffSkill->remark = $remark;
-        $staffSkill->version = $version+1;
+        $staff->version = $version+1;
+        // 更新
+        $staff->save();
+        // 写入日志
+        write_log($accessToken, $log);
 
-        $staffSkill->save();
-
-        return $staffSkill->id;
-    }
-
-    /**
-     * 逻辑删除员工技能
-     *
-     * @param int $id
-     * @param int $version
-     * @return boolean
-     */
-    public function deleteStaffSkill($id, $version)
-    {
-        $staffSkill = StaffSkills::where('status', 0)->find($id);
-        if (empty($staffSkill)) {
-            send_msg_json(ERROR_RETURN, "该员工技能不存在");
-        }
-        if ($staffSkill->version != $version) {
-            send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
-        }
-        $staffSkill->status = 1;
-
-        $staffSkill->version = $version+1;
-
-        return $staffSkill->save();
+        return $returnMsg;
     }
 }

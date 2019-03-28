@@ -46,7 +46,7 @@ class OrderService
             ->where(function ($query) use ($params, $manager){
                 // 逻辑删除判断
                 if ($params['purpose'] == 'deal') {
-                    $query->where(['hold_manager_id'=>$manager['manager_id'],'status'=>0]);
+                    $query->where('hold_manager_id', $manager['manager_id']);
                 }
                 // 如果有姓名搜索项
                 if ($params['code']) {
@@ -82,7 +82,7 @@ class OrderService
      */
     public function getOrderById($id)
     {
-        $order = Orders::select(['id as order_id','code','create_manager_id','create_manager_name','sign_manager_id','sign_manager_name','hold_manager_id','hold_manager_name','maintain_manager_id','maintain_manager_name','user_id','user_name','phone','service_category_id','name','service_address','service_start_time','service_end_time','source','remark','unit','service_count','unit_price','total_price','pay_wage','wage_count','wage_price','type','status','created_at','version'])->where(['id'=>$id,'status'=>0])->first();
+        $order = Orders::select(['id as order_id','code','create_manager_id','create_manager_name','sign_manager_id','sign_manager_name','hold_manager_id','hold_manager_name','maintain_manager_id','maintain_manager_name','user_id','user_name','phone','service_category_id','name','service_address','service_start_time','service_end_time','source','remark','unit','service_count','unit_price','total_price','pay_wage','wage_count','wage_price','type','created_at','version'])->where('id', $id)->first();
         
         if (empty($order)) {
             send_msg_json(ERROR_RETURN, "该订单不存在");
@@ -92,12 +92,12 @@ class OrderService
 
     public function getOrderStaffById($id)
     {
-        return $orderStaff = OrderStaff::select(['id as order_staff_id','order_id','staff_id','staff_name','type'])->where(['order_id'=>$id, 'status'=>0])->where('type','!=','refuse')->get()->toArray();
+        return $orderStaff = OrderStaff::select(['id as order_staff_id','order_id','staff_id','staff_code','staff_name','type'])->where('order_id', $id)->where('type','!=','refuse')->get()->toArray();
     }
 
     public function getOrderFileByid($id)
     {
-        return $orderFile = OrderFiles::select(['id as order_file_id','order_id','name','url'])->where('order_id', $id)->get()->toArray();
+        return $orderFile = OrderFiles::select(['id as order_file_id','order_id','name','url as path'])->where('order_id', $id)->get()->toArray();
     }
 
     public function getOrderLogById($id)
@@ -184,15 +184,15 @@ class OrderService
 
     public function createOrderStaff($params)
     {
-        $orderStaff = OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'type'=> 'unsign', 'status'=>0])->first();
+        $orderStaff = OrderStaff::where(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'type'=> 'unsign'])->first();
         if (!empty($orderStaff)) {
             send_msg_json(ERROR_RETURN, "该服务人员已匹配");
         }
         DB::transaction(function () use ($params) {
             // 添加订单服务人员
-            OrderStaff::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name']]);
+            OrderStaff::insert(['order_id'=>$params['order_id'], 'staff_id'=>$params['staff_id'], 'staff_name'=>$params['staff_name'], 'staff_code'=>$params['staff_code']]);
             // 修改订单为已匹配状态
-            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>2]);
+            Orders::where('id', $params['order_id'])->update(['type'=>2]);
         });
         
         return true;
@@ -208,10 +208,10 @@ class OrderService
     {
         DB::transaction(function () use ($params){
             // 删除订单匹配人员
-            OrderStaff::where('id', $params['order_staff_id'])->update(['status'=>1]);
+            OrderStaff::where('id', $params['order_staff_id'])->delete();
             // 计算改订单有几个匹配人员,如果为0，则把订单改为待匹配
-            if (empty(OrderStaff::where(['order_id'=>$params['order_id'], 'status'=>0]))) {
-                Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>1]);
+            if (empty(OrderStaff::where('order_id', $params['order_id']))) {
+                Orders::where('id', $params['order_id'])->update(['type'=>1]);
             }
         });
         
@@ -226,12 +226,17 @@ class OrderService
      */
     public function sign($params, $accessToken)
     {
-        $order = Orders::where('status', 0)->find($params['order_id']);
+        $order = Orders::find($params['order_id']);
         if (empty($order)) {
             send_msg_json(ERROR_RETURN, "该订单不存在");
         }
         if ($order->version != $params['version']) {
             send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
+        }
+        // 获取备选人员信息
+        $staff = Staff::where('id', $params['staff_id'])->first();
+        if ($staff->status == 1) {
+            send_msg_json(ERROR_RETURN, "该服务人员已经停用");
         }
         // 通过accessToken获取管理员信息
         $manager = $this->getManagerByToken($accessToken);
@@ -257,11 +262,11 @@ class OrderService
             // 保存订单
             $order->save();
             // 修改订单服务人员
-            OrderStaff::where(['id'=>$params['order_staff_id'], 'status'=>0])->update(['type'=>'sign']);
+            OrderStaff::where('id', $params['order_staff_id'])->update(['type'=>'sign']);
             // 修改服务人员表变为正常
-            Staff::whereRaw('`id` in (SELECT `staff_id` FROM `order_staff` WHERE `order_id` = (?)) AND `status` = 0', [$params['order_id']])->update(['type'=>'normal']);
+            Staff::whereRaw('`id` in (SELECT `staff_id` FROM `order_staff` WHERE `order_id` = (?))', [$params['order_id']])->update(['type'=>'normal']);
             // 把服务人员表中该id的服务人员改为:已签约
-            Staff::where(['id'=>$params['staff_id'],'status'=>0])->update(['type'=>'sign']);
+            Staff::where('id', $params['staff_id'])->update(['type'=>'sign']);
             // 订单合同文件上传
             $this->saveOrderFile($params['paper'], $params['order_id']);
             // 写日志
@@ -288,9 +293,13 @@ class OrderService
     {
         if (!empty($paper)) {
             array_walk($paper, function (&$item) use ($order_id){
-                DB::table('order_files')->insert(['order_id'=>$order_id,'name'=>$item['name'],'url'=>$url]);
                 // 移动图片
-                move_upload_file($item['url'], 'order');
+                if ($params['icon'] != '') {
+                    $url = move_upload_file($item['path'], 'order');
+                    
+                    DB::table('order_files')->insert(['order_id'=>$order_id,'name'=>$item['name'],'url'=>$url]);
+                }
+                
             });
         }
         return true;
@@ -305,7 +314,7 @@ class OrderService
     public function refuse($params, $accessToken){
 
         DB::transaction(function () use ($params, $accessToken) {
-            OrderStaff::where(['id'=>$params['order_staff_id'],'status'=>0])->update(['type'=>'refuse']);
+            OrderStaff::where('id', $params['order_staff_id'])->update(['type'=>'refuse']);
             // 写入签约日志
             if ($params['message'] != '') {
                 $this->writeOrderLog(array(
@@ -336,12 +345,17 @@ class OrderService
 
         return true;
     }
-
+    /**
+     * 取消订单
+     *
+     * @param [type] $params
+     * @return boolean
+     */
     public function cancelOrderById($params, $accessToken)
     {
         DB::transaction(function () use ($params, $accessToken){
 
-            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>4]);
+            Orders::where('id', $params['order_id'])->update(['type'=>4]);
 
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
@@ -357,7 +371,7 @@ class OrderService
     {
         DB::transaction(function () use ($params, $accessToken){
             
-            Orders::where(['id'=>$params['order_id'], 'status'=>0])->update(['type'=>5]);
+            Orders::where('id', $params['order_id'])->update(['type'=>5]);
             
             $this->writeOrderLog(array(
                 'order_id'=>$params['order_id'],
@@ -394,7 +408,7 @@ class OrderService
      */
     public function assignOrder($params, $accessToken)
     {
-        $order = Orders::where('status', 0)->find($params['order_id']);
+        $order = Orders::find($params['order_id']);
         if (empty($order)) {
             send_msg_json(ERROR_RETURN, "该订单不存在");
         }
@@ -408,6 +422,7 @@ class OrderService
         
         $order->hold_manager_id = $params['manager_id'];
         $order->hold_manager_name = $params['manager_name'];
+        $order->version = $params['version']+1;
 
         DB::transaction(function () use ($params, $order, $accessToken, $original_hold_manager_id, $original_hold_manager_name){
             // 订单更新

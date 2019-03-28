@@ -17,8 +17,12 @@ class StaffController extends Controller
     public function getStaffList(Request $request)
     {
         $staffService = new StaffService;
+        // 获取为了哪个模块
+        $params['get_for'] = trim($request->input('get_for','staff'));
         // 服务人员姓名
         $params['name'] = trim($request->input('name',''));
+        // 员工号
+        $params['staff_code'] = trim($request->input('staff_code',''));
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 能力标签id集合
@@ -37,13 +41,13 @@ class StaffController extends Controller
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
         $list = $staffService->getStaffList($params, $format, $pageNumber);
-        if (!empty($list['data'])) {
-            array_walk($list['data'], function (&$item){
-                if ($item['icon'] != '') {
-                    $item['icon'] = config('config.disks.resource.url') .'/'.$item['icon'];
-                }
-            });
-        }
+        // if (!empty($list['data'])) {
+        //     array_walk($list['data'], function (&$item){
+        //         if ($item['icon'] != '') {
+        //             $item['icon'] = config('config.disks.resource.url') .'/'.$item['icon'];
+        //         }
+        //     });
+        // }
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -66,6 +70,7 @@ class StaffController extends Controller
         $staff = $staffService->getStaffById($id)->toArray();
         // 证书
         $paper = $staffService->getPaperByStaffId($id)->toArray();
+        
         $new_paper = array();
         // 构造新的数据格式
         foreach ($paper as $v) {
@@ -191,106 +196,23 @@ class StaffController extends Controller
     }
 
     /**
-     * 逻辑删除服务人员
+     * 停用/启用服务人员
      *
      * @param Request $request
      * @return string
      */
-    public function deleteStaff(Request $request)
+    public function changeStaffStatus(Request $request)
     {
         $staffService = new StaffService;
+        // 访问令牌
+        $accessToken = trim($request->header('accessToken', ''));
         // 服务人员id
         $id = (int)trim($request->input('id', 0));
         // 操作版本号
         $version = (int)trim($request->input('version', 0));
 
-        $staffService->deleteStaff($id, $version);
-        // 访问令牌
-        $accessToken = trim($request->header('accessToken', ''));
-        // 写入日志
-        write_log($accessToken, "删除服务人员，操作id为：".$id);
+        $returnMsg = $staffService->changeStaffStatus($id, $version,$accessToken);
 
-        return send_msg_json(SUCCESS_RETURN, "删除成功");
-    }
-
-    /**
-     * 获取技能列表
-     *
-     * @param Request $request
-     * @return string
-     */
-    public function getStaffSkillList(Request $request)
-    {
-        $staffService = new StaffService;
-        // 服务分类id
-        $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
-
-        $pageNumber = (int)trim($request->input('pageNumber', 15));
-
-        $list = $staffService->getStaffSkillList($params, $pageNumber);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $list);
-    }
-
-    /**
-     * 审核员工技能
-     *
-     * @param Request $request
-     * @return string
-     */
-    public function reviewStaffSkill(Request $request)
-    {
-        $staffService = new StaffService;
-        // 员工技能id
-        $id = (int)trim($request->input('id', 0));
-        // 审核备注
-        $remark = trim($request->input('remark', ''));
-
-        $review = (int)trim($request->input('review', 0));
-
-        $version = (int)trim($request->input('version', 0));
-
-        if (empty($id)) {
-            send_msg_json(ERROR_RETURN, "请传入员工技能id");
-        }
-        if (empty($review)) {
-            send_msg_json(ERROR_RETURN, "请选择审核是否通过");
-        }
-        if ($remark == '') {
-            send_msg_json(ERROR_RETURN, "请填写审核备注");
-        }
-
-        $staffSkillId = $staffService->reviewStaffSkill($id, $review, $remark, $version);
-        // 访问令牌
-        $accessToken = trim($request->header('accessToken',''));
-        // 写入日志
-        write_log($accessToken, "员工技能审核，操作id为：".$staffSkillId);
-        
-        return send_msg_json(SUCCESS_RETURN, "审核成功");
-    }
-
-    /**
-     * 逻辑删除员工技能，物理删除技能材料标签关系表
-     *
-     * @param Request $request
-     * @return void
-     */
-    public function deleteStaffSkill(Request $request)
-    {
-        $staffService = new StaffService;
-        // 技能id
-        $id = (int)trim($request->input('id', 0));
-        // 版本号
-        $version = (int)trim($request->input('version', 0));
-        if (empty($id)) {
-            send_msg_json(ERROR_RETURN, "请传入员工技能id");
-        }
-        $staffService->deleteStaffSkill($id, $version);
-        // 访问令牌
-        $accessToken = trim($request->header('accessToken',''));
-        // 写入日志
-        write_log($accessToken, "删除员工技能，操作id为：".$id);
-
-        return send_msg_json(SUCCESS_RETURN, "删除成功");
+        return send_msg_json(SUCCESS_RETURN, $returnMsg);
     }
 }
