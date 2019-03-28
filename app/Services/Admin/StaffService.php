@@ -72,7 +72,7 @@ class StaffService
                 }
                 // 根据证件类型查询
                 if (!empty($params['paper_ids'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_papers` WHERE `paper_id` IN (?))', [implode(",",$params['paper_ids'])]);
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_papers` WHERE `paper_category_id` IN (?))', [implode(",",$params['paper_ids'])]);
                 }
             })
             ->orderBy('id', 'ASC');

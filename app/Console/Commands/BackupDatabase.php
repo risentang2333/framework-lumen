@@ -32,19 +32,24 @@ class BackupDatabase extends Command
     {
         try {
             $this->process->mustRun();
-            $content = '数据库备份成功.';
+            // 要删除的文件
+            $delete_file = storage_path('database/'.date('Y-m-d', strtotime('-7 days')).'.sql');
+            // 如果有就删除历史文件
+            if (file_exists($delete_file)) {
+                unlink($delete_file);
+            }
+            $content = '数据库备份成功，请管理员到指定位置下载备份文件！';
             $toMail  = 'magicheart@163.com';
             Mail::raw($content, function ($message) use ($toMail) {
                 $message->subject('【备份】数据库 - ' .date('Y-m-d H:i:s'));
-                $attachment = storage_path('database/'.date('Y-m-d').'.sql');
-                $message->attach($attachment,['as'=>date('Y-m-d').'.sql']);
+                // $attachment = storage_path('database/'.date('Y-m-d').'.sql');
+                // $message->attach($attachment,['as'=>date('Y-m-d').'.sql']);
                 $message->to($toMail);
             });
 
             $this->info('The backup has been proceed successfully.');
         } catch (ProcessFailedException $exception) {
-            throw $exception;exit;
-            $content = '数据库备份失败.';
+            $content = '数据库备份失败，请联系管理员！';
             $toMail  = 'magicheart@163.com';
             Mail::raw($content, function ($message) use ($toMail) {
                 $message->subject('【备份】数据库 - ' .date('Y-m-d H:i:s'));
