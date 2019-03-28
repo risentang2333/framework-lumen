@@ -101,7 +101,8 @@ $app->register(App\Providers\AppServiceProvider::class);
 */
 // 后台路由配置
 $app->router->get('/', function () use ($app) {
-    return $app->version();
+    // return $app->version();
+    return "Hello boy~";
 });
 // 后台管理路由配置
 $app->router->group([

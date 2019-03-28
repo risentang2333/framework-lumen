@@ -16,7 +16,6 @@ class Admin
      */
     public function handle($request, Closure $next)
     {
-        return $next($request);
         // 接收accessToken
         $accessToken = trim($request->header('accessToken',''));
         // 检查token是否传入
@@ -33,13 +32,13 @@ class Admin
             send_msg_json(ACCESS_TOKEN_IS_EXPIRE, '访问令牌已过期');
         }
         // 获取路由信息
-        // $router = $request->path();
+        $router = $request->path();
         // 该用户所有权限
-        // $permissions = $this->getPermissionByManagerId($manager->id);
+        $permissions = $this->getPermissionByManagerId($manager->id);
         // 判断是否有该路由权限
-        // if (!in_array($router, $permissions)) {
-        //     send_msg_json(ERROR_RETURN, "没有".$router."权限");
-        // }
+        if (!in_array($router, $permissions)) {
+            send_msg_json(ERROR_RETURN, "没有".$router."权限");
+        }
         
         return $next($request);
     }

@@ -153,12 +153,12 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写服务人员手机");
         }
         // 身份证号
-        // if ($params['identify'] == '') {
-        //     send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
-        // }
-        // if (!verify_identity($params['identify'])) {
-        //     send_msg_json(ERROR_RETURN, "身份证号格式错误");
-        // }
+        if ($params['identify'] == '') {
+            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
+        }
+        if (!verify_identity($params['identify'])) {
+            send_msg_json(ERROR_RETURN, "身份证号格式错误");
+        }
         // 验证手机号格式
         if (!verify_phone($params['phone'])) {
             send_msg_json(ERROR_RETURN, "手机号格式错误");
@@ -170,9 +170,9 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请填写银行卡号");
         }
         // 验证银行卡号
-        // if (!verify_bank_card($params['bank_card'])) {
-        //     send_msg_json(ERROR_RETURN, "银行卡号格式错误");
-        // }
+        if (!verify_bank_card($params['bank_card'])) {
+            send_msg_json(ERROR_RETURN, "银行卡号格式错误");
+        }
         if (empty($params['age'])) {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
