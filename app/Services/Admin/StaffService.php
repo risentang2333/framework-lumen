@@ -198,6 +198,7 @@ class StaffService
         $staff->sex = $params['sex'];
         $staff->identify = $params['identify'];
         $staff->nation = $params['nation'];
+        $staff->education = $params['education'];
         $staff->wechat = $params['wechat'];
         $staff->phone = $params['phone'];
         $staff->age = $params['age'];
