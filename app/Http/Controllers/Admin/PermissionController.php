@@ -181,7 +181,7 @@ class PermissionController extends Controller
         if (empty($manager)) {
             send_msg_json(ERROR_RETURN, '该管理员不存在');
         }
-        if ($role->is_administrator == 2) {
+        if ($manager->is_administrator == 2) {
             send_msg_json(ERROR_RETURN, "超级管理员不能删除");
         }
         

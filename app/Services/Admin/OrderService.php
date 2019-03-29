@@ -294,7 +294,7 @@ class OrderService
         if (!empty($paper)) {
             array_walk($paper, function (&$item) use ($order_id){
                 // 移动图片
-                if ($params['icon'] != '') {
+                if ($item['path'] != '') {
                     $url = move_upload_file($item['path'], 'order');
                     
                     DB::table('order_files')->insert(['order_id'=>$order_id,'name'=>$item['name'],'url'=>$url]);
