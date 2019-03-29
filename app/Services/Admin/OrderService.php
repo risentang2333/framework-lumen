@@ -238,6 +238,10 @@ class OrderService
         if ($staff->status == 1) {
             send_msg_json(ERROR_RETURN, "该服务人员已经停用");
         }
+        $total_price = sprintf("%.2f", $params['service_count'] * $params['unit_price']);
+        if ($total_price != $params['total_price']) {
+            send_msg_json(ERROR_RETURN, "价格计算有误，请重新填写");
+        }
         // 通过accessToken获取管理员信息
         $manager = $this->getManagerByToken($accessToken);
         // 签约人id
