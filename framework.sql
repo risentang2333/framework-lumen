@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50560
 File Encoding         : 65001
 
-Date: 2019-03-29 00:27:54
+Date: 2019-03-29 20:25:07
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,13 +21,13 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `abilities`;
 CREATE TABLE `abilities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '能力名',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '能力名',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
   `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '启用状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
 -- Records of abilities
@@ -48,6 +48,7 @@ INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', 'enable', '0', '0'
 INSERT INTO `abilities` VALUES ('14', '会早教', '9', 'enable', '0', '0');
 INSERT INTO `abilities` VALUES ('15', '新的节能', '0', 'enable', '0', '1');
 INSERT INTO `abilities` VALUES ('16', '有亲和力', '0', 'enable', '0', '1');
+INSERT INTO `abilities` VALUES ('17', '医疗', '0', 'enable', '0', '1');
 
 -- ----------------------------
 -- Table structure for areas
@@ -211,14 +212,16 @@ CREATE TABLE `managers` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '管理员删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `account` (`account`) USING BTREE COMMENT '唯一性约束'
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='管理员表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='管理员表';
 
 -- ----------------------------
 -- Records of managers
 -- ----------------------------
-INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'b99f79ab7d17c3630b8b4c37a6832f0a', '807d31d6078a00e51ff7ecea83ff211d', '1553876853', '1', '0');
-INSERT INTO `managers` VALUES ('2', 'tangchao', 'b60510d71c8d17df14ce7b2c548f716e', '唐朝', 'be271831918e056b82d222f2949a401c', '9fcc963c28dfa623e7bea0c2d32588ca', '1553875747', '1', '0');
-INSERT INTO `managers` VALUES ('3', 'songxiwen', 'bcc7e1dd92254ef41b2abd8fc453fbb3', '宋希文', 'f763992402b99292f224cbbac3f5a8f0', 'd3d2da95426e8573ca265b5ca3eeb265', '1553860206', '1', '0');
+INSERT INTO `managers` VALUES ('1', 'admin', 'f973988be6cba09855f84c34d10e8a62', '超级管理员', 'a9ad81085c08c386ec4a9decb8c7640d', '8091244c81037a8ebb330e6c592c5ad1', '1553921568', '2', '0');
+INSERT INTO `managers` VALUES ('2', 'tangchao', 'b60510d71c8d17df14ce7b2c548f716e', '唐朝', '13a3f4aa80967f562a20e82e089f42a9', '1c3df3ae1b4690378d7bf57f1e4352d2', '1553944411', '1', '0');
+INSERT INTO `managers` VALUES ('3', 'songxiwen', 'bcc7e1dd92254ef41b2abd8fc453fbb3', '宋希文', '34accb1a57c2c4d3f569f8ba08b87230', '4c89c0ddb63c7bbe40a2e6c4b143c272', '1553945330', '1', '0');
+INSERT INTO `managers` VALUES ('4', 'ceshi', 'ffbe652d18da6fa42f2f346c68ecf1d3', '测试', 'bd820fb910768ddc1a5e2104c2d02533', 'dad984d7cfbea13b947f438fee2a20df', '1553877173', '1', '1');
+INSERT INTO `managers` VALUES ('5', 'test1', '46f4feb11b79f842a13080ae542de180', '测试账户-冯蜀笑', '92de587fb0d0fe595536ec626e438098', 'aa08c92143ef335d49619fe3f41b23b7', '1553915865', '1', '0');
 
 -- ----------------------------
 -- Table structure for order_files
@@ -230,12 +233,15 @@ CREATE TABLE `order_files` (
   `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
 
 -- ----------------------------
 -- Records of order_files
 -- ----------------------------
 INSERT INTO `order_files` VALUES ('1', '3', 'picture.jpeg', 'temp/5dec487a0ef981b51cadd4a83fd30842.jpeg');
+INSERT INTO `order_files` VALUES ('2', '5', '列表.jpg', 'order/1/d767588d304c265fe1bb5473965321b2.jpg');
+INSERT INTO `order_files` VALUES ('3', '5', '轮播1.jpg', 'order/1/1f1e6a5dbfd892fbaebe8c1bc46a1ae1.jpg');
+INSERT INTO `order_files` VALUES ('4', '5', '轮播2.jpg', 'order/1/1c130fa38d50413ad4f248fae1fe0fbc.jpg');
 
 -- ----------------------------
 -- Table structure for order_logs
@@ -252,7 +258,7 @@ CREATE TABLE `order_logs` (
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `type` enum('','sign','normal','assign','other') NOT NULL DEFAULT '' COMMENT '日志分类',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
 
 -- ----------------------------
 -- Records of order_logs
@@ -270,6 +276,16 @@ INSERT INTO `order_logs` VALUES ('10', '3', '1', '超级管理员', '0', '无', 
 INSERT INTO `order_logs` VALUES ('11', '1', '2', '唐朝', '0', '无', '非常好', '1553782960', 'normal');
 INSERT INTO `order_logs` VALUES ('12', '3', '1', '超级管理员', '2', '弗兰克', '订单已签约，操作者：1|超级管理员', '1553785438', 'sign');
 INSERT INTO `order_logs` VALUES ('13', '4', '1', '超级管理员', '0', '无', '管理员派单，原持有者：2|唐朝=>现持有者：1|超级管理员', '1553787584', 'assign');
+INSERT INTO `order_logs` VALUES ('14', '5', '2', '唐朝', '1', '宋希文', '订单已签约，操作者：2|唐朝', '1553820235', 'sign');
+INSERT INTO `order_logs` VALUES ('15', '5', '3', '宋希文', '0', '无', '管理员派单，原持有者：2|唐朝=>现持有者：3|宋希文', '1553821879', 'assign');
+INSERT INTO `order_logs` VALUES ('16', '1', '5', '测试账户1', '0', '无', '管理员派单，原持有者：2|唐朝=>现持有者：5|测试账户1', '1553826408', 'assign');
+INSERT INTO `order_logs` VALUES ('17', '5', '5', '测试账户1', '0', '无', '管理员派单，原持有者：3|宋希文=>现持有者：5|测试账户1', '1553826429', 'assign');
+INSERT INTO `order_logs` VALUES ('18', '6', '5', '测试账户-冯蜀笑', '0', '无', '管理员派单，原持有者：5|测试账户-冯蜀笑=>现持有者：3|宋希文', '1553830018', 'assign');
+INSERT INTO `order_logs` VALUES ('19', '6', '5', '测试账户-冯蜀笑', '0', '无', '管理员派单，原持有者：3|宋希文=>现持有者：3|宋希文', '1553830026', 'assign');
+INSERT INTO `order_logs` VALUES ('20', '5', '2', '唐朝', '0', '无', '管理员派单，原持有者：5|测试账户1=>现持有者：2|唐朝', '1553857620', 'assign');
+INSERT INTO `order_logs` VALUES ('21', '3', '3', '宋希文', '0', '无', '管理员派单，原持有者：1|超级管理员=>现持有者：3|宋希文', '1553858961', 'assign');
+INSERT INTO `order_logs` VALUES ('22', '5', '3', '宋希文', '0', '无', '管理员派单，原持有者：2|唐朝=>现持有者：3|宋希文', '1553859828', 'assign');
+INSERT INTO `order_logs` VALUES ('23', '4', '2', '唐朝', '0', '无', '管理员派单，原持有者：1|超级管理员=>现持有者：2|唐朝', '1553861503', 'assign');
 
 -- ----------------------------
 -- Table structure for order_staff
@@ -283,7 +299,7 @@ CREATE TABLE `order_staff` (
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务人员名',
   `type` enum('','unsign','sign','refuse') NOT NULL DEFAULT 'unsign' COMMENT '签约状态，未签约，已签约，已拒绝',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 
 -- ----------------------------
 -- Records of order_staff
@@ -295,6 +311,9 @@ INSERT INTO `order_staff` VALUES ('4', '1', '1', '', '宋希文', 'unsign');
 INSERT INTO `order_staff` VALUES ('5', '2', '1', '', '宋希文', 'sign');
 INSERT INTO `order_staff` VALUES ('9', '3', '2', '', '弗兰克', 'sign');
 INSERT INTO `order_staff` VALUES ('11', '4', '2', '00002', '弗兰克', 'unsign');
+INSERT INTO `order_staff` VALUES ('12', '5', '1', '00001', '宋希文', 'sign');
+INSERT INTO `order_staff` VALUES ('13', '6', '1', '00001', '宋希文', 'unsign');
+INSERT INTO `order_staff` VALUES ('14', '7', '1', '00001', '宋希文', 'unsign');
 
 -- ----------------------------
 -- Table structure for orders
@@ -333,16 +352,18 @@ CREATE TABLE `orders` (
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `code` (`code`) USING BTREE COMMENT '订单号唯一性约束'
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
 
 -- ----------------------------
 -- Records of orders
 -- ----------------------------
-INSERT INTO `orders` VALUES ('1', '2019032884460000001', '1', '超级管理员', '2', '唐朝', '2', '唐朝', '0', '', '8', '宁敬之', '15001279361', '2', '空调清洗', '辽宁省沈阳市铁西区云峰北街勋望小学1年3班', '1551744000', '1551758400', '1', '此订单来自于线下。由于是学校订单，请注意保持安静，请处理人员小心，妥善处理。', 'month', '3', '23.56', '70.68', '2', '3', '44.33', '5', '1553770978', '3');
+INSERT INTO `orders` VALUES ('1', '2019032884460000001', '1', '超级管理员', '5', '测试账户1', '2', '唐朝', '0', '', '8', '宁敬之', '15001279361', '2', '空调清洗', '辽宁省沈阳市铁西区云峰北街勋望小学1年3班', '1551744000', '1551758400', '1', '此订单来自于线下。由于是学校订单，请注意保持安静，请处理人员小心，妥善处理。', 'month', '3', '23.56', '70.68', '2', '3', '44.33', '5', '1553770978', '4');
 INSERT INTO `orders` VALUES ('2', '2019032853360000002', '2', '唐朝', '2', '唐朝', '2', '唐朝', '0', '', '11', '王女士', '13899977894', '16', '小儿推拿', '辽宁省沈阳市铁西区某某路某某小区4-4-1', '1553835600', '1556625600', '3', '要长得帅的', 'day', '4', '23.55', '94.20', '2', '3', '33.00', '3', '1553775416', '3');
-INSERT INTO `orders` VALUES ('3', '2019032820710000003', '2', '唐朝', '1', '超级管理员', '1', '超级管理员', '0', '', '12', '测试', '13333443434', '11', '开保险柜', '辽宁省沈阳市和平区测试测试', '1552492800', '1555257600', '2', '测试测试', 'day', '3', '500.00', '1500.00', '1', '0', '0.00', '3', '1553775896', '2');
-INSERT INTO `orders` VALUES ('4', '2019032868170000004', '2', '唐朝', '1', '超级管理员', '0', '', '0', '', '13', '测试测试', '13333333333', '11', '开保险柜', '辽宁省大连市西岗区测试', '1552492800', '1556035200', '2', '测试', '', '0', '0.00', '0.00', '1', '0', '0.00', '2', '1553783623', '1');
-INSERT INTO `orders` VALUES ('5', '2019032977790000005', '2', '唐朝', '2', '唐朝', '0', '', '0', '', '13', '测试', '13333333333', '3', '冰箱清洗', '辽宁省沈阳市市辖区测试测试', '1552579200', '1555344000', '2', '测试', '', '0', '0.00', '0.00', '1', '0', '0.00', '1', '1553788839', '0');
+INSERT INTO `orders` VALUES ('3', '2019032820710000003', '2', '唐朝', '3', '宋希文', '1', '超级管理员', '0', '', '12', '测试', '13333443434', '11', '开保险柜', '辽宁省沈阳市和平区测试测试', '1552492800', '1555257600', '2', '测试测试', 'day', '3', '500.00', '1500.00', '1', '0', '0.00', '3', '1553775896', '3');
+INSERT INTO `orders` VALUES ('4', '2019032868170000004', '2', '唐朝', '2', '唐朝', '0', '', '0', '', '13', '测试测试', '13333333333', '11', '开保险柜', '辽宁省大连市西岗区测试', '1552492800', '1556035200', '2', '测试', '', '0', '0.00', '0.00', '1', '0', '0.00', '2', '1553783623', '2');
+INSERT INTO `orders` VALUES ('5', '2019032977790000005', '2', '唐朝', '3', '宋希文', '2', '唐朝', '0', '', '13', '测试', '13333333333', '3', '冰箱清洗', '辽宁省沈阳市市辖区测试测试', '1552579200', '1555344000', '2', '测试', 'day', '4', '445.00', '1780.00', '2', '2', '333.00', '3', '1553788839', '5');
+INSERT INTO `orders` VALUES ('6', '2019032906130000006', '5', '测试账户-冯蜀笑', '3', '宋希文', '0', '', '0', '', '14', '张', '13002466170', '2', '空调清洗', '辽宁省沈阳市和平区东北大学', '1551715200', '1551715200', '2', '', '', '0', '0.00', '0.00', '1', '0', '0.00', '2', '1553829786', '2');
+INSERT INTO `orders` VALUES ('7', '2019032903850000007', '5', '测试账户-冯蜀笑', '5', '测试账户-冯蜀笑', '0', '', '0', '', '15', '王', '13002466177', '2', '空调清洗', '辽宁省鞍山市铁西区千山', '1553788920', '1553789040', '2', '', '', '0', '0.00', '0.00', '1', '0', '0.00', '2', '1553830246', '0');
 
 -- ----------------------------
 -- Table structure for paper_categories
@@ -355,7 +376,7 @@ CREATE TABLE `paper_categories` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
 
 -- ----------------------------
 -- Records of paper_categories
@@ -365,6 +386,7 @@ INSERT INTO `paper_categories` VALUES ('2', '健康证', 'enable', '0', '0');
 INSERT INTO `paper_categories` VALUES ('3', '会计证', 'enable', '0', '0');
 INSERT INTO `paper_categories` VALUES ('4', '导游证', 'enable', '0', '0');
 INSERT INTO `paper_categories` VALUES ('5', '教师资格证', 'disable', '0', '1');
+INSERT INTO `paper_categories` VALUES ('6', '职业药师', 'enable', '0', '0');
 
 -- ----------------------------
 -- Table structure for permission_role
@@ -375,7 +397,7 @@ CREATE TABLE `permission_role` (
   `permission_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
 
 -- ----------------------------
 -- Records of permission_role
@@ -425,6 +447,16 @@ INSERT INTO `permission_role` VALUES ('52', '16', '3');
 INSERT INTO `permission_role` VALUES ('53', '20', '3');
 INSERT INTO `permission_role` VALUES ('54', '21', '3');
 INSERT INTO `permission_role` VALUES ('55', '10', '4');
+INSERT INTO `permission_role` VALUES ('62', '10', '7');
+INSERT INTO `permission_role` VALUES ('63', '11', '7');
+INSERT INTO `permission_role` VALUES ('64', '12', '7');
+INSERT INTO `permission_role` VALUES ('65', '17', '7');
+INSERT INTO `permission_role` VALUES ('66', '18', '7');
+INSERT INTO `permission_role` VALUES ('67', '19', '7');
+INSERT INTO `permission_role` VALUES ('68', '15', '7');
+INSERT INTO `permission_role` VALUES ('69', '16', '7');
+INSERT INTO `permission_role` VALUES ('70', '20', '7');
+INSERT INTO `permission_role` VALUES ('71', '21', '7');
 
 -- ----------------------------
 -- Table structure for permissions
@@ -441,7 +473,7 @@ CREATE TABLE `permissions` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超管权限 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '权限删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
 
 -- ----------------------------
 -- Records of permissions
@@ -471,6 +503,8 @@ INSERT INTO `permissions` VALUES ('22', '/sale/orderEdit', '订单基本信息',
 INSERT INTO `permissions` VALUES ('23', '/sale/orderConfig', '订单配置', '订单配置', '1', '14', '2', '1', '0');
 INSERT INTO `permissions` VALUES ('24', '/sale/orderAssignList', '订单派发', '订单派发', '1', '13', '1', '1', '0');
 INSERT INTO `permissions` VALUES ('25', 'cc', 'cc', 'cc', '0', '0', '2', '1', '1');
+INSERT INTO `permissions` VALUES ('26', 'cc', 'cc', 'cc', '0', '0', '2', '1', '1');
+INSERT INTO `permissions` VALUES ('27', 'cc', 'cc', 'cc', '0', '0', '2', '1', '1');
 
 -- ----------------------------
 -- Table structure for role_manager
@@ -481,7 +515,7 @@ CREATE TABLE `role_manager` (
   `manager_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
 
 -- ----------------------------
 -- Records of role_manager
@@ -489,11 +523,16 @@ CREATE TABLE `role_manager` (
 INSERT INTO `role_manager` VALUES ('1', '1', '1');
 INSERT INTO `role_manager` VALUES ('13', '2', '2');
 INSERT INTO `role_manager` VALUES ('15', '5', '3');
-INSERT INTO `role_manager` VALUES ('16', '4', '2');
 INSERT INTO `role_manager` VALUES ('23', '2', '1');
 INSERT INTO `role_manager` VALUES ('24', '2', '3');
 INSERT INTO `role_manager` VALUES ('25', '2', '4');
 INSERT INTO `role_manager` VALUES ('26', '3', '1');
+INSERT INTO `role_manager` VALUES ('27', '3', '2');
+INSERT INTO `role_manager` VALUES ('28', '3', '3');
+INSERT INTO `role_manager` VALUES ('29', '3', '4');
+INSERT INTO `role_manager` VALUES ('33', '5', '2');
+INSERT INTO `role_manager` VALUES ('34', '5', '4');
+INSERT INTO `role_manager` VALUES ('35', '5', '7');
 
 -- ----------------------------
 -- Table structure for roles
@@ -505,7 +544,7 @@ CREATE TABLE `roles` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超级管理员 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '角色删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
 
 -- ----------------------------
 -- Records of roles
@@ -515,6 +554,8 @@ INSERT INTO `roles` VALUES ('2', '销售业务员', '0', '0');
 INSERT INTO `roles` VALUES ('3', '人力资源业务员', '1', '0');
 INSERT INTO `roles` VALUES ('4', '销售管理员', '1', '0');
 INSERT INTO `roles` VALUES ('5', '人力资源管理员', '1', '1');
+INSERT INTO `roles` VALUES ('6', 'ccc', '1', '1');
+INSERT INTO `roles` VALUES ('7', '人力资源管理员', '1', '0');
 
 -- ----------------------------
 -- Table structure for service_categories
@@ -579,7 +620,7 @@ DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(10) NOT NULL DEFAULT '' COMMENT '员工编号',
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
   `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
   `identify` varchar(20) NOT NULL DEFAULT '' COMMENT '身份证号',
   `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
@@ -714,7 +755,7 @@ CREATE TABLE `users` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `phone` (`phone`) USING BTREE COMMENT '手机唯一性索引'
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
 
 -- ----------------------------
 -- Records of users
@@ -731,3 +772,5 @@ INSERT INTO `users` VALUES ('10', '测试测', '13995559494', '', '', '0', '', '
 INSERT INTO `users` VALUES ('11', '王女士', '13899977894', '', '', '0', '', '0');
 INSERT INTO `users` VALUES ('12', '测试', '13333443434', '', '', '0', '', '0');
 INSERT INTO `users` VALUES ('13', '测试测试', '13333333333', '', '', '0', '', '0');
+INSERT INTO `users` VALUES ('14', '张', '13002466170', '', '', '0', '', '0');
+INSERT INTO `users` VALUES ('15', '王', '13002466177', '', '', '0', '', '0');
