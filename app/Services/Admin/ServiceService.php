@@ -311,12 +311,8 @@ class ServiceService
      */
     public function changeCategoryType($changeIds, $type, $version)
     {
-        DB::transaction(function () use ($type, $changeIds, $version){
-            // 启用/禁用所有节点分类
-            DB::table('service_categories')->where('status', 0)->whereIn('id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
-            // 修改服务服务项目表
-            DB::table('service_items')->where('status', 0)->whereIn('service_category_id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
-        });
+        // 启用/禁用所有节点分类
+        DB::table('service_categories')->where('status', 0)->whereIn('id', $changeIds)->update(['type'=>$type, 'version'=>$version+1]);
         // 返回信息
         $returnMsg = $type == 'enable' ? '启用成功' : '禁用成功';
 
