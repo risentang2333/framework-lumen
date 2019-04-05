@@ -10,24 +10,10 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-04-05 15:04:56
+Date: 2019-04-05 15:12:11
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for abilities
--- ----------------------------
-DROP TABLE IF EXISTS `abilities`;
-CREATE TABLE `abilities` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '能力名',
-  `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
-  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '启用状态',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
 -- Table structure for areas
@@ -54,10 +40,10 @@ CREATE TABLE `config_certify_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Table structure for config_course
+-- Table structure for config_courses
 -- ----------------------------
-DROP TABLE IF EXISTS `config_course`;
-CREATE TABLE `config_course` (
+DROP TABLE IF EXISTS `config_courses`;
+CREATE TABLE `config_courses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -65,10 +51,10 @@ CREATE TABLE `config_course` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Table structure for config_service_crowd
+-- Table structure for config_service_crowds
 -- ----------------------------
-DROP TABLE IF EXISTS `config_service_crowd`;
-CREATE TABLE `config_service_crowd` (
+DROP TABLE IF EXISTS `config_service_crowds`;
+CREATE TABLE `config_service_crowds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -76,10 +62,10 @@ CREATE TABLE `config_service_crowd` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Table structure for config_service_type
+-- Table structure for config_service_types
 -- ----------------------------
-DROP TABLE IF EXISTS `config_service_type`;
-CREATE TABLE `config_service_type` (
+DROP TABLE IF EXISTS `config_service_types`;
+CREATE TABLE `config_service_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -87,10 +73,10 @@ CREATE TABLE `config_service_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Table structure for config_source
+-- Table structure for config_sources
 -- ----------------------------
-DROP TABLE IF EXISTS `config_source`;
-CREATE TABLE `config_source` (
+DROP TABLE IF EXISTS `config_sources`;
+CREATE TABLE `config_sources` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -98,10 +84,10 @@ CREATE TABLE `config_source` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Table structure for config_working_age
+-- Table structure for config_working_ages
 -- ----------------------------
-DROP TABLE IF EXISTS `config_working_age`;
-CREATE TABLE `config_working_age` (
+DROP TABLE IF EXISTS `config_working_ages`;
+CREATE TABLE `config_working_ages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -326,18 +312,6 @@ CREATE TABLE `staff` (
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
--- Table structure for staff_labels
--- ----------------------------
-DROP TABLE IF EXISTS `staff_labels`;
-CREATE TABLE `staff_labels` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `ability_id` int(11) NOT NULL DEFAULT '0' COMMENT '能力id',
-  `name` varchar(20) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
-
--- ----------------------------
 -- Table structure for staff_papers
 -- ----------------------------
 DROP TABLE IF EXISTS `staff_papers`;
@@ -365,10 +339,10 @@ CREATE TABLE `staff_regions` (
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
 
 -- ----------------------------
--- Table structure for staff_service_crowd
+-- Table structure for staff_service_crowds
 -- ----------------------------
-DROP TABLE IF EXISTS `staff_service_crowd`;
-CREATE TABLE `staff_service_crowd` (
+DROP TABLE IF EXISTS `staff_service_crowds`;
+CREATE TABLE `staff_service_crowds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COMMENT='地区表';

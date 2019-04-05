@@ -154,3 +154,10 @@ Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
     // 获取日志列表
     Route::get('/getLogList', 'LogController@getLogList');
 });
+// 配置表单参数模块
+Route::group(['prefix' => 'formConfig', 'middleware' => ['admin']], function () {
+    // 获取所有可配表单项
+    Route::get('/getFormConfig', 'FormConfigController@getFormConfig');
+    // 编辑所有可配表单项
+    Route::post('/editFormConfig', 'FormConfigController@editFormConfig');
+});

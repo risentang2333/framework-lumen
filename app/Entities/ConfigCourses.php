@@ -4,14 +4,14 @@ namespace App\Entities;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Abilities extends Model
+class ConfigCourses extends Model
 {
     /**
      * 与模型关联的数据表
      *
      * @var string
      */
-    protected $table = 'abilities';
+    protected $table = 'config_courses';
 
     /**
      * 该模型是否被自动维护时间戳

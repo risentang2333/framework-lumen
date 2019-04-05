@@ -10,45 +10,10 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-04-05 15:04:46
+Date: 2019-04-05 15:12:00
 */
 
 SET FOREIGN_KEY_CHECKS=0;
-
--- ----------------------------
--- Table structure for abilities
--- ----------------------------
-DROP TABLE IF EXISTS `abilities`;
-CREATE TABLE `abilities` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '能力名',
-  `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
-  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '启用状态',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
-
--- ----------------------------
--- Records of abilities
--- ----------------------------
-INSERT INTO `abilities` VALUES ('1', '形象气质类', '0', 'disable', '0', '11');
-INSERT INTO `abilities` VALUES ('2', '干净立正', '1', 'disable', '0', '11');
-INSERT INTO `abilities` VALUES ('3', '有亲和力', '1', 'disable', '0', '11');
-INSERT INTO `abilities` VALUES ('4', '有文化', '1', 'disable', '0', '11');
-INSERT INTO `abilities` VALUES ('5', '职业技能类', '0', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('6', '会做饭', '5', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('7', '会打扫', '5', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('8', '做过日常保洁', '5', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('9', '高级技能类', '0', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('10', '专业护工', '9', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('11', '十年以上经验', '9', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('12', '会营养搭配', '9', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('13', '会高级熨烫', '9', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('14', '会早教', '9', 'enable', '0', '0');
-INSERT INTO `abilities` VALUES ('15', '新的节能', '0', 'enable', '0', '1');
-INSERT INTO `abilities` VALUES ('16', '有亲和力', '0', 'enable', '0', '1');
-INSERT INTO `abilities` VALUES ('17', '医疗', '0', 'enable', '0', '1');
 
 -- ----------------------------
 -- Table structure for areas
@@ -212,10 +177,10 @@ CREATE TABLE `config_certify_status` (
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for config_course
+-- Table structure for config_courses
 -- ----------------------------
-DROP TABLE IF EXISTS `config_course`;
-CREATE TABLE `config_course` (
+DROP TABLE IF EXISTS `config_courses`;
+CREATE TABLE `config_courses` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -223,14 +188,14 @@ CREATE TABLE `config_course` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of config_course
+-- Records of config_courses
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for config_service_crowd
+-- Table structure for config_service_crowds
 -- ----------------------------
-DROP TABLE IF EXISTS `config_service_crowd`;
-CREATE TABLE `config_service_crowd` (
+DROP TABLE IF EXISTS `config_service_crowds`;
+CREATE TABLE `config_service_crowds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -238,14 +203,14 @@ CREATE TABLE `config_service_crowd` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of config_service_crowd
+-- Records of config_service_crowds
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for config_service_type
+-- Table structure for config_service_types
 -- ----------------------------
-DROP TABLE IF EXISTS `config_service_type`;
-CREATE TABLE `config_service_type` (
+DROP TABLE IF EXISTS `config_service_types`;
+CREATE TABLE `config_service_types` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -253,14 +218,14 @@ CREATE TABLE `config_service_type` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of config_service_type
+-- Records of config_service_types
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for config_source
+-- Table structure for config_sources
 -- ----------------------------
-DROP TABLE IF EXISTS `config_source`;
-CREATE TABLE `config_source` (
+DROP TABLE IF EXISTS `config_sources`;
+CREATE TABLE `config_sources` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -268,14 +233,14 @@ CREATE TABLE `config_source` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of config_source
+-- Records of config_sources
 -- ----------------------------
 
 -- ----------------------------
--- Table structure for config_working_age
+-- Table structure for config_working_ages
 -- ----------------------------
-DROP TABLE IF EXISTS `config_working_age`;
-CREATE TABLE `config_working_age` (
+DROP TABLE IF EXISTS `config_working_ages`;
+CREATE TABLE `config_working_ages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) NOT NULL DEFAULT '',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
@@ -283,7 +248,7 @@ CREATE TABLE `config_working_age` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of config_working_age
+-- Records of config_working_ages
 -- ----------------------------
 
 -- ----------------------------
@@ -731,26 +696,6 @@ INSERT INTO `staff` VALUES ('2', '0', '0', '弗兰克', '60', '15001234567', '',
 INSERT INTO `staff` VALUES ('3', '0', '0', '王女士', '18', '13998989889', '', '0', '', '0', '0', '', '汉', '', '210105199504224911', '辽宁省沈阳市长江街黑山路松山南区', '0', '', '6214831249176063', 'icon/1/338d1254be5423ca95449454e77dd6aa.jpg', '0', '0', '0', '', '00003', '2', '0', '1553785906', 'normal', '0');
 
 -- ----------------------------
--- Table structure for staff_labels
--- ----------------------------
-DROP TABLE IF EXISTS `staff_labels`;
-CREATE TABLE `staff_labels` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
-  `ability_id` int(11) NOT NULL DEFAULT '0' COMMENT '能力id',
-  `name` varchar(20) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
-
--- ----------------------------
--- Records of staff_labels
--- ----------------------------
-INSERT INTO `staff_labels` VALUES ('1', '1', '2', '干净立正');
-INSERT INTO `staff_labels` VALUES ('2', '1', '11', '十年以上经验');
-INSERT INTO `staff_labels` VALUES ('3', '3', '7', '会打扫');
-INSERT INTO `staff_labels` VALUES ('4', '2', '6', '会做饭');
-
--- ----------------------------
 -- Table structure for staff_papers
 -- ----------------------------
 DROP TABLE IF EXISTS `staff_papers`;
@@ -793,146 +738,146 @@ INSERT INTO `staff_regions` VALUES ('4', '3', '6', '大东区');
 INSERT INTO `staff_regions` VALUES ('5', '2', '4', '和平区');
 
 -- ----------------------------
--- Table structure for staff_service_crowd
+-- Table structure for staff_service_crowds
 -- ----------------------------
-DROP TABLE IF EXISTS `staff_service_crowd`;
-CREATE TABLE `staff_service_crowd` (
+DROP TABLE IF EXISTS `staff_service_crowds`;
+CREATE TABLE `staff_service_crowds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
--- Records of staff_service_crowd
+-- Records of staff_service_crowds
 -- ----------------------------
-INSERT INTO `staff_service_crowd` VALUES ('1');
-INSERT INTO `staff_service_crowd` VALUES ('2');
-INSERT INTO `staff_service_crowd` VALUES ('3');
-INSERT INTO `staff_service_crowd` VALUES ('4');
-INSERT INTO `staff_service_crowd` VALUES ('5');
-INSERT INTO `staff_service_crowd` VALUES ('6');
-INSERT INTO `staff_service_crowd` VALUES ('7');
-INSERT INTO `staff_service_crowd` VALUES ('8');
-INSERT INTO `staff_service_crowd` VALUES ('9');
-INSERT INTO `staff_service_crowd` VALUES ('10');
-INSERT INTO `staff_service_crowd` VALUES ('11');
-INSERT INTO `staff_service_crowd` VALUES ('12');
-INSERT INTO `staff_service_crowd` VALUES ('13');
-INSERT INTO `staff_service_crowd` VALUES ('14');
-INSERT INTO `staff_service_crowd` VALUES ('15');
-INSERT INTO `staff_service_crowd` VALUES ('16');
-INSERT INTO `staff_service_crowd` VALUES ('17');
-INSERT INTO `staff_service_crowd` VALUES ('18');
-INSERT INTO `staff_service_crowd` VALUES ('19');
-INSERT INTO `staff_service_crowd` VALUES ('20');
-INSERT INTO `staff_service_crowd` VALUES ('21');
-INSERT INTO `staff_service_crowd` VALUES ('22');
-INSERT INTO `staff_service_crowd` VALUES ('23');
-INSERT INTO `staff_service_crowd` VALUES ('24');
-INSERT INTO `staff_service_crowd` VALUES ('25');
-INSERT INTO `staff_service_crowd` VALUES ('26');
-INSERT INTO `staff_service_crowd` VALUES ('27');
-INSERT INTO `staff_service_crowd` VALUES ('28');
-INSERT INTO `staff_service_crowd` VALUES ('29');
-INSERT INTO `staff_service_crowd` VALUES ('30');
-INSERT INTO `staff_service_crowd` VALUES ('31');
-INSERT INTO `staff_service_crowd` VALUES ('32');
-INSERT INTO `staff_service_crowd` VALUES ('33');
-INSERT INTO `staff_service_crowd` VALUES ('34');
-INSERT INTO `staff_service_crowd` VALUES ('35');
-INSERT INTO `staff_service_crowd` VALUES ('36');
-INSERT INTO `staff_service_crowd` VALUES ('37');
-INSERT INTO `staff_service_crowd` VALUES ('38');
-INSERT INTO `staff_service_crowd` VALUES ('39');
-INSERT INTO `staff_service_crowd` VALUES ('40');
-INSERT INTO `staff_service_crowd` VALUES ('41');
-INSERT INTO `staff_service_crowd` VALUES ('42');
-INSERT INTO `staff_service_crowd` VALUES ('43');
-INSERT INTO `staff_service_crowd` VALUES ('44');
-INSERT INTO `staff_service_crowd` VALUES ('45');
-INSERT INTO `staff_service_crowd` VALUES ('46');
-INSERT INTO `staff_service_crowd` VALUES ('47');
-INSERT INTO `staff_service_crowd` VALUES ('48');
-INSERT INTO `staff_service_crowd` VALUES ('49');
-INSERT INTO `staff_service_crowd` VALUES ('50');
-INSERT INTO `staff_service_crowd` VALUES ('51');
-INSERT INTO `staff_service_crowd` VALUES ('52');
-INSERT INTO `staff_service_crowd` VALUES ('53');
-INSERT INTO `staff_service_crowd` VALUES ('54');
-INSERT INTO `staff_service_crowd` VALUES ('55');
-INSERT INTO `staff_service_crowd` VALUES ('56');
-INSERT INTO `staff_service_crowd` VALUES ('57');
-INSERT INTO `staff_service_crowd` VALUES ('58');
-INSERT INTO `staff_service_crowd` VALUES ('59');
-INSERT INTO `staff_service_crowd` VALUES ('60');
-INSERT INTO `staff_service_crowd` VALUES ('61');
-INSERT INTO `staff_service_crowd` VALUES ('62');
-INSERT INTO `staff_service_crowd` VALUES ('63');
-INSERT INTO `staff_service_crowd` VALUES ('64');
-INSERT INTO `staff_service_crowd` VALUES ('65');
-INSERT INTO `staff_service_crowd` VALUES ('66');
-INSERT INTO `staff_service_crowd` VALUES ('67');
-INSERT INTO `staff_service_crowd` VALUES ('68');
-INSERT INTO `staff_service_crowd` VALUES ('69');
-INSERT INTO `staff_service_crowd` VALUES ('70');
-INSERT INTO `staff_service_crowd` VALUES ('71');
-INSERT INTO `staff_service_crowd` VALUES ('72');
-INSERT INTO `staff_service_crowd` VALUES ('73');
-INSERT INTO `staff_service_crowd` VALUES ('74');
-INSERT INTO `staff_service_crowd` VALUES ('75');
-INSERT INTO `staff_service_crowd` VALUES ('76');
-INSERT INTO `staff_service_crowd` VALUES ('77');
-INSERT INTO `staff_service_crowd` VALUES ('78');
-INSERT INTO `staff_service_crowd` VALUES ('79');
-INSERT INTO `staff_service_crowd` VALUES ('80');
-INSERT INTO `staff_service_crowd` VALUES ('81');
-INSERT INTO `staff_service_crowd` VALUES ('82');
-INSERT INTO `staff_service_crowd` VALUES ('83');
-INSERT INTO `staff_service_crowd` VALUES ('84');
-INSERT INTO `staff_service_crowd` VALUES ('85');
-INSERT INTO `staff_service_crowd` VALUES ('86');
-INSERT INTO `staff_service_crowd` VALUES ('87');
-INSERT INTO `staff_service_crowd` VALUES ('88');
-INSERT INTO `staff_service_crowd` VALUES ('89');
-INSERT INTO `staff_service_crowd` VALUES ('90');
-INSERT INTO `staff_service_crowd` VALUES ('91');
-INSERT INTO `staff_service_crowd` VALUES ('92');
-INSERT INTO `staff_service_crowd` VALUES ('93');
-INSERT INTO `staff_service_crowd` VALUES ('94');
-INSERT INTO `staff_service_crowd` VALUES ('95');
-INSERT INTO `staff_service_crowd` VALUES ('96');
-INSERT INTO `staff_service_crowd` VALUES ('97');
-INSERT INTO `staff_service_crowd` VALUES ('98');
-INSERT INTO `staff_service_crowd` VALUES ('99');
-INSERT INTO `staff_service_crowd` VALUES ('100');
-INSERT INTO `staff_service_crowd` VALUES ('101');
-INSERT INTO `staff_service_crowd` VALUES ('102');
-INSERT INTO `staff_service_crowd` VALUES ('103');
-INSERT INTO `staff_service_crowd` VALUES ('104');
-INSERT INTO `staff_service_crowd` VALUES ('105');
-INSERT INTO `staff_service_crowd` VALUES ('106');
-INSERT INTO `staff_service_crowd` VALUES ('107');
-INSERT INTO `staff_service_crowd` VALUES ('108');
-INSERT INTO `staff_service_crowd` VALUES ('109');
-INSERT INTO `staff_service_crowd` VALUES ('110');
-INSERT INTO `staff_service_crowd` VALUES ('111');
-INSERT INTO `staff_service_crowd` VALUES ('112');
-INSERT INTO `staff_service_crowd` VALUES ('113');
-INSERT INTO `staff_service_crowd` VALUES ('114');
-INSERT INTO `staff_service_crowd` VALUES ('115');
-INSERT INTO `staff_service_crowd` VALUES ('116');
-INSERT INTO `staff_service_crowd` VALUES ('117');
-INSERT INTO `staff_service_crowd` VALUES ('118');
-INSERT INTO `staff_service_crowd` VALUES ('119');
-INSERT INTO `staff_service_crowd` VALUES ('120');
-INSERT INTO `staff_service_crowd` VALUES ('121');
-INSERT INTO `staff_service_crowd` VALUES ('122');
-INSERT INTO `staff_service_crowd` VALUES ('123');
-INSERT INTO `staff_service_crowd` VALUES ('124');
-INSERT INTO `staff_service_crowd` VALUES ('125');
-INSERT INTO `staff_service_crowd` VALUES ('126');
-INSERT INTO `staff_service_crowd` VALUES ('127');
-INSERT INTO `staff_service_crowd` VALUES ('128');
-INSERT INTO `staff_service_crowd` VALUES ('129');
+INSERT INTO `staff_service_crowds` VALUES ('1');
+INSERT INTO `staff_service_crowds` VALUES ('2');
+INSERT INTO `staff_service_crowds` VALUES ('3');
+INSERT INTO `staff_service_crowds` VALUES ('4');
+INSERT INTO `staff_service_crowds` VALUES ('5');
+INSERT INTO `staff_service_crowds` VALUES ('6');
+INSERT INTO `staff_service_crowds` VALUES ('7');
+INSERT INTO `staff_service_crowds` VALUES ('8');
+INSERT INTO `staff_service_crowds` VALUES ('9');
+INSERT INTO `staff_service_crowds` VALUES ('10');
+INSERT INTO `staff_service_crowds` VALUES ('11');
+INSERT INTO `staff_service_crowds` VALUES ('12');
+INSERT INTO `staff_service_crowds` VALUES ('13');
+INSERT INTO `staff_service_crowds` VALUES ('14');
+INSERT INTO `staff_service_crowds` VALUES ('15');
+INSERT INTO `staff_service_crowds` VALUES ('16');
+INSERT INTO `staff_service_crowds` VALUES ('17');
+INSERT INTO `staff_service_crowds` VALUES ('18');
+INSERT INTO `staff_service_crowds` VALUES ('19');
+INSERT INTO `staff_service_crowds` VALUES ('20');
+INSERT INTO `staff_service_crowds` VALUES ('21');
+INSERT INTO `staff_service_crowds` VALUES ('22');
+INSERT INTO `staff_service_crowds` VALUES ('23');
+INSERT INTO `staff_service_crowds` VALUES ('24');
+INSERT INTO `staff_service_crowds` VALUES ('25');
+INSERT INTO `staff_service_crowds` VALUES ('26');
+INSERT INTO `staff_service_crowds` VALUES ('27');
+INSERT INTO `staff_service_crowds` VALUES ('28');
+INSERT INTO `staff_service_crowds` VALUES ('29');
+INSERT INTO `staff_service_crowds` VALUES ('30');
+INSERT INTO `staff_service_crowds` VALUES ('31');
+INSERT INTO `staff_service_crowds` VALUES ('32');
+INSERT INTO `staff_service_crowds` VALUES ('33');
+INSERT INTO `staff_service_crowds` VALUES ('34');
+INSERT INTO `staff_service_crowds` VALUES ('35');
+INSERT INTO `staff_service_crowds` VALUES ('36');
+INSERT INTO `staff_service_crowds` VALUES ('37');
+INSERT INTO `staff_service_crowds` VALUES ('38');
+INSERT INTO `staff_service_crowds` VALUES ('39');
+INSERT INTO `staff_service_crowds` VALUES ('40');
+INSERT INTO `staff_service_crowds` VALUES ('41');
+INSERT INTO `staff_service_crowds` VALUES ('42');
+INSERT INTO `staff_service_crowds` VALUES ('43');
+INSERT INTO `staff_service_crowds` VALUES ('44');
+INSERT INTO `staff_service_crowds` VALUES ('45');
+INSERT INTO `staff_service_crowds` VALUES ('46');
+INSERT INTO `staff_service_crowds` VALUES ('47');
+INSERT INTO `staff_service_crowds` VALUES ('48');
+INSERT INTO `staff_service_crowds` VALUES ('49');
+INSERT INTO `staff_service_crowds` VALUES ('50');
+INSERT INTO `staff_service_crowds` VALUES ('51');
+INSERT INTO `staff_service_crowds` VALUES ('52');
+INSERT INTO `staff_service_crowds` VALUES ('53');
+INSERT INTO `staff_service_crowds` VALUES ('54');
+INSERT INTO `staff_service_crowds` VALUES ('55');
+INSERT INTO `staff_service_crowds` VALUES ('56');
+INSERT INTO `staff_service_crowds` VALUES ('57');
+INSERT INTO `staff_service_crowds` VALUES ('58');
+INSERT INTO `staff_service_crowds` VALUES ('59');
+INSERT INTO `staff_service_crowds` VALUES ('60');
+INSERT INTO `staff_service_crowds` VALUES ('61');
+INSERT INTO `staff_service_crowds` VALUES ('62');
+INSERT INTO `staff_service_crowds` VALUES ('63');
+INSERT INTO `staff_service_crowds` VALUES ('64');
+INSERT INTO `staff_service_crowds` VALUES ('65');
+INSERT INTO `staff_service_crowds` VALUES ('66');
+INSERT INTO `staff_service_crowds` VALUES ('67');
+INSERT INTO `staff_service_crowds` VALUES ('68');
+INSERT INTO `staff_service_crowds` VALUES ('69');
+INSERT INTO `staff_service_crowds` VALUES ('70');
+INSERT INTO `staff_service_crowds` VALUES ('71');
+INSERT INTO `staff_service_crowds` VALUES ('72');
+INSERT INTO `staff_service_crowds` VALUES ('73');
+INSERT INTO `staff_service_crowds` VALUES ('74');
+INSERT INTO `staff_service_crowds` VALUES ('75');
+INSERT INTO `staff_service_crowds` VALUES ('76');
+INSERT INTO `staff_service_crowds` VALUES ('77');
+INSERT INTO `staff_service_crowds` VALUES ('78');
+INSERT INTO `staff_service_crowds` VALUES ('79');
+INSERT INTO `staff_service_crowds` VALUES ('80');
+INSERT INTO `staff_service_crowds` VALUES ('81');
+INSERT INTO `staff_service_crowds` VALUES ('82');
+INSERT INTO `staff_service_crowds` VALUES ('83');
+INSERT INTO `staff_service_crowds` VALUES ('84');
+INSERT INTO `staff_service_crowds` VALUES ('85');
+INSERT INTO `staff_service_crowds` VALUES ('86');
+INSERT INTO `staff_service_crowds` VALUES ('87');
+INSERT INTO `staff_service_crowds` VALUES ('88');
+INSERT INTO `staff_service_crowds` VALUES ('89');
+INSERT INTO `staff_service_crowds` VALUES ('90');
+INSERT INTO `staff_service_crowds` VALUES ('91');
+INSERT INTO `staff_service_crowds` VALUES ('92');
+INSERT INTO `staff_service_crowds` VALUES ('93');
+INSERT INTO `staff_service_crowds` VALUES ('94');
+INSERT INTO `staff_service_crowds` VALUES ('95');
+INSERT INTO `staff_service_crowds` VALUES ('96');
+INSERT INTO `staff_service_crowds` VALUES ('97');
+INSERT INTO `staff_service_crowds` VALUES ('98');
+INSERT INTO `staff_service_crowds` VALUES ('99');
+INSERT INTO `staff_service_crowds` VALUES ('100');
+INSERT INTO `staff_service_crowds` VALUES ('101');
+INSERT INTO `staff_service_crowds` VALUES ('102');
+INSERT INTO `staff_service_crowds` VALUES ('103');
+INSERT INTO `staff_service_crowds` VALUES ('104');
+INSERT INTO `staff_service_crowds` VALUES ('105');
+INSERT INTO `staff_service_crowds` VALUES ('106');
+INSERT INTO `staff_service_crowds` VALUES ('107');
+INSERT INTO `staff_service_crowds` VALUES ('108');
+INSERT INTO `staff_service_crowds` VALUES ('109');
+INSERT INTO `staff_service_crowds` VALUES ('110');
+INSERT INTO `staff_service_crowds` VALUES ('111');
+INSERT INTO `staff_service_crowds` VALUES ('112');
+INSERT INTO `staff_service_crowds` VALUES ('113');
+INSERT INTO `staff_service_crowds` VALUES ('114');
+INSERT INTO `staff_service_crowds` VALUES ('115');
+INSERT INTO `staff_service_crowds` VALUES ('116');
+INSERT INTO `staff_service_crowds` VALUES ('117');
+INSERT INTO `staff_service_crowds` VALUES ('118');
+INSERT INTO `staff_service_crowds` VALUES ('119');
+INSERT INTO `staff_service_crowds` VALUES ('120');
+INSERT INTO `staff_service_crowds` VALUES ('121');
+INSERT INTO `staff_service_crowds` VALUES ('122');
+INSERT INTO `staff_service_crowds` VALUES ('123');
+INSERT INTO `staff_service_crowds` VALUES ('124');
+INSERT INTO `staff_service_crowds` VALUES ('125');
+INSERT INTO `staff_service_crowds` VALUES ('126');
+INSERT INTO `staff_service_crowds` VALUES ('127');
+INSERT INTO `staff_service_crowds` VALUES ('128');
+INSERT INTO `staff_service_crowds` VALUES ('129');
 
 -- ----------------------------
 -- Table structure for staff_skills
