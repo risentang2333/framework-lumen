@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50553
 File Encoding         : 65001
 
-Date: 2019-03-27 15:13:02
+Date: 2019-04-05 15:04:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,13 +21,13 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `abilities`;
 CREATE TABLE `abilities` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) NOT NULL DEFAULT '' COMMENT '能力名',
+  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '能力名',
   `parent_id` int(11) NOT NULL DEFAULT '0' COMMENT '父级id',
   `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '启用状态',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COMMENT='标签分类';
 
 -- ----------------------------
 -- Table structure for areas
@@ -41,6 +41,72 @@ CREATE TABLE `areas` (
   `parent_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_certify_status
+-- ----------------------------
+DROP TABLE IF EXISTS `config_certify_status`;
+CREATE TABLE `config_certify_status` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_course
+-- ----------------------------
+DROP TABLE IF EXISTS `config_course`;
+CREATE TABLE `config_course` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_service_crowd
+-- ----------------------------
+DROP TABLE IF EXISTS `config_service_crowd`;
+CREATE TABLE `config_service_crowd` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_service_type
+-- ----------------------------
+DROP TABLE IF EXISTS `config_service_type`;
+CREATE TABLE `config_service_type` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_source
+-- ----------------------------
+DROP TABLE IF EXISTS `config_source`;
+CREATE TABLE `config_source` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
+
+-- ----------------------------
+-- Table structure for config_working_age
+-- ----------------------------
+DROP TABLE IF EXISTS `config_working_age`;
+CREATE TABLE `config_working_age` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) NOT NULL DEFAULT '',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态 0：正常，1：停用',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
 -- Table structure for managers
@@ -93,12 +159,11 @@ CREATE TABLE `orders` (
   `wage_count` tinyint(1) NOT NULL DEFAULT '0' COMMENT '发工资次数',
   `wage_price` float(11,2) NOT NULL DEFAULT '0.00' COMMENT '工资金额',
   `type` tinyint(1) NOT NULL DEFAULT '1' COMMENT '订单类型 0：全部 ，1：待匹配，2：已匹配，3：已签约，4：已取消，5：订单完成',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `code` (`code`) USING BTREE COMMENT '订单号唯一性约束'
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='订单表';
 
 -- ----------------------------
 -- Table structure for order_files
@@ -110,7 +175,7 @@ CREATE TABLE `order_files` (
   `name` varchar(200) NOT NULL DEFAULT '' COMMENT '文件名',
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='订单合同文件';
 
 -- ----------------------------
 -- Table structure for order_logs
@@ -127,7 +192,7 @@ CREATE TABLE `order_logs` (
   `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `type` enum('','sign','normal','assign','other') NOT NULL DEFAULT '' COMMENT '日志分类',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='订单日志';
 
 -- ----------------------------
 -- Table structure for order_staff
@@ -137,11 +202,11 @@ CREATE TABLE `order_staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `order_id` int(11) NOT NULL DEFAULT '0' COMMENT '订单id',
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务人员id',
+  `staff_code` varchar(10) NOT NULL DEFAULT '' COMMENT '员工编号',
   `staff_name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务人员名',
   `type` enum('','unsign','sign','refuse') NOT NULL DEFAULT 'unsign' COMMENT '签约状态，未签约，已签约，已拒绝',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=50 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='订单匹配人员';
 
 -- ----------------------------
 -- Table structure for paper_categories
@@ -154,7 +219,7 @@ CREATE TABLE `paper_categories` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='证件类型表';
 
 -- ----------------------------
 -- Table structure for permissions
@@ -171,7 +236,7 @@ CREATE TABLE `permissions` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超管权限 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '权限删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限表';
 
 -- ----------------------------
 -- Table structure for permission_role
@@ -182,7 +247,7 @@ CREATE TABLE `permission_role` (
   `permission_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=72 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='权限角色关联表';
 
 -- ----------------------------
 -- Table structure for roles
@@ -194,7 +259,7 @@ CREATE TABLE `roles` (
   `is_administrator` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否为超级管理员 0：全部，1：否，2：是',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '角色删除状态0：正常，1：已删除',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色表';
 
 -- ----------------------------
 -- Table structure for role_manager
@@ -205,7 +270,7 @@ CREATE TABLE `role_manager` (
   `manager_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='角色账号关联表';
 
 -- ----------------------------
 -- Table structure for service_categories
@@ -222,48 +287,43 @@ CREATE TABLE `service_categories` (
 ) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COMMENT='项目分类';
 
 -- ----------------------------
--- Table structure for service_items
--- ----------------------------
-DROP TABLE IF EXISTS `service_items`;
-CREATE TABLE `service_items` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `service_category_id` int(11) NOT NULL DEFAULT '0' COMMENT '服务分类id',
-  `service_item_name` varchar(200) NOT NULL DEFAULT '',
-  `type` enum('','enable','disable') NOT NULL DEFAULT 'enable' COMMENT '工作状态',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
-  `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='基础服务表';
-
--- ----------------------------
 -- Table structure for staff
 -- ----------------------------
 DROP TABLE IF EXISTS `staff`;
 CREATE TABLE `staff` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(30) NOT NULL DEFAULT '' COMMENT '姓名',
-  `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
-  `identify` varchar(20) NOT NULL DEFAULT '' COMMENT '身份证号',
-  `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
-  `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
-  `wechat` varchar(50) NOT NULL DEFAULT '' COMMENT '微信号',
-  `password` varchar(64) NOT NULL DEFAULT '' COMMENT '密码',
-  `access_token` varchar(64) NOT NULL DEFAULT '' COMMENT '认证令牌',
-  `refresh_token` varchar(64) NOT NULL DEFAULT '' COMMENT '刷新token',
-  `expire` int(11) NOT NULL DEFAULT '0' COMMENT '过期时间',
-  `icon` varchar(255) NOT NULL DEFAULT '' COMMENT '头像图标',
+  `register_at` int(11) NOT NULL DEFAULT '0' COMMENT '登记时间',
+  `certify_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '认证状态，动态配置',
+  `name` varchar(20) NOT NULL DEFAULT '' COMMENT '姓名',
   `age` tinyint(3) NOT NULL DEFAULT '0' COMMENT '年龄',
+  `phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
+  `return_msg` varchar(200) NOT NULL DEFAULT '' COMMENT '回访信息',
+  `working_status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '接单状态',
+  `remarks` varchar(200) NOT NULL DEFAULT '' COMMENT '备注',
+  `service_type` tinyint(1) NOT NULL DEFAULT '0' COMMENT '服务类型，动态配置',
+  `working_age` tinyint(1) NOT NULL DEFAULT '0' COMMENT '工龄，动态配置',
+  `working_experience` varchar(200) NOT NULL DEFAULT '' COMMENT '工作经验',
+  `nation` varchar(20) NOT NULL DEFAULT '' COMMENT '民族',
+  `birthplace` varchar(200) NOT NULL DEFAULT '' COMMENT '密码',
+  `identify` varchar(20) NOT NULL DEFAULT '' COMMENT '身份证号',
   `address` varchar(200) NOT NULL DEFAULT '' COMMENT '现居住地',
   `education` tinyint(1) NOT NULL DEFAULT '0' COMMENT '学历 0：全部，1：博士，2：硕士，3：本科，4：大专，5：中专，6：高中，7：初中，8：小学',
+  `urgent_phone` varchar(11) NOT NULL DEFAULT '' COMMENT '手机号，作为登录账号',
   `bank_card` varchar(30) NOT NULL DEFAULT '' COMMENT '银行卡号',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
-  `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `icon` varchar(255) NOT NULL DEFAULT '' COMMENT '头像图标',
+  `course` tinyint(1) NOT NULL DEFAULT '0' COMMENT '培训课程',
+  `source` tinyint(1) NOT NULL DEFAULT '0' COMMENT '信息来源,可配置',
+  `manager_id` int(11) NOT NULL DEFAULT '0' COMMENT '管理员id',
+  `manager_name` varchar(20) NOT NULL DEFAULT '' COMMENT '管理员名',
+  `code` varchar(20) NOT NULL DEFAULT '' COMMENT '员工编号',
+  `sex` tinyint(1) NOT NULL DEFAULT '1' COMMENT '性别 0：全部，1：男，2：女',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
-  `type` enum('normal','sign') NOT NULL DEFAULT 'normal' COMMENT '状态',
+  `created_at` int(11) NOT NULL DEFAULT '0' COMMENT '创建时间',
+  `type` enum('normal','sign') NOT NULL DEFAULT 'normal' COMMENT '签约状态',
+  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '服务人员状态 0：正常，1：停用',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `phone` (`phone`) USING BTREE COMMENT '手机号唯一性约束'
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='员工表';
 
 -- ----------------------------
 -- Table structure for staff_labels
@@ -274,9 +334,8 @@ CREATE TABLE `staff_labels` (
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
   `ability_id` int(11) NOT NULL DEFAULT '0' COMMENT '能力id',
   `name` varchar(20) NOT NULL DEFAULT '',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='员工标签';
 
 -- ----------------------------
 -- Table structure for staff_papers
@@ -291,7 +350,7 @@ CREATE TABLE `staff_papers` (
   `url` varchar(255) NOT NULL DEFAULT '' COMMENT '图片地址',
   `index` tinyint(1) NOT NULL DEFAULT '0' COMMENT '图片排序索引',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='员工证书';
 
 -- ----------------------------
 -- Table structure for staff_regions
@@ -302,9 +361,17 @@ CREATE TABLE `staff_regions` (
   `staff_id` int(11) NOT NULL DEFAULT '0' COMMENT '员工id',
   `region_id` int(11) NOT NULL DEFAULT '0' COMMENT '地区id',
   `name` varchar(20) NOT NULL DEFAULT '' COMMENT '服务地区',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COMMENT='员工服务地区表';
+
+-- ----------------------------
+-- Table structure for staff_service_crowd
+-- ----------------------------
+DROP TABLE IF EXISTS `staff_service_crowd`;
+CREATE TABLE `staff_service_crowd` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=130 DEFAULT CHARSET=utf8mb4 COMMENT='地区表';
 
 -- ----------------------------
 -- Table structure for staff_skills
@@ -322,10 +389,9 @@ CREATE TABLE `staff_skills` (
   `workable` tinyint(1) NOT NULL DEFAULT '1' COMMENT '是否可工作 0：全部，1：可工作，2：不能工作',
   `review` tinyint(1) NOT NULL DEFAULT '1' COMMENT '审核状态 0：全部，1：未审核， 2：通过，3：不通过',
   `remark` varchar(255) NOT NULL DEFAULT '' COMMENT '审核备注',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   `version` tinyint(1) NOT NULL DEFAULT '0' COMMENT '操作版本号，防止多端错误操作',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COMMENT='工人分类表';
 
 -- ----------------------------
 -- Table structure for users
@@ -342,4 +408,4 @@ CREATE TABLE `users` (
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态，0：正常，1：删除',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE KEY `phone` (`phone`) USING BTREE COMMENT '手机唯一性索引'
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 ROW_FORMAT=COMPACT COMMENT='用户表';
