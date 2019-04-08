@@ -31,6 +31,8 @@ $app->configure('config');
 $app->configure('code');
 // 邮件配置
 $app->configure('mail');
+// excel配置
+$app->configure('excel');
 
 $app->singleton('mailer', function () use ($app) {
     return $app->loadComponent('mail', Illuminate\Mail\MailServiceProvider::class, 'mailer');
@@ -88,7 +90,8 @@ $app->routeMiddleware([
 $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
-
+// 注入PHPExcel
+$app->register(Maatwebsite\Excel\ExcelServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes

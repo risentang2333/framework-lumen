@@ -327,6 +327,18 @@ if (! function_exists('public_path')) {
     }
 }
 
+if (! function_exists('config_path')) {
+    /**
+     * 获取 config 文件夹地址
+     * 
+     * @param  string  $path
+     * @return string
+     */
+    function config_path($path = '') {
+        return app()->basePath() .DIRECTORY_SEPARATOR. 'config' . ($path ? DIRECTORY_SEPARATOR . ltrim($path, DIRECTORY_SEPARATOR) : $path);
+    }
+}
+
 if (! function_exists('file_upload')) {
     /**
      * 文件上传处理

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller;
 use App\Services\Admin\LogService;
 
+use Maatwebsite\Excel\Facades\Excel;
+
+
 class LogController extends Controller
 {
     public function getLogList(Request $request)
@@ -40,5 +43,16 @@ class LogController extends Controller
         $list['endTime'] = $endTime;
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
+    }
+
+    public function excel()
+    {
+        $url = storage_path('1.xls');
+
+        Excel::load($url, function ($reader) {
+            foreach ($reader->all()[0] as $key => $value) {
+                print_r($value);
+            }
+        });
     }
 }

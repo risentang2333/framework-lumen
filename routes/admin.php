@@ -153,6 +153,8 @@ Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
 Route::group(['prefix' => 'log', 'middleware' => ['admin']], function () {
     // 获取日志列表
     Route::get('/getLogList', 'LogController@getLogList');
+
+    Route::get('/excel', 'LogController@excel');
 });
 // 配置表单参数模块
 Route::group(['prefix' => 'formConfig', 'middleware' => ['admin']], function () {
