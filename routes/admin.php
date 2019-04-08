@@ -62,51 +62,6 @@ Route::group(['prefix' => 'staff', 'middleware' => ['admin']], function () {
     // 停用/启用服务人员
     Route::post('/changeStaffStatus', 'StaffController@changeStaffStatus');
 });
-// 服务项目模块
-Route::group(['prefix' => 'service', 'middleware' => ['admin']], function () {
-    // 获取服务项目列表
-    Route::get('/getItemList', 'ServiceController@getItemList');
-    // 获取服务信息
-    Route::get('/getItem', 'ServiceController@getItem');
-    // 编辑服务信息
-    Route::post('/editItem', 'ServiceController@editItem');
-    // 删除服务项目
-    Route::post('/deleteItem', 'ServiceController@deleteItem');
-    // 启用/停用服务
-    Route::post('/changeItemType', 'ServiceController@changeItemType');
-    // 获取服务分类列表
-    Route::get('/getCategoryList', 'ServiceController@getCategoryList');
-    // 获取服务
-    Route::get('/getCategory', 'ServiceController@getCategory');
-    // 编辑服务
-    Route::post('/editCategory', 'ServiceController@editCategory');
-    // 启用/停用服务
-    Route::post('/changeCategoryType', 'ServiceController@changeCategoryType');
-});
-// 能力标签模块
-Route::group(['prefix' => 'ability', 'middleware' => ['admin']], function () {
-    // 获取能力标签列表
-    Route::get('/getAbilityList', 'AbilityController@getAbilityList');
-    // 获取能力标签
-    Route::get('/getAbility', 'AbilityController@getAbility');
-    // 编辑能力标签
-    Route::post('/editAbility', 'AbilityController@editAbility');
-    // 启用/停用服务
-    Route::post('/changeAbilityType', 'AbilityController@changeAbilityType');
-    // 删除能力标签
-    Route::get('/deleteAbility', 'AbilityController@deleteAbility');
-});
-// 证件模块
-Route::group(['prefix' => 'paper', 'middleware' => ['admin']], function () {
-    // 获取能力标签列表
-    Route::get('/getPaperList', 'PaperController@getPaperList');
-    // 获取能力标签
-    Route::get('/getPaper', 'PaperController@getPaper');
-    // 编辑能力标签
-    Route::post('/editPaper', 'PaperController@editPaper');
-    // 启用/停用服务
-    Route::post('/changePaperType', 'PaperController@changePaperType');
-});
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
     // 获取订单列表
@@ -134,12 +89,10 @@ Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {
 });
 // 通用下拉框数据
 Route::group(['prefix' => 'common', 'middleware' => ['admin']], function () {
-    // 获取地区树
-    Route::get('/getAreaTree', 'CommonController@getAreaTree');
     // 获取服务树
-    Route::get('/getServiceTree', 'CommonController@getServiceTree');
+    Route::get('/getServiceSelection', 'CommonController@getServiceSelection');
     // 获取能力标签树
-    Route::get('/getLabelTree', 'CommonController@getLabelTree');
+    Route::get('/getLabelSelection', 'CommonController@getLabelSelection');
     // 获取证书种类下拉数据
     Route::get('/getPaperSelection', 'CommonController@getPaperSelection');
     // 获取管理员下拉数据

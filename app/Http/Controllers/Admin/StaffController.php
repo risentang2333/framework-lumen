@@ -41,13 +41,16 @@ class StaffController extends Controller
         $pageNumber = (int)trim($request->input('pageNumber', 15));
 
         $list = $staffService->getStaffList($params, $format, $pageNumber);
-        // if (!empty($list['data'])) {
-        //     array_walk($list['data'], function (&$item){
-        //         if ($item['icon'] != '') {
-        //             $item['icon'] = config('config.disks.resource.url') .'/'.$item['icon'];
-        //         }
-        //     });
-        // }
+        if (!empty($list['data'])) {
+            array_walk($list['data'], function (&$item){
+                if (!empty($item['register_at'])) {
+                    $item['register_at'] = $item['register_at'] * 1000;
+                }
+                if (!empty($item['created_at'])) {
+                    $item['created_at'] = $item['created_at'] * 1000;
+                }
+            });
+        }
 
         return send_msg_json(SUCCESS_RETURN, "success", $list);
     }
@@ -69,27 +72,7 @@ class StaffController extends Controller
         // 工作人员信息
         $staff = $staffService->getStaffById($id)->toArray();
         // 证书
-        $paper = $staffService->getPaperByStaffId($id)->toArray();
-        
-        $new_paper = array();
-        // 构造新的数据格式
-        foreach ($paper as $v) {
-            $temp = new \stdClass();
-            $images = array();
-            $temp->paper_category_id = $v[0]['paper_category_id'];
-            $temp->paper_category_name = $v[0]['paper_category_name'];
-            // 拼写images
-            foreach ($v as $vv) {
-                $image_temp = new \stdClass();
-                $image_temp->id = $vv['id'];
-                $image_temp->name = $vv['name'];
-                $image_temp->path = $vv['path'];
-                array_push($images, $image_temp);
-            }
-            $temp->images = $images;
-
-            array_push($new_paper, $temp);
-        }
+        $paper = $staffService->getPaperByStaffId($id);
         // 能力
         $label = $staffService->getLabelByStaffId($id)->toArray();
         // 技能标签材料证明集合
@@ -97,7 +80,7 @@ class StaffController extends Controller
         // 服务地区
         $region = $staffService->getRegionByStaffId($id)->toArray();
 
-        $staff['paper'] = $new_paper;
+        $staff['paper'] = $paper;
         $staff['label'] = $label;
         $staff['skill'] = $skill;
         $staff['region'] = $region;
@@ -118,37 +101,59 @@ class StaffController extends Controller
         $accessToken = trim($request->header('accessToken',''));
         // 服务人员id
         $params['id'] = (int)trim($request->input('id', 0));
+        // 登记时间
+        $params['register_at'] = (int)trim($request->input('register_at', 0));
+        // 认证状态
+        $params['authentication'] = (int)trim($request->input('authentication', 0));
         // 服务人员姓名
         $params['name'] = trim($request->input('name', ''));
-        // 服务人员头像
-        $params['icon'] = trim($request->input('icon', ''));
-        // 身份证号
-        $params['identify'] = trim($request->input('identify', ''));
-        // 服务人员性别
-        $params['sex'] = (int)trim($request->input('sex', 1));
-        // 民族
-        $params['nation'] = trim($request->input('nation', ''));
-        // 服务人员手机号
-        $params['phone'] = trim($request->input('phone', ''));
-        // 微信号
-        $params['wechat'] = trim($request->input('wechat', ''));
         // 年龄
         $params['age'] = (int)trim($request->input('age', 0));
+        // 服务人员手机号
+        $params['phone'] = trim($request->input('phone', ''));
+        // 回访信息
+        $params['return_msg'] = trim($request->input('return_msg', ''));
+        // 接单状态
+        $params['working_status'] = (int)trim($request->input('working_status', 0));
+        // 备注
+        $params['remarks'] = trim($request->input('remarks', ''));
+        // 服务类型
+        $params['service_type'] = (int)trim($request->input('service_type', 0));
+        // 工龄
+        $params['working_age'] = (int)trim($request->input('working_age', 0));
+        // 工作经验
+        $params['working_experience'] = trim($request->input('working_experience', ''));
+        // 民族
+        $params['nation'] = trim($request->input('nation', ''));
+        // 籍贯
+        $params['birthplace'] = trim($request->input('birthplace', ''));
+        // 身份证号
+        $params['identify'] = trim($request->input('identify', ''));
         // 住址
         $params['address'] = trim($request->input('address', ''));
         // 教育程度
-        $params['education'] = trim($request->input('education', ''));
+        $params['education'] = (int)trim($request->input('education', 0));
+        // 紧急联系人
+        $params['urgent_phone'] = trim($request->input('urgent_phone', ''));
         // 银行卡号
         $params['bank_card'] = trim($request->input('bank_card', ''));
+        // 服务人员头像
+        $params['icon'] = trim($request->input('icon', ''));
+        // 培训课程
+        $params['course'] = (int)trim($request->input('course', 0));
+        // 信息来源
+        $params['source'] = (int)trim($request->input('source', 0));
+        // 服务人员性别
+        $params['sex'] = (int)trim($request->input('sex', 1));
         // 操作版本号
         $params['version'] = (int)trim($request->input('version', 0));
         // 服务地区
         $params['region'] = $request->input('region', array());
         // 证书(数组)
         $params['paper'] = $request->input('paper', array());
-        // 能力标签(数组)
+        // 服务人群标签(数组)
         $params['label'] = $request->input('label', array());
-        // 技能标签(数组)
+        // 技能(数组)
         $params['skill'] = $request->input('skill', array());
 
         if ($params['name'] == '') {
@@ -181,7 +186,7 @@ class StaffController extends Controller
         if (empty($params['age'])) {
             send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
         }
-        $return = $staffService->saveStaff($params);
+        $return = $staffService->saveStaff($params, $accessToken);
         
         // 编写操作日志
         if (empty($params['id'])) {

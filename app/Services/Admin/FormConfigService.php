@@ -16,14 +16,14 @@ class FormConfigService
 {    
     public function getFormConfig()
     {
-        $data['authentication'] = ConfigAuthentications::select(['id','name','status','version'])->get();
-        $data['course'] = ConfigCourses::select(['id','name','status','version'])->get();
-        $data['paper_category'] = ConfigPaperCategories::select(['id','name','status','version'])->get();
-        $data['service_category'] = ConfigServiceCategories::select(['id','name','status','version'])->get();
-        $data['service_crowd'] = ConfigServiceCrowds::select(['id','name','status','version'])->get();
-        $data['service_type'] = ConfigServiceTypes::select(['id','name','status','version'])->get();
-        $data['source'] = ConfigSources::select(['id','name','status','version'])->get();
-        $data['working_age'] = ConfigWorkingAges::select(['id','name','status','version'])->get();
+        $data['authentication'] = ConfigAuthentications::select(['id','name','type','version'])->get();
+        $data['course'] = ConfigCourses::select(['id','name','type','version'])->get();
+        $data['paper_category'] = ConfigPaperCategories::select(['id','name','type','version'])->get();
+        $data['service_category'] = ConfigServiceCategories::select(['id','name','type','version'])->get();
+        $data['service_crowd'] = ConfigServiceCrowds::select(['id','name','type','version'])->get();
+        $data['service_type'] = ConfigServiceTypes::select(['id','name','type','version'])->get();
+        $data['source'] = ConfigSources::select(['id','name','type','version'])->get();
+        $data['working_age'] = ConfigWorkingAges::select(['id','name','type','version'])->get();
 
         return $data;
     }
@@ -60,6 +60,9 @@ class FormConfigService
                 send_msg_json(ERROR_RETURN, "请传入配置表信息");
                 break;
         }
+        if (DB::table($table)->where(['name'=>$params['name'],'id'=>$params['id']])->count() > 0) {
+            send_msg_json(ERROR_RETURN, "参数名称重复");
+        }
         if (empty($params['id'])) {
             return DB::table($table)->insert(['name'=>$params['name']]);
         } else {
@@ -70,7 +73,7 @@ class FormConfigService
             if ($option->version != $params['version']) {
                 send_msg_json(ERROR_RETURN, "数据错误，请刷新页面");
             }
-            return DB::table($table)->where('id',$params['id'])->update(['name'=>$params['name'], 'version'=>$params['version']+1]);
+            return DB::table($table)->where('id',$params['id'])->update(['name'=>$params['name'], 'type'=>$params['type'], 'version'=>$params['version']+1]);
         }
     }
 }

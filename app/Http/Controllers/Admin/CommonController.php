@@ -9,37 +9,19 @@ use App\Services\Admin\CommonService;
 class CommonController extends Controller
 {
     /**
-     * 获取地区列表
-     *
-     * @return string
-     */
-    public function getAreaTree()
-    {
-        $commonService = new CommonService;
-
-        $areas = $commonService->getAreaForTree();
-
-        $tree = getTree($areas);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
-    }
-
-    /**
      * 获取服务分类列表
      *
      * @return string
      */
-    public function getServiceTree(Request $request)
+    public function getServiceSelection(Request $request)
     {
         $commonService = new CommonService;
         // 获取类型
         $type = trim($request->input('type', ''));
 
-        $service = $commonService->getCategoryForTree($type);
+        $selection = $commonService->getServiceSelection($type);
 
-        $tree = getTree($service);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
+        return send_msg_json(SUCCESS_RETURN, "success", $selection);
     }
     
     /**
@@ -47,17 +29,15 @@ class CommonController extends Controller
      *
      * @return string
      */
-    public function getLabelTree(Request $request)
+    public function getLabelSelection(Request $request)
     {
         $commonService = new CommonService;
         // 获取类型
         $type = trim($request->input('type', ''));
 
-        $label = $commonService->getLabelForTree($type);
+        $selection = $commonService->getLabelSelection($type);
 
-        $tree = getTree($label);
-
-        return send_msg_json(SUCCESS_RETURN, "success", $tree);
+        return send_msg_json(SUCCESS_RETURN, "success", $selection);
     }
 
     public function getPaperSelection(Request $request)

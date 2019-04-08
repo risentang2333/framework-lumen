@@ -28,6 +28,8 @@ class FormConfigController extends Controller
         $params['id'] = (int)trim($request->input('id', 0));
         // 修改项名称
         $params['name'] = trim($request->input('name', ''));
+        // 是否停用
+        $params['type'] = trim($request->input('type', 'enable'));
 
         $params['version'] = (int)trim($request->input('version', 0));
 
