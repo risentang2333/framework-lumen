@@ -60,7 +60,7 @@ class FormConfigService
                 send_msg_json(ERROR_RETURN, "请传入配置表信息");
                 break;
         }
-        if (DB::table($table)->where(['name'=>$params['name'],'id'=>$params['id']])->count() > 0) {
+        if (DB::table($table)->where('name',$params['name'])->where('id','!=',$params['id'])->count() > 0) {
             send_msg_json(ERROR_RETURN, "参数名称重复");
         }
         if (empty($params['id'])) {

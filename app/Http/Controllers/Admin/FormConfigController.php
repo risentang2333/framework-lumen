@@ -42,7 +42,7 @@ class FormConfigController extends Controller
         // 保存服务项目
         $formConfigService->editFormConfig($params);
         // 写入日志
-        write_log($accessToken, '修改表单配置');
+        // write_log($accessToken, '修改表单配置');
         return send_msg_json(SUCCESS_RETURN, '修改成功');
     }
 }
