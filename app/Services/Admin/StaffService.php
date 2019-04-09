@@ -8,6 +8,7 @@ use App\Entities\StaffLabels;
 use App\Entities\StaffPapers;
 use App\Entities\StaffPaperImages;
 use App\Entities\StaffRegions;
+use App\Entities\Managers;
 use Illuminate\Support\Facades\DB;
 
 class StaffService 
@@ -237,8 +238,8 @@ class StaffService
         $staff->education = $params['education'];
         // 根据token获取管理员姓名
         $manager = $this->getManagerByToken($accessToken);
-        $staff->manager_id = $params['manager_id'];
-        $staff->manager_name = $params['manager_name'];
+        $staff->manager_id = $manager['manager_id'];
+        $staff->manager_name = $manager['manager_name'];
         // 保存并获取操作id
         $staffId = DB::transaction(function () use ($staff, $params){
             // 先移动图片，在更新数据库
@@ -488,7 +489,7 @@ class StaffService
         if (empty($formId)) {
             if (!empty($skill)) {
                 array_walk($skill, function (&$item) use ($staffId){
-                    DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name'],'review'=>0]);
+                    DB::table('staff_skills')->insert(['staff_id'=>$staffId,'service_category_id'=>$item['service_category_id'],'name'=>$item['name']]);
                 });
             }
         } else {
