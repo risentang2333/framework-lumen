@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         Commands\WorkermanCommand::class,
         Commands\BackupDatabase::class,
-        Commands\SendMailCommand::class
+        Commands\SendMailCommand::class,
+        Commands\ExcelToSql::class
     ];
 
     /**

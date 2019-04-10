@@ -504,7 +504,7 @@ return array(
             | If set to false, a carbon object will return
             |
             */
-            'format'  => 'Y-m-d',
+            'format'  => 'Y-m-d H:i:s',
 
             /*
             |--------------------------------------------------------------------------

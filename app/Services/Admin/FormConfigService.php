@@ -12,6 +12,7 @@ use App\Entities\ConfigSources;
 use App\Entities\ConfigWorkingAges;
 use App\Entities\ConfigWorkingStatus;
 use App\Entities\ConfigServiceRegions;
+use App\Entities\ConfigNations;
 
 use Illuminate\Support\Facades\DB;
 
@@ -29,6 +30,7 @@ class FormConfigService
         $data['working_age'] = ConfigWorkingAges::select(['id','name','type','version'])->get();
         $data['working_status'] = ConfigWorkingStatus::select(['id','name','type','version'])->get();
         $data['service_region'] = ConfigServiceRegions::select(['id','name','type','version'])->get();
+        $data['nation'] = ConfigNations::select(['id','name','type','version'])->get();
 
         return $data;
     }
@@ -66,6 +68,9 @@ class FormConfigService
                 break;
             case 'service_region':
                 $table = 'config_service_regions';
+                break;
+            case 'nation':
+                $table = 'config_nations';
                 break;
             default:
                 send_msg_json(ERROR_RETURN, "请传入配置表信息");
