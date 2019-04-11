@@ -322,6 +322,12 @@ class ExcelToSql extends Command
                         DB::table('staff')->insert(['register_at'=>$params['register_at'],'authentication'=>$params['authentication'],'name'=>$params['name'],'age'=>$params['age'],'phone'=>$params['phone'],'return_msg'=>$params['return_msg'],'working_status'=>$params['working_status'],'remarks'=>$params['remarks'],'working_age'=>$params['working_age'],'working_experience'=>$params['working_experience'],'nation'=>$params['nation'],'birthplace'=>$params['birthplace'],'identify'=>$params['identify'],'address'=>$params['address'],'education'=>$params['education'],'urgent_phone'=>$params['urgent_phone'],'bank_card'=>$params['bank_card'],'source'=>$params['source'],'created_at'=>$params['created_at']]);
 
                         $id = DB::getPdo()->lastInsertId();
+
+                        // 根据订单id设置订单号
+                        $code = sprintf("%05d", $id);
+                        $staff->code = $code;
+                        DB::table('staff')->where('id',$id)->update(['code'=>$code,'manager_id'=>1,'manager_name'=>'超级管理员']);
+                        
                         if (!empty($params['skill'])) {
                             array_walk($params['skill'], function (&$item) use ($id){
                                 // 更新数据库

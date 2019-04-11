@@ -4,10 +4,14 @@ namespace App\Services\Admin;
 
 use App\Entities\Staff;
 use App\Entities\StaffSkills;
-use App\Entities\StaffLabels;
+use App\Entities\StaffCourses;
 use App\Entities\StaffPapers;
-use App\Entities\StaffPaperImages;
+use App\Entities\StaffPhotos;
 use App\Entities\StaffRegions;
+use App\Entities\StaffServiceCrowds;
+use App\Entities\StaffServiceTypes;
+use App\Entities\StaffCertificateImages;
+use App\Entities\StaffCertificates;
 use App\Entities\Managers;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +23,7 @@ class StaffService
      * @var array
      */
     private $staffList = [
-        'id','register_at','authentication','name','age','phone','return_msg','working_status','remarks','service_type','working_age','working_experience','nation','birthplace','identify','address','education','urgent_phone','bank_card','icon','course','source','manager_id','manager_name','code as staff_code','sex','version','created_at','type','status'
+        'id','register_at','authentication','name','age','phone','return_msg','working_status','remarks','working_age','working_experience','nation','birthplace','identify','address','education','urgent_phone','bank_card','icon','source','manager_id','manager_name','code as staff_code','sex','version','created_at','type','status'
     ];
     
     /**
@@ -48,8 +52,8 @@ class StaffService
                     $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_skills` WHERE `service_category_id` = ?)', [$params['service_category_id']]);
                 }
                 // 根据特长标签搜索
-                if (!empty($params['ability_ids'])) {
-                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_labels` WHERE `service_crowd_id` IN (?))', [implode(",",$params['ability_ids'])]);
+                if (!empty($params['service_crowd_ids'])) {
+                    $query->whereRaw('`id` in (SELECT `staff_id` FROM `staff_service_crowds` WHERE `service_crowd_id` IN (?))', [implode(",",$params['service_crowd_ids'])]);
                 }
                 // 根据服务地区搜索
                 if (!empty($params['region_ids'])) {
@@ -109,7 +113,7 @@ class StaffService
      */
     public function getStaffById($id)
     {
-        $staff = Staff::select(['id','register_at','authentication','name','age','phone','return_msg','working_status','remarks','service_type','working_age','working_experience','nation','birthplace','identify','address','education','urgent_phone','bank_card','icon','course','source','manager_id','manager_name','code as staff_code','sex','version','created_at','type','status'])
+        $staff = Staff::select(['id','register_at','authentication','name','age','phone','return_msg','working_status','remarks','working_age','working_experience','nation','birthplace','identify','address','education','urgent_phone','bank_card','icon','source','manager_id','manager_name','code as staff_code','sex','version','created_at','type','status'])
                       ->where('id',$id)
                       ->first();
         if (empty($staff)) {
@@ -119,7 +123,12 @@ class StaffService
         $staff->register_at = $staff->register_at * 1000;
         $staff->created_at = $staff->created_at * 1000;
 
-        return $staff;
+        return $staff->toArray();
+    }
+
+    public function getCourseById($id)
+    {
+        return StaffCourses::select(['id','course_id','name'])->where('staff_id',$id)->get()->toArray();
     }
 
     /**
@@ -128,38 +137,16 @@ class StaffService
      * @param int $id
      * @return object
      */
-    public function getPaperByStaffId($id)
+    public function getPaperById($id)
     {
         // 证书标签
-        $papers = StaffPapers::select(['id','paper_category_id','paper_category_name'])->where('staff_id',$id)->get()->toArray();
-        if (!empty($papers)) {
-            array_walk($papers, function (&$item){
-                $item['images'] = StaffPaperImages::select(['id','staff_paper_id','name','url as path'])->where('staff_paper_id',$item['id'])->get()->toArray();
-            });
-        }
-        return $papers;
+        return StaffPapers::select(['id','paper_category_id','name'])->where('staff_id',$id)->get()->toArray();
     }
 
-    /**
-     * 根据员工id获取能力标签
-     *
-     * @param int $id
-     * @return object
-     */
-    public function getLabelByStaffId($id)
+    public function getPhotoById($id)
     {
-        return StaffLabels::where('staff_id', $id)->get();
-    }
-
-    /**
-     * 根据员工id获取技能集合
-     *
-     * @param int $id
-     * @return array
-     */
-    public function getSkillByStaffId($id)
-    {
-        return StaffSkills::where('staff_id', $id)->get();
+        // 证书标签
+        return StaffPhotos::select(['id','url as path','name'])->where('staff_id',$id)->get()->toArray();
     }
 
     /**
@@ -168,10 +155,44 @@ class StaffService
      * @param int $id
      * @return array
      */
-    public function getRegionByStaffId($id)
+    public function getRegionById($id)
     {
-        return StaffRegions::where('staff_id', $id)->get();
+        return StaffRegions::select(['id','region_id','name'])->where('staff_id', $id)->get()->toArray();
     }
+
+    public function getServiceCrowdsById($id)
+    {
+        return StaffServiceCrowds::select(['id','service_crowd_id','name'])->where('staff_id', $id)->get()->toArray();
+    }
+
+    public function getServiceTypesById($id)
+    {
+        return StaffServiceTypes::select(['id','service_type_id','name'])->where('staff_id', $id)->get()->toArray();
+    }
+
+    /**
+     * 根据员工id获取技能集合
+     *
+     * @param int $id
+     * @return array
+     */
+    public function getSkillById($id)
+    {
+        return StaffSkills::select(['id','service_category_id','name'])->where('staff_id', $id)->get();
+    }
+
+    public function getCertificateById($id)
+    {
+        $certificate = StaffCertificates::select(['id','paper_category_id','name as paper_category_name'])->where('staff_id',$id)->get()->toArray();
+        if (!empty($certificate)) {
+            array_walk($certificate, function (&$item) {
+                $item['images'] = DB::table('staff_certificate_images')->select(['id','name','url as path'])->where('staff_certificate_id',$item['id'])->get()->toArray();
+            });
+        }
+        return $certificate;
+    }
+
+    
 
     /**
      * 根据手机号查询员工
@@ -222,7 +243,6 @@ class StaffService
         $staff->return_msg = $params['return_msg'];
         $staff->working_status = $params['working_status'];
         $staff->remarks = $params['remarks'];
-        $staff->service_type = $params['service_type'];
         $staff->working_age = $params['working_age'];
         $staff->working_experience = $params['working_experience'];
         $staff->nation = $params['nation'];
@@ -232,7 +252,6 @@ class StaffService
         $staff->education = $params['education'];
         $staff->urgent_phone = $params['urgent_phone'];
         $staff->bank_card = $params['bank_card'];
-        $staff->course = $params['course'];
         $staff->source = $params['source'];
         $staff->sex = $params['sex'];
         $staff->education = $params['education'];
@@ -257,14 +276,20 @@ class StaffService
             }
             // staff表操作id
             $staffId = $staff->id;
-            // 编辑员工服务地区
-            $this->saveStaffServiceRegion($params['region'], $params['id'], $staffId);
-            // 编辑员工能力标签
-            $this->saveStaffLabel($params['label'], $params['id'], $staffId);
+            $this->saveStaffCourse($params['course'], $params['id'], $staffId);
             // 编辑员工证件
             $this->saveStaffPaper($params['paper'], $params['id'], $staffId);
+            $this->saveStaffPhoto($params['photo'], $params['id'], $staffId);
+            // 编辑员工服务地区
+            $this->saveStaffRegion($params['region'], $params['id'], $staffId);
+            // 编辑员工能力标签
+            $this->saveStaffServiceCrowd($params['service_crowd'], $params['id'], $staffId);
+
+            $this->saveStaffServiceType($params['service_type'], $params['id'], $staffId);
             // 编辑员工技能
             $this->saveStaffSkill($params['skill'], $params['id'], $staffId);
+
+            $this->saveStaffCertificates($params['certificate'], $params['id'], $staffId);
 
             return $staffId;
         });
@@ -275,7 +300,141 @@ class StaffService
         );
     }
 
-    private function saveStaffServiceRegion($region, $formId, $staffId)
+    private function saveStaffCourse($course, $formId, $staffId)
+    {
+        // 如果为添加表单
+        if (empty($formId)) {
+            if (!empty($course)) {
+                array_walk($course, function (&$item) use ($staffId){
+                    DB::table('staff_courses')->insert(['staff_id'=>$staffId,'course_id'=>$item['course_id'],'name'=>$item['name']]);
+                });
+            }
+        // 如果为编辑表单
+        } else {
+            $courseIds = array_column($course, 'id');
+            // 原关系id集合
+            $original_courseIds = DB::table('staff_courses')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($courseIds, $original_courseIds);
+            // 需要删除的标签id
+            $delete_courseIds = array_diff($original_courseIds, $array_intersect);
+            // 物理删除员工标签表
+            if (!empty($delete_courseIds)) {
+                DB::table('staff_courses')->whereIn('id', $delete_courseIds)->delete();
+            }
+            if (!empty($course)) {
+                array_walk($course, function (&$item) use ($staffId, $array_intersect){
+                    if (!isset($item['id'])) {
+                        $item['id'] = 0;
+                    }
+                    // 添加
+                    if (!in_array($item['id'], $array_intersect)) {
+                        DB::table('staff_courses')->insert(['staff_id'=>$staffId,'course_id'=>$item['course_id'],'name'=>$item['name']]);
+                    // 更新
+                    } else {
+                        DB::table('staff_courses')->where('id', $item['id'])->update(['staff_id'=>$staffId,'course_id'=>$item['course_id'],'name'=>$item['name']]);
+                    }
+                });
+            }
+        }
+
+        return true;
+    }
+
+    private function saveStaffPaper($paper, $formId, $staffId)
+    {
+        // 如果为添加表单
+        if (empty($formId)) {
+            if (!empty($paper)) {
+                array_walk($paper, function (&$item) use ($staffId){
+                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'name'=>$item['name']]);
+                });
+            }
+        // 如果为编辑表单
+        } else {
+            $paperIds = array_column($paper, 'id');
+            // 原关系id集合
+            $original_paperIds = DB::table('staff_papers')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($paperIds, $original_paperIds);
+            // 需要删除的标签id
+            $delete_paperIds = array_diff($original_paperIds, $array_intersect);
+            // 物理删除员工标签表
+            if (!empty($delete_paperIds)) {
+                DB::table('staff_papers')->whereIn('id', $delete_paperIds)->delete();
+            }
+            if (!empty($paper)) {
+                array_walk($paper, function (&$item) use ($staffId, $array_intersect){
+                    if (!isset($item['id'])) {
+                        $item['id'] = 0;
+                    }
+                    // 添加
+                    if (!in_array($item['id'], $array_intersect)) {
+                        DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'name'=>$item['name']]);
+                    // 更新
+                    } else {
+                        DB::table('staff_papers')->where('id', $item['id'])->update(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'name'=>$item['name']]);
+                    }
+                });
+            }
+        }
+        return true;
+    }
+
+    private function saveStaffPhoto($photo, $formId, $staffId)
+    {
+        // 如果为添加表单
+        if (empty($formId)) {
+            if (!empty($photo)) {
+                array_walk($photo, function (&$item) use ($staffId){
+                    // 移动图片
+                    $url = move_upload_file($item['path'], 'paper');
+                    // 更新数据库
+                    DB::table('staff_photos')->insert(['staff_id'=>$staffId,'name'=>$item['name'],'url'=> $url]);
+                });
+            }
+        // 如果为编辑表单
+        } else {
+            $photoIds = array_column($photo, 'id');
+            // 原关系id集合
+            $original_photoIds = DB::table('staff_photos')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($photoIds, $original_photoIds);
+            // 需要删除的标签id
+            $delete_photoIds = array_diff($original_photoIds, $array_intersect);
+            // 物理删除员工标签表
+            if (!empty($delete_photoIds)) {
+                // 获取要删除的地址
+                $delete_url = DB::table('staff_photos')->select('url')->whereIn('id', $delete_photoIds)->pluck('url')->toArray();
+                // 逻辑删除员工标签表
+                DB::table('staff_photos')->whereIn('id', $delete_photoIds)->delete();
+                // 删除图片
+                array_walk($delete_url, function ($item) {
+                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
+                        unlink(config('config.disks.resource.root') . '/' .$item);
+                    }
+                });
+            }
+            if (!empty($photo)) {
+                // 添加
+                array_walk($photo, function (&$item) use ($staffId, $array_intersect){
+                    if (!isset($item['id'])) {
+                        $item['id'] = 0;
+                    }
+                    // 添加
+                    if (!in_array($item['id'], $array_intersect)) {
+                        // 移动图片到指定位置
+                        $url = move_upload_file($item['path'], 'paper');
+
+                        DB::table('staff_photos')->insert(['staff_id'=>$staffId,'name'=>$item['name'],'url'=> $url]);
+                    }
+                });
+            }
+        }
+        return true;
+    }
+
+    private function saveStaffRegion($region, $formId, $staffId)
     {
         // 如果为添加表单
         if (empty($formId)) {
@@ -312,48 +471,50 @@ class StaffService
                 });
             }
         }
+
+        return true;
     }
 
     /**
      * 编辑员工能力标签
      *
-     * @param array $label
+     * @param array $crowd
      * @param int $staffId
      * @return boolean
      */
-    private function saveStaffLabel($label, $formId, $staffId)
+    private function saveStaffServiceCrowd($crowd, $formId, $staffId)
     {
         // 如果为添加表单
         if (empty($formId)) {
-            if (!empty($label)) {
-                array_walk($label, function (&$item) use ($staffId){
-                    DB::table('staff_labels')->insert(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
+            if (!empty($crowd)) {
+                array_walk($crowd, function (&$item) use ($staffId){
+                    DB::table('staff_service_crowds')->insert(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
                 });
             }
         // 如果为编辑表单
         } else {
-            $labelIds = array_column($label, 'id');
+            $crowdIds = array_column($crowd, 'id');
             // 原关系id集合
-            $original_labelIds = DB::table('staff_labels')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
+            $original_crowdIds = DB::table('staff_service_crowds')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
-            $array_intersect = array_intersect($labelIds, $original_labelIds);
+            $array_intersect = array_intersect($crowdIds, $original_crowdIds);
             // 需要删除的标签id
-            $delete_labelIds = array_diff($original_labelIds, $array_intersect);
+            $delete_crowdIds = array_diff($original_crowdIds, $array_intersect);
             // 物理删除员工标签表
-            if (!empty($delete_labelIds)) {
-                DB::table('staff_labels')->whereIn('id', $delete_labelIds)->delete();
+            if (!empty($delete_crowdIds)) {
+                DB::table('staff_service_crowds')->whereIn('id', $delete_crowdIds)->delete();
             }
-            if (!empty($label)) {
-                array_walk($label, function (&$item) use ($staffId, $array_intersect){
+            if (!empty($crowd)) {
+                array_walk($crowd, function (&$item) use ($staffId, $array_intersect){
                     if (!isset($item['id'])) {
                         $item['id'] = 0;
                     }
                     // 添加
                     if (!in_array($item['id'], $array_intersect)) {
-                        DB::table('staff_labels')->insert(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
+                        DB::table('staff_service_crowds')->insert(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
                     // 更新
                     } else {
-                        DB::table('staff_labels')->where('id', $item['id'])->update(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
+                        DB::table('staff_service_crowds')->where('id', $item['id'])->update(['staff_id'=>$staffId,'service_crowd_id'=>$item['service_crowd_id'],'name'=>$item['name']]);
                     }
                 });
             }
@@ -362,117 +523,44 @@ class StaffService
         return true;
     }
 
-    /**
-     * 保存员工证件
-     *
-     * @param array $papers
-     * @param int $staffId
-     * @return boolean
-     */
-    private function saveStaffPaper($paper, $formId, $staffId)
+    private function saveStaffServiceType($type, $formId, $staffId)
     {
+        // 如果为添加表单
         if (empty($formId)) {
-            if (!empty($paper)) {
-                array_walk($paper, function (&$item) use ($staffId, $formId){
-                    // 插入照片标签表
-                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'paper_category_name'=>$item['paper_category_name']]);
-                    // 获得插入id
-                    $insertId = DB::getPdo()->lastInsertId();
-
-                    $this->savePaper($item['images'], $formId, $insertId);
+            if (!empty($type)) {
+                array_walk($type, function (&$item) use ($staffId){
+                    DB::table('staff_service_types')->insert(['staff_id'=>$staffId,'service_type_id'=>$item['service_type_id'],'name'=>$item['name']]);
                 });
             }
+        // 如果为编辑表单
         } else {
-            $paperIds = array_column($paper, 'paper_category_id');
+            $typeIds = array_column($type, 'id');
             // 原关系id集合
-            $original_paperIds = DB::table('staff_papers')->select('paper_category_id')->where('staff_id', $staffId)->groupBy('paper_category_id')->pluck('paper_category_id')->toArray();
+            $original_typeIds = DB::table('staff_service_types')->select('id')->where('staff_id', $staffId)->pluck('id')->toArray();
             // 原关系数组与新数组交集
-            $array_intersect = array_intersect($paperIds, $original_paperIds);
+            $array_intersect = array_intersect($typeIds, $original_typeIds);
             // 需要删除的标签id
-            $delete_paperIds = array_diff($original_paperIds, $array_intersect);
-            
-            if (!empty($delete_paperIds)) {
-                
-                // 获取要删除的图片id
-                $delete_staff_paper_id = DB::table('staff_papers')->select('id')->whereIn('paper_category_id', $delete_paperIds)->where('staff_id',$staffId)->pluck('id');
-                // 获取要删除的地址
-                $delete_url = DB::table('staff_paper_images')->select('url')->whereIn('staff_paper_id', $delete_staff_paper_id)->pluck('url')->toArray();
-                // 逻辑删除员工证书表
-                DB::table('staff_papers')->whereIn('id',$delete_staff_paper_id)->delete();
-                // 删除images表
-                DB::table('staff_paper_images')->whereIn('staff_paper_id', $delete_staff_paper_id)->delete();
-                // 删除图片
-                array_walk($delete_url, function ($item) {
-                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
-                        unlink(config('config.disks.resource.root') . '/' .$item);
-                    }
-                });
+            $delete_typeIds = array_diff($original_typeIds, $array_intersect);
+            // 物理删除员工标签表
+            if (!empty($delete_typeIds)) {
+                DB::table('staff_service_types')->whereIn('id', $delete_typeIds)->delete();
             }
-            array_walk($paper, function (&$item) use ($staffId, $formId, $array_intersect){
-                if (!isset($item['paper_category_id'])) {
-                    // 插入照片标签表
-                    DB::table('staff_papers')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'paper_category_name'=>$item['paper_category_name']]);
-                    // 获得插入id
-                    $insertId = DB::getPdo()->lastInsertId();
-                    // 执行一遍保存图片
-                    $this->savePaper($item['images'], $formId, $insertId);
-                } else {
-                    $insertId = DB::table('staff_papers')->select('id')->where(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id']])->first()->id;
-                    // 执行一遍保存图片
-                    $this->savePaper($item['images'], $formId, $insertId);
-                }
-            });
-        }
-        return true;
-    }
-
-    private function savePaper($images, $formId, $insertId)
-    {
-        if (empty($formId)) {
-            if (!empty($images)) {
-                array_walk($images, function (&$item) use ($insertId){
-                    // 移动图片
-                    $url = move_upload_file($item['path'], 'paper');
-                    // 更新数据库
-                    DB::table('staff_paper_images')->insert(['staff_paper_id'=>$insertId,'name'=>$item['name'],'url'=> $url]);
-                });
-            }
-        } else {
-            $imageIds = array_column($images, 'id');
-            // 原关系id集合
-            $original_imageIds = DB::table('staff_paper_images')->select('id')->where('staff_paper_id',$insertId)->pluck('id')->toArray();
-            // 原关系数组与新数组交集
-            $array_intersect = array_intersect($imageIds, $original_imageIds);
-            // 需要删除的标签id
-            $delete_imageIds = array_diff($original_imageIds, $array_intersect);
-            if (!empty($delete_imageIds)) {
-                // 获取要删除的地址
-                $delete_url = DB::table('staff_paper_images')->select('url')->whereIn('id', $delete_imageIds)->pluck('url')->toArray();
-                // 逻辑删除员工标签表
-                DB::table('staff_paper_images')->whereIn('id', $delete_imageIds)->delete();
-                // 删除图片
-                array_walk($delete_url, function ($item) {
-                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
-                        unlink(config('config.disks.resource.root') . '/' .$item);
-                    }
-                });
-            }
-            if (!empty($images)) {
-                // 创建和添加
-                array_walk($images, function (&$item) use ($insertId, $array_intersect){
+            if (!empty($type)) {
+                array_walk($type, function (&$item) use ($staffId, $array_intersect){
                     if (!isset($item['id'])) {
                         $item['id'] = 0;
                     }
                     // 添加
                     if (!in_array($item['id'], $array_intersect)) {
-                        // 移动图片到指定位置
-                        $url = move_upload_file($item['path'], 'paper');
-
-                        DB::table('staff_paper_images')->insert(['staff_paper_id'=>$insertId,'name'=>$item['name'],'url'=> $url]);
+                        DB::table('staff_service_types')->insert(['staff_id'=>$staffId,'service_type_id'=>$item['service_type_id'],'name'=>$item['name']]);
+                    // 更新
+                    } else {
+                        DB::table('staff_service_types')->where('id', $item['id'])->update(['staff_id'=>$staffId,'service_type_id'=>$item['service_type_id'],'name'=>$item['name']]);
                     }
                 });
             }
         }
+        
         return true;
     }
 
@@ -525,6 +613,122 @@ class StaffService
     }
 
     /**
+     * 保存员工证件
+     *
+     * @param array $papers
+     * @param int $staffId
+     * @return boolean
+     */
+    private function saveStaffCertificates($certificate, $formId, $staffId)
+    {
+        if (empty($formId)) {
+            if (!empty($certificate)) {
+                array_walk($certificate, function (&$item) use ($staffId, $formId){
+                    // 插入照片标签表
+                    DB::table('staff_certificates')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'name'=>$item['paper_category_name']]);
+                    // 获得插入id
+                    $insertId = DB::getPdo()->lastInsertId();
+
+                    $this->saveImage($item['images'], $formId, $insertId);
+                });
+            }
+        } else {
+            $certificateIds = array_column($certificate, 'paper_category_id');
+            // 原关系id集合
+            $original_certificateIds = DB::table('staff_certificates')->select('paper_category_id')->where('staff_id', $staffId)->groupBy('paper_category_id')->pluck('paper_category_id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($certificateIds, $original_certificateIds);
+            // 需要删除的标签id
+            $delete_certificateIds = array_diff($original_certificateIds, $array_intersect);
+            
+            if (!empty($delete_certificateIds)) {
+                
+                // 获取要删除的图片id
+                $delete_staff_certificate_id = DB::table('staff_certificates')->select('id')->whereIn('paper_category_id', $delete_certificateIds)->where('staff_id',$staffId)->pluck('id')->toArray();
+                // 获取要删除的地址
+                $delete_url = DB::table('staff_certificate_images')->select('url')->whereIn('staff_certificate_id', $delete_staff_certificate_id)->pluck('url')->toArray();
+                // 逻辑删除员工证书表
+                DB::table('staff_certificates')->whereIn('id',$delete_staff_certificate_id)->delete();
+                // 删除images表
+                DB::table('staff_certificate_images')->whereIn('staff_certificate_id', $delete_staff_certificate_id)->delete();
+                // 删除图片
+                array_walk($delete_url, function ($item) {
+                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
+                        unlink(config('config.disks.resource.root') . '/' .$item);
+                    }
+                });
+            }
+            if (!empty($certificate)) {
+                array_walk($certificate, function (&$item) use ($staffId, $formId){
+                    if (!isset($item['id'])) {
+                        // 插入照片标签表
+                        DB::table('staff_certificates')->insert(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id'],'name'=>$item['paper_category_name']]);
+                        // 获得插入id
+                        $insertId = DB::getPdo()->lastInsertId();
+                        // 执行一遍保存图片
+                        $this->saveImage($item['images'], $formId, $insertId);
+                    } else {
+                        $insertId = DB::table('staff_certificates')->select('id')->where(['staff_id'=>$staffId,'paper_category_id'=>$item['paper_category_id']])->first()->id;
+                        // 执行一遍保存图片
+                        $this->saveImage($item['images'], $formId, $insertId);
+                    }
+                });
+            }
+        }
+        return true;
+    }
+
+    private function saveImage($images, $formId, $insertId)
+    {
+        if (empty($formId)) {
+            if (!empty($images)) {
+                array_walk($images, function (&$item) use ($insertId){
+                    // 移动图片
+                    $url = move_upload_file($item['path'], 'certificate');
+                    // 更新数据库
+                    DB::table('staff_certificate_images')->insert(['staff_certificate_id'=>$insertId,'name'=>$item['name'],'url'=> $url]);
+                });
+            }
+        } else {
+            $imageIds = array_column($images, 'id');
+            // 原关系id集合
+            $original_imageIds = DB::table('staff_certificate_images')->select('id')->where('staff_certificate_id',$insertId)->pluck('id')->toArray();
+            // 原关系数组与新数组交集
+            $array_intersect = array_intersect($imageIds, $original_imageIds);
+            // 需要删除的标签id
+            $delete_imageIds = array_diff($original_imageIds, $array_intersect);
+            if (!empty($delete_imageIds)) {
+                // 获取要删除的地址
+                $delete_url = DB::table('staff_certificate_images')->select('url')->whereIn('id', $delete_imageIds)->pluck('url')->toArray();
+                // 逻辑删除员工标签表
+                DB::table('staff_certificate_images')->whereIn('id', $delete_imageIds)->delete();
+                // 删除图片
+                array_walk($delete_url, function ($item) {
+                    if (file_exists(config('config.disks.resource.root') . '/' .$item) && $item != '') {
+                        unlink(config('config.disks.resource.root') . '/' .$item);
+                    }
+                });
+            }
+            if (!empty($images)) {
+                // 创建和添加
+                array_walk($images, function (&$item) use ($insertId, $array_intersect){
+                    if (!isset($item['id'])) {
+                        $item['id'] = 0;
+                    }
+                    // 添加
+                    if (!in_array($item['id'], $array_intersect)) {
+                        // 移动图片到指定位置
+                        $url = move_upload_file($item['path'], 'certificate');
+
+                        DB::table('staff_certificate_images')->insert(['staff_certificate_id'=>$insertId,'name'=>$item['name'],'url'=> $url]);
+                    }
+                });
+            }
+        }
+        return true;
+    }
+
+    /**
      * 逻辑删除员工
      *
      * @param int $id 员工id
@@ -560,5 +764,21 @@ class StaffService
         write_log($accessToken, $log);
 
         return $returnMsg;
+    }
+
+    public function checkStaffName($id, $name)
+    {
+        $names = Staff::select(['id','name'])->where('id','!=',$id)->where('name','like',$name.'%')->get()->toArray();
+        
+        if (!empty($names)) {
+            $data['isRepeat'] = 1;
+            $data['count'] = count($names);
+            $data['names'] = $names;
+        } else {
+            $data['isRepeat'] = 0;
+            $data['count'] = 0;
+            $data['names'] = [];
+        }
+        return $data;
     }
 }

@@ -61,6 +61,8 @@ Route::group(['prefix' => 'staff', 'middleware' => ['admin']], function () {
     Route::post('/editStaff', 'StaffController@editStaff');
     // 停用/启用服务人员
     Route::post('/changeStaffStatus', 'StaffController@changeStaffStatus');
+
+    Route::post('/checkStaffName', 'StaffController@checkStaffName');
 });
 // 订单模块
 Route::group(['prefix' => 'order', 'middleware' => ['admin']], function () {

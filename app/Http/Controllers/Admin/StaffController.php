@@ -26,7 +26,7 @@ class StaffController extends Controller
         // 服务分类id
         $params['service_category_id'] = (int)trim($request->input('service_category_id', 0));
         // 能力标签id集合
-        $params['ability_ids'] = $request->input('ability_ids', array());
+        $params['service_crowd_ids'] = $request->input('service_crowd_ids', array());
         // 服务地址id集合
         $params['region_ids'] = $request->input('region_ids', array());
         // 根据证件类型查询
@@ -70,20 +70,16 @@ class StaffController extends Controller
             send_msg_json(ERROR_RETURN, "请传入服务人员id");
         }
         // 工作人员信息
-        $staff = $staffService->getStaffById($id)->toArray();
-        // 证书
-        $paper = $staffService->getPaperByStaffId($id);
-        // 能力
-        $label = $staffService->getLabelByStaffId($id)->toArray();
-        // 技能标签材料证明集合
-        $skill = $staffService->getSkillByStaffId($id)->toArray();
-        // 服务地区
-        $region = $staffService->getRegionByStaffId($id)->toArray();
+        $staff = $staffService->getStaffById($id);
 
-        $staff['paper'] = $paper;
-        $staff['label'] = $label;
-        $staff['skill'] = $skill;
-        $staff['region'] = $region;
+        $staff['course'] = $staffService->getCourseById($id);
+        $staff['paper'] = $staffService->getPaperById($id);
+        $staff['photo'] = $staffService->getPhotoById($id);
+        $staff['region'] = $staffService->getRegionById($id);
+        $staff['service_crowd'] = $staffService->getServiceCrowdsById($id);
+        $staff['service_type'] = $staffService->getServiceTypesById($id);
+        $staff['skill'] = $staffService->getSkillById($id);
+        $staff['certificate'] = $staffService->getCertificateById($id);
         
         return send_msg_json(SUCCESS_RETURN, "success", $staff);
     }
@@ -117,8 +113,6 @@ class StaffController extends Controller
         $params['working_status'] = (int)trim($request->input('working_status', 0));
         // 备注
         $params['remarks'] = trim($request->input('remarks', ''));
-        // 服务类型
-        $params['service_type'] = (int)trim($request->input('service_type', 0));
         // 工龄
         $params['working_age'] = (int)trim($request->input('working_age', 0));
         // 工作经验
@@ -139,53 +133,58 @@ class StaffController extends Controller
         $params['bank_card'] = trim($request->input('bank_card', ''));
         // 服务人员头像
         $params['icon'] = trim($request->input('icon', ''));
-        // 培训课程
-        $params['course'] = (int)trim($request->input('course', 0));
         // 信息来源
         $params['source'] = (int)trim($request->input('source', 0));
         // 服务人员性别
         $params['sex'] = (int)trim($request->input('sex', 1));
         // 操作版本号
         $params['version'] = (int)trim($request->input('version', 0));
-        // 服务地区
-        $params['region'] = $request->input('region', array());
-        // 证书(数组)
+        // 培训课程（数组）
+        $params['course'] = $request->input('course', array());
+        // 证书（数组）
         $params['paper'] = $request->input('paper', array());
-        // 服务人群标签(数组)
-        $params['label'] = $request->input('label', array());
-        // 技能(数组)
+        // 照片（数组）
+        $params['photo'] = $request->input('photo', array());
+        // 服务地区（数组）
+        $params['region'] = $request->input('region', array());
+        // 服务人群标签（数组）
+        $params['service_crowd'] = $request->input('service_crowd', array());
+        // 服务类型标签（数组）
+        $params['service_type'] = $request->input('service_type', array());
+        // 技能（数组）
         $params['skill'] = $request->input('skill', array());
 
-        if ($params['name'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
-        }
-        if ($params['phone'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员手机");
-        }
-        // 身份证号
-        if ($params['identify'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
-        }
-        if (!verify_identity($params['identify'])) {
-            send_msg_json(ERROR_RETURN, "身份证号格式错误");
-        }
-        // 验证手机号格式
-        if (!verify_phone($params['phone'])) {
-            send_msg_json(ERROR_RETURN, "手机号格式错误");
-        }
-        if ($params['address'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
-        }
-        if ($params['bank_card'] == '') {
-            send_msg_json(ERROR_RETURN, "请填写银行卡号");
-        }
-        // 验证银行卡号
-        if (!verify_bank_card($params['bank_card'])) {
-            send_msg_json(ERROR_RETURN, "银行卡号格式错误");
-        }
-        if (empty($params['age'])) {
-            send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
-        }
+        $params['certificate'] = $request->input('certificate', array());
+        // if ($params['name'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员姓名");
+        // }
+        // if ($params['phone'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员手机");
+        // }
+        // // 身份证号
+        // if ($params['identify'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员身份证号");
+        // }
+        // if (!verify_identity($params['identify'])) {
+        //     send_msg_json(ERROR_RETURN, "身份证号格式错误");
+        // }
+        // // 验证手机号格式
+        // if (!verify_phone($params['phone'])) {
+        //     send_msg_json(ERROR_RETURN, "手机号格式错误");
+        // }
+        // if ($params['address'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员现住址");
+        // }
+        // if ($params['bank_card'] == '') {
+        //     send_msg_json(ERROR_RETURN, "请填写银行卡号");
+        // }
+        // // 验证银行卡号
+        // if (!verify_bank_card($params['bank_card'])) {
+        //     send_msg_json(ERROR_RETURN, "银行卡号格式错误");
+        // }
+        // if (empty($params['age'])) {
+        //     send_msg_json(ERROR_RETURN, "请填写服务人员年龄");
+        // }
         $return = $staffService->saveStaff($params, $accessToken);
         
         // 编写操作日志
@@ -219,5 +218,25 @@ class StaffController extends Controller
         $returnMsg = $staffService->changeStaffStatus($id, $version,$accessToken);
 
         return send_msg_json(SUCCESS_RETURN, $returnMsg);
+    }
+
+    public function checkStaffName(Request $request)
+    {
+        $staffService = new StaffService;
+        // 服务人员id
+        $id = (int)trim($request->input('id', 0));
+        // 服务人员姓名
+        $name = trim($request->input('name', ''));
+
+        if ($name == '') {
+            send_msg_json(ERROR_RETURN, "请输入姓名");
+        }
+
+        $result = $staffService->checkStaffName($id, $name);
+        if ($result['isRepeat'] == 1) {
+            send_msg_json(ERROR_RETURN, "该姓名已重复", $result);
+        } else {
+            return send_msg_json(SUCCESS_RETURN, '不重复');
+        }
     }
 }
