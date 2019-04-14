@@ -44,6 +44,9 @@ class StaffService
                 if ($params['name']) {
                     $query->where('name','like','%'.$params['name'].'%');
                 }
+                if ($params['phone']) {
+                    $query->where('phone','like', '%'.$params['phone'].'%');
+                }
                 if ($params['staff_code']) {
                     $query->where('code','like','%'.$params['staff_code'].'%');
                 }

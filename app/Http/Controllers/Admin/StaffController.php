@@ -21,6 +21,8 @@ class StaffController extends Controller
         $params['get_for'] = trim($request->input('get_for','staff'));
         // 服务人员姓名
         $params['name'] = trim($request->input('name',''));
+        // 手机号
+        $params['phone'] = trim($request->input('phone',''));
         // 员工号
         $params['staff_code'] = trim($request->input('staff_code',''));
         // 服务分类id

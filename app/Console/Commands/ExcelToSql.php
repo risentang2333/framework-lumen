@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 exec("CHCP 65001");
+ini_set( 'display_errors', 'off' );
 class ExcelToSql extends Command
 {
     // 认证状态数组
@@ -167,7 +168,7 @@ class ExcelToSql extends Command
                     // 姓名
                     $params['name'] = !empty($value[3]) ? $value[3] : '';
                     // 年龄
-                    $params['age'] = !empty($value[4]) ? $value[4] : '';
+                    $params['age'] = !empty($value[4]) ? $value[4] : 0;
                     // 电话
                     $params['phone'] = !empty($value[5]) ? $value[5] : '';
                     // 回访信息
@@ -276,7 +277,7 @@ class ExcelToSql extends Command
                     // 银行卡号
                     $params['bank_card'] = !empty($value[21]) ? $value[21] : '';
                     // 头像?????
-                    $params['icon'] = !empty($value[22]) ? $value[22] : '';
+                    // $params['icon'] = !empty($value[22]) ? $value[22] : '';
                     // 参加培训
                     $params['course'] = [];
                     if (empty($value[23])) {
@@ -317,15 +318,21 @@ class ExcelToSql extends Command
                     }
                     // 创建时间
                     $params['created_at'] = strtotime($value[29]);
-                    // print_r($params);
+                    // print_r($params);exit;
                     DB::transaction(function() use ($params){
-                        DB::table('staff')->insert(['register_at'=>$params['register_at'],'authentication'=>$params['authentication'],'name'=>$params['name'],'age'=>$params['age'],'phone'=>$params['phone'],'return_msg'=>$params['return_msg'],'working_status'=>$params['working_status'],'remarks'=>$params['remarks'],'working_age'=>$params['working_age'],'working_experience'=>$params['working_experience'],'nation'=>$params['nation'],'birthplace'=>$params['birthplace'],'identify'=>$params['identify'],'address'=>$params['address'],'education'=>$params['education'],'urgent_phone'=>$params['urgent_phone'],'bank_card'=>$params['bank_card'],'source'=>$params['source'],'created_at'=>$params['created_at']]);
+                        try {
+                            DB::table('staff')->insert(['register_at'=>$params['register_at'],'authentication'=>$params['authentication'],'name'=>$params['name'],'age'=>$params['age'],'phone'=>$params['phone'],'return_msg'=>$params['return_msg'],'working_status'=>$params['working_status'],'remarks'=>$params['remarks'],'working_age'=>$params['working_age'],'working_experience'=>$params['working_experience'],'nation'=>$params['nation'],'birthplace'=>$params['birthplace'],'identify'=>$params['identify'],'address'=>$params['address'],'education'=>$params['education'],'urgent_phone'=>$params['urgent_phone'],'bank_card'=>$params['bank_card'],'source'=>$params['source'],'created_at'=>$params['created_at']]);
+                        } catch (\Throwable $th) {
+                            print_r($params);
+
+                            throw $th;
+                        }
 
                         $id = DB::getPdo()->lastInsertId();
 
                         // 根据订单id设置订单号
                         $code = sprintf("%05d", $id);
-                        $staff->code = $code;
+                       
                         DB::table('staff')->where('id',$id)->update(['code'=>$code,'manager_id'=>1,'manager_name'=>'超级管理员']);
                         
                         if (!empty($params['skill'])) {
@@ -361,7 +368,7 @@ class ExcelToSql extends Command
                         if (!empty($params['paper'])) {
                             array_walk($params['paper'], function (&$item) use ($id){
                                 // 更新数据库
-                                DB::table('staff_papers')->insert(['staff_id'=>$id,'paper_category_id'=>$item->id,'paper_category_name'=> $item->name]);
+                                DB::table('staff_papers')->insert(['staff_id'=>$id,'paper_category_id'=>$item->id,'name'=> $item->name]);
                             });
                         }
                     });
