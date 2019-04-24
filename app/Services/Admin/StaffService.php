@@ -44,9 +44,11 @@ class StaffService
                 if ($params['name']) {
                     $query->where('name','like','%'.$params['name'].'%');
                 }
+                // 电话
                 if ($params['phone']) {
                     $query->where('phone','like', '%'.$params['phone'].'%');
                 }
+                // 员工编号
                 if ($params['staff_code']) {
                     $query->where('code','like','%'.$params['staff_code'].'%');
                 }
@@ -273,7 +275,7 @@ class StaffService
             // 如果为创建添加员工号
             if (empty($params['id'])) {
                 // 根据订单id设置订单号
-                $code = sprintf("%05d", $staff->id);
+                $code = sprintf("%06d", $staff->id);
                 $staff->code = $code;
                 $staff->save();
             }

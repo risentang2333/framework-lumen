@@ -331,7 +331,7 @@ class ExcelToSql extends Command
                         $id = DB::getPdo()->lastInsertId();
 
                         // 根据订单id设置订单号
-                        $code = sprintf("%05d", $id);
+                        $code = sprintf("%06d", $id);
                        
                         DB::table('staff')->where('id',$id)->update(['code'=>$code,'manager_id'=>1,'manager_name'=>'超级管理员']);
                         
